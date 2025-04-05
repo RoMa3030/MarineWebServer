@@ -6,6 +6,7 @@
     <title>Grid Layout</title>
     <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}">
     <link rel="icon" href="{{ url_for('static', path='/favicon.ico') }}">
+    <script src="{{ url_for('static', path='/js/gauges.js') }}"></script>  <!-- must be added BEFORE dashbord.js -->
     <script src="{{ url_for('static', path='/js/dashboard.js') }}"></script>
 </head>
 <body>
@@ -13,13 +14,13 @@
         <div class="grid">
             <div class="card">
                 <p class="instance_designator"> Engine 1</p>
-                <p class="number" id="dtfld_01">--- RPM</p>
+                <p id="dtfld_01" class="number">--- RPM</p>
                 <p class="label">Engine Speed</p>
             </div>
             
             <div class="card">
                 <p class="instance_designator"> Engine 1</p>
-                <p class="number">82 °C</p>
+                <div id="temp-gauge" class="gauge-container"></div>
                 <p class="label">Coolant Temperature</p>
             </div>
             
