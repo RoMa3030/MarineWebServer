@@ -9,13 +9,6 @@ import time
 
 import engine_data_reader
 
-#---------------------------------------------------------------
-# Shaed data storage
-engine_data = {
-    "rpm": 1234,
-    "coolant_temp": 56,
-    "fuel-level": 89
-}
 
 app = FastAPI()
 
@@ -36,9 +29,16 @@ def read_root(request: Request):
 def startup_event():
     engine_data_thread = threading.Thread(target=engine_data_reader.read_engine_data, daemon=True)
     engine_data_thread.start()
+    
+
+@app.get("/favicon.ico")
+async def favicon():
+    return FileResponse("static/favicon.ico")
 
 
-
+@app.get("/api/engine-data")
+def get_engine_data():
+    return engine_data_reader.engine_data
 
 
 

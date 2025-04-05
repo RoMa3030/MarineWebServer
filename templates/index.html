@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grid Layout</title>
     <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', path='/favicon.ico') }}">
+    <script src="{{ url_for('static', path='/js/dashboard.js') }}"></script>
 </head>
 <body>
     <div class="container">        
         <div class="grid">
             <div class="card">
                 <p class="instance_designator"> Engine 1</p>
-                <p class="number">1'250 RPM</p>
+                <p class="number" id="dtfld_01">--- RPM</p>
                 <p class="label">Engine Speed</p>
             </div>
             

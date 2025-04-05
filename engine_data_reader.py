@@ -11,11 +11,9 @@ engine_data = {
 
 def read_engine_data():
 	while True:
-		print("Sensor data update")
+		engine_data["rpm"] += 1
+		print(f"RPM = {engine_data['rpm']}")
 		time.sleep(1)
-
-
-
 
 
 
