@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid Layout</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body>
+    <div class="container">        
+        <div class="grid">
+            <div class="card">
+                <p class="instance_designator"> Engine 1</p>
+                <p class="number">1'250 RPM</p>
+                <p class="label">Engine Speed</p>
+            </div>
+            
+            <div class="card">
+                <p class="instance_designator"> Engine 1</p>
+                <p class="number">82 °C</p>
+                <p class="label">Coolant Temperature</p>
+            </div>
+            
+            <div class="card">
+                <p class="instance_designator"> Engine 1</p>
+                <p class="number">2.4 bar</p>
+                <p class="label">Oil Pressure</p>
+            </div>
+            
+            <div class="card">
+                <p class="instance_designator"> Engine 1</p>
+                <p class="number">1.2 bar</p>
+                <p class="label">Boost Pressure</p>
+            </div>
+            
+            <div class="card">
+                <p class="instance_designator"> Tank 1</p>
+                <p class="number">45 %</p>
+                <p class="label">Fuel Level</p>
+            </div>
+            
+            <div class="card">
+                <p class="instance_designator"> Tank 1</p>
+                <p class="number">93 %</p>
+                <p class="label">Fresh Water</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
