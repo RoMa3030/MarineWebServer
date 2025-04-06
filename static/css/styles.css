@@ -26,7 +26,7 @@ body {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 30px;
+    padding: 10px;
     text-align: center;
     transition: transform 0.3s ease;
     display: flex;
@@ -35,20 +35,20 @@ body {
 }
 
 .instance_designator {
-    font-size: 1.2rem;
+    font-size: 2rem;
     color: #7f8c8d;
     margin: 0;
 }
 
 .number {
-    font-size: 5rem;
+    font-size: 6rem;
     font-weight: bold;
     margin: 4px;
     color: #2c3e50;
 }
 
 .label {
-    font-size: 1.5rem;
+    font-size: 2.2rem;
     color: #7f8c8d;
     margin-top: 15px;
 }
@@ -61,7 +61,7 @@ h1 {
 
 .gauge-container {
     width: 100%;
-    height: 150px;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;

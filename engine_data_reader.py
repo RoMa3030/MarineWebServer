@@ -12,7 +12,11 @@ engine_data = {
 def read_engine_data():
 	while True:
 		engine_data["rpm"] += 1
+		engine_data["coolant_temp"] += 1
+		if (engine_data["coolant_temp"] >= 120):
+			engine_data["coolant_temp"] = 50
 		print(f"RPM = {engine_data['rpm']}")
+		print(f"Coolant = {engine_data['coolant_temp']}")
 		time.sleep(1)
 
 

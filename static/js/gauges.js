@@ -1,78 +1,128 @@
-function createGauge(containerId, value, min, max, title, unit) {
-    // Calculate angle based on value
-    const percentage = (value - min) / (max - min);
-    const angle = percentage * 240 - 120; // 240 degree sweep, starting at -120
+function createGauge(containerId, value, min, max, unit, instanceTitle, valueDescr) {
+    
+    // get required information about size
+    const container = document.getElementById(containerId);
+    const archThickness = 30;
 
-    // Create SVG elements
-    const svgNS = "http://www.w3.org/2000/svg";
-    const svg = document.createElementNS(svgNS, "svg");
-    svg.setAttribute("viewBox", "0 0 100 100");
-    svg.setAttribute("class", "gauge");
+    const [gaugeBaseHight, centerX, radius] = calculateGaugeDimensions(containerId);
 
-    // Background circle
-    const bgCircle = document.createElementNS(svgNS, "circle");
-    bgCircle.setAttribute("cx", "50");
-    bgCircle.setAttribute("cy", "50");
-    bgCircle.setAttribute("r", "45");
-    bgCircle.setAttribute("fill", "none");
-    bgCircle.setAttribute("stroke", "#ddd");
-    bgCircle.setAttribute("stroke-width", "10");
-    svg.appendChild(bgCircle);
+    // prepare SVG object
+    const svgns = "http://www.w3.org/2000/svg";
+    const gaugeSvg = document.createElementNS(svgns, "svg");
+    gaugeSvg.setAttribute("width", container.clientWidth);
+    gaugeSvg.setAttribute("height", container.clientHeight);
+    gaugeSvg.setAttribute("viewBox", `0 0 ${container.clientWidth} ${container.clientHeight}`);
 
-    // Value arc
-    const arcX = 50 + 45 * Math.cos(angle * Math.PI / 180);
-    const arcY = 50 + 45 * Math.sin(angle * Math.PI / 180);
-    const largeArcFlag = angle > 0 ? 1 : 0;
-    const path = document.createElementNS(svgNS, "path");
-    path.setAttribute("d", `M50,50 L50,5 A45,45 0 ${largeArcFlag},1 ${arcX},${arcY} L50,50`);
-    path.setAttribute("fill", "#0077cc");
-    path.setAttribute("id", `${containerId}-path`);
-    svg.appendChild(path);
+    // draw background demi circle
+    const bgDemiCircle = document.createElementNS(svgns, "path");
+    gaugeSvg.appendChild(bgDemiCircle);
+    drawGaugeArc(bgDemiCircle, gaugeBaseHight, centerX, radius, 100, "grey", archThickness);
+    
+    // draw indicator demi circle
+    const indicator = document.createElementNS(svgns, "path");
+    indicator.setAttribute("id", `${containerId}-indicator`);        // define id, so this element can be updated in other function
+    const percentage = getIndicatorPercentage(value, min, max);
+    /*console.log("Min / Max: ", min, " / ", max);
+    console.log("value: ", value);
+    console.log("percentage = ", percentage);*/
+    gaugeSvg.appendChild(indicator);
+    drawGaugeArc(indicator, gaugeBaseHight, centerX, radius, percentage, "blue", archThickness);
 
-    // Center dot
-    const centerDot = document.createElementNS(svgNS, "circle");
-    centerDot.setAttribute("cx", "50");
-    centerDot.setAttribute("cy", "50");
-    centerDot.setAttribute("r", "5");
-    centerDot.setAttribute("fill", "#333");
-    svg.appendChild(centerDot);
+    // instance title
+    const titleText = document.createElementNS(svgns, "text");
+    const titleFontSize = "2rem";
+    titleText.setAttribute("text-anchor", "middle");
+    titleText.setAttribute("x", centerX);
+    titleText.setAttribute("y", (gaugeBaseHight - radius - 18));
+    titleText.setAttribute("font-size", titleFontSize);
+    titleText.setAttribute("font-family", "Arial");
+    titleText.setAttribute("fill", "#7f8c8d");
+    titleText.textContent = instanceTitle;
+    gaugeSvg.appendChild(titleText);
+
 
     // Value text
-    const valueText = document.createElementNS(svgNS, "text");
-    valueText.setAttribute("x", "50");
-    valueText.setAttribute("y", "65");
+    const valueText = document.createElementNS(svgns, "text");
+    const valueFontSize = "6rem";
     valueText.setAttribute("text-anchor", "middle");
-    valueText.setAttribute("font-size", "15");
+    valueText.setAttribute("x", centerX);
+    valueText.setAttribute("y", gaugeBaseHight-24);
+    valueText.setAttribute("font-size", valueFontSize);
+    valueText.setAttribute("fill", "#2c3e50");
+    valueText.setAttribute("font-weight", "bold");
     valueText.setAttribute("id", `${containerId}-value`);
-    valueText.textContent = value + (unit ? ' ' + unit : '');
-    svg.appendChild(valueText);
+    valueText.textContent = value + (unit ? ' ' + unit : '');   // add unit only, if valid string is defined
+    gaugeSvg.appendChild(valueText);
 
-    // Title text
-    const titleText = document.createElementNS(svgNS, "text");
-    titleText.setAttribute("x", "50");
-    titleText.setAttribute("y", "80");
-    titleText.setAttribute("text-anchor", "middle");
-    titleText.setAttribute("font-size", "8");
-    titleText.textContent = title;
-    svg.appendChild(titleText);
+    
+    // Value desceription
+    const valueTitleText = document.createElementNS(svgns, "text");
+    const descrFontSize = "2.2rem";
+    valueTitleText.setAttribute("text-anchor", "middle");
+    valueTitleText.setAttribute("x", centerX);
+    valueTitleText.setAttribute("y", (gaugeBaseHight + 30));
+    valueTitleText.setAttribute("font-size", descrFontSize);
+    valueTitleText.setAttribute("font-family", "Arial");
+    valueTitleText.setAttribute("fill", "#7f8c8d");
+    valueTitleText.textContent = valueDescr;
+    gaugeSvg.appendChild(valueTitleText);
 
     // Clear and add to container
-    const container = document.getElementById(containerId);
     container.innerHTML = '';
-    container.appendChild(svg);
+    container.appendChild(gaugeSvg);
 }
-  
+
 function updateGauge(containerId, value, min, max, unit) {
     // Update value text
     const valueText = document.getElementById(`${containerId}-value`);
     valueText.textContent = value + (unit ? ' ' + unit : '');
 
-    // Update arc
-    const percentage = (value - min) / (max - min);
-    const angle = percentage * 240 - 120;
-    const arcX = 50 + 45 * Math.cos(angle * Math.PI / 180);
-    const arcY = 50 + 45 * Math.sin(angle * Math.PI / 180);
-    const largeArcFlag = angle > 0 ? 1 : 0;
-    const path = document.getElementById(`${containerId}-path`);
-    path.setAttribute("d", `M50,50 L50,5 A45,45 0 ${largeArcFlag},1 ${arcX},${arcY} L50,50`);
+    // Update indicator graphic
+    const indicator = document.getElementById(`${containerId}-indicator`);
+    const [gaugeBaseHight, centerX, radius] = calculateGaugeDimensions(containerId);
+    const percentage = getIndicatorPercentage(value, min, max);
+    drawGaugeArc(indicator, gaugeBaseHight, centerX, radius, percentage, "blue", 30);
+
+}
+
+function calculateGaugeDimensions(containerId){
+    const container = document.getElementById(containerId);
+    const containerW = container.clientWidth
+    const containerH = container.clientHeight
+    const gaugeSize = Math.min(containerW, containerH);
+    const centerX = Math.round(containerW / 2);
+    const centerY = Math.round(containerH / 2);
+
+    const radius = Math.round(gaugeSize * 0.45);
+    
+    const gaugeBaseHight = centerY + radius/4
+
+    return [gaugeBaseHight, centerX, radius];
+}
+
+function getIndicatorPercentage(value, min, max){
+    return ((value - min) / (max - min)*100);
+}
+
+
+function drawGaugeArc(arcElement, gaugeBaseHight, centerX, radius, percentage, color, archThickness){
+    const endAngle = Math.PI - (percentage / 100) * Math.PI;
+    const innerRadius = radius - archThickness;
+
+    const endX = centerX + radius * Math.cos(endAngle);
+    const endY = gaugeBaseHight - radius * Math.sin(endAngle);
+    const endXInner = centerX + innerRadius * Math.cos(endAngle);
+    const endYInner = gaugeBaseHight - innerRadius * Math.sin(endAngle);
+
+    const d = `
+        M ${centerX - radius} ${gaugeBaseHight}
+        A ${radius} ${radius} 0 0 1 ${endX} ${endY}
+        L ${endXInner} ${endYInner}
+        A ${innerRadius} ${innerRadius} 0 0 0 ${centerX - innerRadius} ${gaugeBaseHight}
+        Z
+    `;
+
+    arcElement.setAttribute("d", d);
+    arcElement.setAttribute("fill", color);
+    arcElement.setAttribute("stroke", "none");
 }

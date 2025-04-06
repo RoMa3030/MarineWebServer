@@ -32,7 +32,7 @@ function updateEngineData() {
 
             // Update/create gauges
             if (document.getElementById('temp-gauge').children.length === 0) {
-                createGauge('temp-gauge', data.coolant_temp, 40, 120, '°C', '°C');
+                createGauge('temp-gauge', data.coolant_temp, 40, 120, '°C', 'Engine 1', "Coolant Temperature");
                 // Create other gauges...
             } else {
                 updateGauge('temp-gauge', data.coolant_temp, 40, 120, '°C');
