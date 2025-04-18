@@ -2,6 +2,8 @@
 import numpy as np
 import time
 import pigpio
+import os
+import can
 
 ADC_ADDRESS = 0x48
 CONVERSION_REGISTER_ADR = 0X00
@@ -10,6 +12,7 @@ CONFIG_REGISTER_ADR = 0X01
 AIN_REGISTER_ENTRIES = [0x40, 0x50, 0x60, 0x70]		#for pin select setting on ADC
 AIN_IS_RESITIVE = [False, True, True, False]
 AIN_IS_VOLTAGE = [not value for value in AIN_IS_RESITIVE]
+RX_TIMEOUT = 10.0
 
 class engine_data_interface:
 	
@@ -28,14 +31,17 @@ class engine_data_interface:
 		self._i2c_handle = self._pi.i2c_open(1, ADC_ADDRESS)	
 		self._active_ain = -1	
 			
+		self._can0 = None
+		self.initialize_can_interface()
 			
 	def read_engine_data(self):
 		
 		while True:
-			result = self._adc_read(2)	
-			self.engine_data["rpm"] += 1
+			#result = self._adc_read(2)	
+			self._read_can()
+			"""self.engine_data["rpm"] += 1
 			print(f"RPM = {self.engine_data['rpm']}")
-			time.sleep(1)
+			time.sleep(1)"""
 
 
 	def _adc_read(self, ain):
@@ -130,10 +136,21 @@ class engine_data_interface:
 	
 	
 	def initialize_can_interface(self):
+		os.system('sudo ip link set can0 type can bitrate 250000')
+		os.system('sudo ifconfig can0 up')
+		
+		self._can0 = can.interface.Bus(channel = 'can0', interface = 'socketcan')
+		
 		print("CAN interface initialized")
 		
+	def _read_can(self):
+		msg = self._can0.recv(RX_TIMEOUT)
+		if msg:
+			print(msg)
+			
 		
 	def shutdown(self):
 		self._pi.i2c_close(self._i2c_handle)
 		self._pi.stop()
+		os.system('sudo ifconfig can0 down')
 		print("Engine Data Reader shutting down")
