@@ -3,18 +3,16 @@ import numpy as np
 import time
 import pigpio
 
-
 ADC_ADDRESS = 0x48
 CONVERSION_REGISTER_ADR = 0X00
 CONFIG_REGISTER_ADR = 0X01
 
-AIN_REGISTER_ENTRIES = [0x40, 0x50, 0x60, 0x70]
+AIN_REGISTER_ENTRIES = [0x40, 0x50, 0x60, 0x70]		#for pin select setting on ADC
 AIN_IS_RESITIVE = [False, True, True, False]
 AIN_IS_VOLTAGE = [not value for value in AIN_IS_RESITIVE]
 
-
 class engine_data_interface:
-
+	
 	def __init__(self):
 		self.engine_data = {
 			"rpm": 1234,
@@ -30,10 +28,11 @@ class engine_data_interface:
 		self._i2c_handle = self._pi.i2c_open(1, ADC_ADDRESS)	
 		self._active_ain = -1	
 			
+			
 	def read_engine_data(self):
 		
 		while True:
-			result = self._adc_read(0)	
+			result = self._adc_read(2)	
 			self.engine_data["rpm"] += 1
 			print(f"RPM = {self.engine_data['rpm']}")
 			time.sleep(1)
@@ -65,6 +64,7 @@ class engine_data_interface:
 			
 		return measurement	
 		
+		
 	def _activate_ain(self, ain):
 		if ain < 0 or ain > 3:
 			print("Tried to activate an invalid AIN")
@@ -93,6 +93,7 @@ class engine_data_interface:
 			
 		return success
 		
+		
 	def _get_current_ADS1015_reading(self):
 		try:		
 			count, data = self._pi.i2c_read_device(self._i2c_handle, 2)
@@ -111,17 +112,21 @@ class engine_data_interface:
 			
 		return(True, raw_adc_val)
 		
-	def _adc_reading_2_ohm(self, adc_val):
+		
+	def _adc_reading_2_volt(self, adc_val):
 		adc_voltage = adc_val * 0.0015
 		sensor_voltage = adc_voltage*57/47	# due to input circuit with voltage divider
 		return sensor_voltage
 		
 		
-	def _adc_reading_2_volt(self, adc_val):
-		# ToDo : Implement calculation
+	def _adc_reading_2_ohm(self, adc_val):
 		adc_voltage = adc_val * 0.0015
-		resistance = adc_voltage*57/47	# this is absolutely wrong and just a placeholder !!!!!!!!!!!!!!!!!!
-		return resistance
+		R_sens = (5*51.1-adc_voltage*(51.1+511)) / (adc_voltage-5)
+		if R_sens < 0:
+			R_sens = 0
+		#print(f"adc voltage: {adc_voltage:.3f}")
+		#print(f"Sensor Resistance: {R_sens:.3f}")		
+		return R_sens
 	
 	
 	def initialize_can_interface(self):
