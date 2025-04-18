@@ -8,13 +8,17 @@ import uvicorn
 import threading
 import time
 
-import engine_data_reader
+from engine_data_reader import engine_data_interface
+import pigpio
+import signal
+
+engine_interface = engine_data_interface()
 
 #----------------------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("starting up engine data reader :) ")
-    engine_data_thread = threading.Thread(target=engine_data_reader.read_engine_data, daemon=True)
+    engine_data_thread = threading.Thread(target=engine_interface.read_engine_data, daemon=True)
     engine_data_thread.start()
     yield
     
@@ -39,13 +43,15 @@ async def favicon():
 
 @app.get("/api/engine-data")
 def get_engine_data():
-    return engine_data_reader.engine_data
+    return engine_interface.engine_data
 
 
 #----------------------------------------------------------------------------------------
-
-
+def signal_handler(sig, frame):
+    print("Signalhandler caught shutdown signal")
+    engine_interface.shutdown()
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal_handler)
     uvicorn.run(app, host="0.0.0.0", port=8000)
     

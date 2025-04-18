@@ -1,25 +1,134 @@
 
 import numpy as np
 import time
-
-# Shaed data storage
-engine_data = {
-    "rpm": 1234,
-    "coolant_temp": 56,
-    "fuel-level": 89
-}
-
-def read_engine_data():
-	while True:
-		engine_data["rpm"] += 1
-		print(f"RPM = {engine_data['rpm']}")
-		time.sleep(1)
+import pigpio
 
 
+ADC_ADDRESS = 0x48
+CONVERSION_REGISTER_ADR = 0X00
+CONFIG_REGISTER_ADR = 0X01
 
-def initialize_can_interface():
-	print("CAN interface initialized")
+AIN_REGISTER_ENTRIES = [0x40, 0x50, 0x60, 0x70]
+AIN_IS_RESITIVE = [False, True, True, False]
+AIN_IS_VOLTAGE = [not value for value in AIN_IS_RESITIVE]
+
+
+class engine_data_interface:
+
+	def __init__(self):
+		self.engine_data = {
+			"rpm": 1234,
+			"coolant_temp": 56,
+			"fuel-level": 89
+		}
+		
+		# setup I2C communication (To ADC)
+		self._pi = pigpio.pi()
+		if not self._pi.connected:
+			print("couldn't establish the PiGPIO object")
+			
+		self._i2c_handle = self._pi.i2c_open(1, ADC_ADDRESS)	
+		self._active_ain = -1	
+			
+	def read_engine_data(self):
+		
+		while True:
+			result = self._adc_read(0)	
+			self.engine_data["rpm"] += 1
+			print(f"RPM = {self.engine_data['rpm']}")
+			time.sleep(1)
+
+
+	def _adc_read(self, ain):
+		"""
+		AIN = Analog Input nr. (availables = 0-3)
+		ain0 = Voltage 1
+		ain1 = Resistive 1
+		ain2 = Resistive 2
+		ain3 = voltage 2
+		
+		returns the Value measured by the MWS in, depending on the used input, V or Ohm
+		"""
+		
+		if (self._active_ain != ain):
+			_ = self._activate_ain(ain)
+			
+		_, adc_value = self._get_current_ADS1015_reading()
+		
+		measurement = None
+		if AIN_IS_RESITIVE[ain]:
+			measurement = self._adc_reading_2_ohm(adc_value)
+			print(f"measured {measurement} Ohm")
+		else:
+			measurement = self._adc_reading_2_volt(adc_value)
+			print(f"measured {measurement} Volt")
+			
+		return measurement	
+		
+	def _activate_ain(self, ain):
+		if ain < 0 or ain > 3:
+			print("Tried to activate an invalid AIN")
+			return False
+			 
+		success = True
+		try:
+			ADC_CONFIG_Byte1 = 0xC0		# 1 | 000 | 000 | 0
+			#start single shot | Input (not defined yet) | full scale | continuous conversion
+			ADC_CONFIG_Byte1 = ADC_CONFIG_Byte1 | AIN_REGISTER_ENTRIES[ain]
+			print(f"ADC_CONFIG_Byte1 = {hex(ADC_CONFIG_Byte1)} (should: 0xC0 for AIN0)")
+			ADC_CONFIG_Byte2 = 0x83		# 100 | 0 | 0 | 0 | 11
+			# default data rate | comp mode (not used) | comp pol (not used) | comp latch (not used) | disable comparator
+			ADC_CONFIG = [ADC_CONFIG_Byte1 , ADC_CONFIG_Byte2]
+			
+			self._pi.i2c_write_device(self._i2c_handle, [CONFIG_REGISTER_ADR, ADC_CONFIG_Byte1, ADC_CONFIG_Byte2])
+			time.sleep(0.1)	
+			print("i2c - sent config")
+			self._pi.i2c_write_device(self._i2c_handle, [CONVERSION_REGISTER_ADR])
+			print("i2c - sent pointer to address config")
+			self._active_ain = ain
+			
+		except Exception as e:
+			print(f"Error occured while activating analog input: {e}")
+			success = False
+			
+		return success
+		
+	def _get_current_ADS1015_reading(self):
+		try:		
+			count, data = self._pi.i2c_read_device(self._i2c_handle, 2)
+			print(f"data: {data}")
+			print(f"data: 0x{[hex(b) for b in data]}")
+			print(f"count: {count}")			
+			raw_adc_val = data[0]*256/8 + data[1]/8	# combine bytes to int and shift 3bit to the right
+			if data[0] & 0x80:
+				print("measurment clipped to 0")
+				raw_adc_val = 0
+			print(f"raw_adc_val = {raw_adc_val}")
+			
+		except Exception as e:	
+			print(f"Error occured while reading current ADC measurement: {e}")
+			return (False, 0)
+			
+		return(True, raw_adc_val)
+		
+	def _adc_reading_2_ohm(self, adc_val):
+		adc_voltage = adc_val * 0.0015
+		sensor_voltage = adc_voltage*57/47	# due to input circuit with voltage divider
+		return sensor_voltage
+		
+		
+	def _adc_reading_2_volt(self, adc_val):
+		# ToDo : Implement calculation
+		adc_voltage = adc_val * 0.0015
+		resistance = adc_voltage*57/47	# this is absolutely wrong and just a placeholder !!!!!!!!!!!!!!!!!!
+		return resistance
 	
 	
-def shutdown():
-	print("Engine Data Reader shutting down")
+	def initialize_can_interface(self):
+		print("CAN interface initialized")
+		
+		
+	def shutdown(self):
+		self._pi.i2c_close(self._i2c_handle)
+		self._pi.stop()
+		print("Engine Data Reader shutting down")
