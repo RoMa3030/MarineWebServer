@@ -7,10 +7,11 @@ import uvicorn
 
 import threading
 import time
-
-from engine_data_reader import engine_data_interface
 import pigpio
 import signal
+
+from engine_data_reader import engine_data_interface
+import vessel_data
 
 engine_interface = engine_data_interface()
 

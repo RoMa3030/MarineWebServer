@@ -4,6 +4,8 @@ import time
 import pigpio
 import os
 import can
+import vessel_data
+import NMEA2000_handler
 
 ADC_ADDRESS = 0x48
 CONVERSION_REGISTER_ADR = 0X00
@@ -22,6 +24,9 @@ class engine_data_interface:
 			"coolant_temp": 56,
 			"fuel-level": 89
 		}
+		
+		self.data = vessel_data.vessel_data_manager()
+		self._n2k = NMEA2000_handler.n2k_handler()
 		
 		# setup I2C communication (To ADC)
 		self._pi = pigpio.pi()
@@ -146,11 +151,13 @@ class engine_data_interface:
 	def _read_can(self):
 		msg = self._can0.recv(RX_TIMEOUT)
 		if msg:
-			print(msg)
-			
+			#print(msg)
+			self._n2k.parse_message(msg)
 		
 	def shutdown(self):
 		self._pi.i2c_close(self._i2c_handle)
 		self._pi.stop()
 		os.system('sudo ifconfig can0 down')
 		print("Engine Data Reader shutting down")
+		
+		
