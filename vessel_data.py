@@ -27,6 +27,10 @@ class parameter_type(Enum):
 	BATTERY_POT = auto()
 	ALTERNATOR_POT = auto()
 	AMMETER = auto()
+	BATTERY_TEMP = auto()
+	SOC = auto()
+	SOH = auto()
+	BATTERY_AUTON = auto()
 	
 	#Level
 	FUEL_LEVEL = auto()

@@ -1,6 +1,7 @@
 from vessel_data import parameter_type
 from vessel_data import source_types
 import can
+import numpy as np
 from typing import Dict, List, Tuple
 
 MULTIFRAME_MESSAGES = [0x1F201,0x1F212]
@@ -30,12 +31,19 @@ class n2k_handler:
 			case 0x1f201:
 				msg_complete, combined_msg = self._mf_handler.add_frame(src_adr, pgn, msg_data)
 				if msg_complete:
-					print(combined_msg)
 					self._parse_0x1f201(src_adr, pgn, combined_msg)					
 			case 0x1f211:
-				self._parse_0x1f211(src_adr, pgn, msg_data)				
+				self._parse_0x1f211(src_adr, pgn, msg_data)	
+			case 0x1f212:
+				msg_complete, combined_msg = self._mf_handler.add_frame(src_adr, pgn, msg_data)
+				if msg_complete:
+					self._parse_0x1f212(src_adr, pgn, combined_msg)						
+			case 0x1f214:
+				self._parse_0x1f214(src_adr, pgn, msg_data)				
 			case 0x1fd0c:
-				self._parse_0x1fd0c(src_adr, pgn, msg_data)
+				self._parse_0x1fd0c(src_adr, pgn, msg_data)			
+			case 0x1f10d:
+				self._parse_0x1f10d(src_adr, pgn, msg_data)
 		
 
 	def _parse_0x1f200(self, src, pgn, data):
@@ -77,8 +85,8 @@ class n2k_handler:
 				source_type = source_types.NMEA2000,
 				address = src,
 				timestamp = None)
-			
-		
+	
+	
 	def _parse_0x1f201(self, src, pgn, data):
 		if len(data) < 27:
 			print("Tried to parse not-complete 1f201 message")
@@ -238,8 +246,8 @@ class n2k_handler:
 				source_type = source_types.NMEA2000,
 				address = src,
 				timestamp = None)
-			
-				
+	
+	
 	def _parse_0x1f211(self, src, pgn, data):
 		if len(data) != 8:
 			print("Tried parsing incomplete message")
@@ -305,8 +313,8 @@ class n2k_handler:
 				source_type = source_types.NMEA2000,
 				address = src,
 				timestamp = None)		
-			
-				
+	
+	
 	def _parse_0x1fd0c(self, src, pgn, data):
 		if len(data) != 8:
 			print("Tried parsing incomplete message")
@@ -332,7 +340,7 @@ class n2k_handler:
 			temp = data[3] + data[4]*2**8 + data[5]*2**16
 			temp /= 1000
 			temp -= KELVIN_OFFSET
-			print(f"Temp: {temp}")
+			#print(f"Temp: {temp}")
 			self.data_storage.store_data_point(
 				parameter=param_type,
 				instance = instance,
@@ -340,16 +348,130 @@ class n2k_handler:
 				source_type = source_types.NMEA2000,
 				address = src,
 				timestamp = None)		
-					
+	
+	
+	def _parse_0x1f10d(self, src, pgn, data):
+		instance = data[0]		
+		
+		if (self._is_not_NA([data[4], data[5]])):
+			rudder = data[4] + data[5]*256
+			print(rudder)
+			if rudder >= 2**15:
+				rudder -= 2**16
+			print(rudder)
+			rudder = rudder * 180 / (10000*np.pi)
+			
+			print(f"rudder: {rudder}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.RUDDER,
+				instance = instance,
+				value = rudder,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+	
+	
+	def _parse_0x1f214(self, src, pgn, data):
+		instance = data[0]		
+		
+		if (self._is_not_NA([data[1], data[2]])):
+			voltage = data[1] + data[2]*256
+			if voltage > 2**15:
+				voltage -= 2**16
+			voltage /= 100
+			
+			print(f"voltage: {voltage}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.BATTERY_POT,
+				instance = instance,
+				value = voltage,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+				
+		if (self._is_not_NA([data[3], data[4]])):
+			current = data[3] + data[4]*256
+			if current > 2**15:
+				current -= 2**16
+			current /= 10
+			
+			print(f"current: {current}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.AMMETER,
+				instance = instance,
+				value = current,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)		
+		
+		if (self._is_not_NA([data[5], data[6]])):
+			temp = data[5] + data[6]*256
+			temp /= 100
+			temp -= KELVIN_OFFSET
+			
+			print(f"temp: {temp}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.BATTERY_TEMP,
+				instance = instance,
+				value = temp,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+	
+	
+	def _parse_0x1f212(self, src, pgn, data):
+		if len(data) < 11:
+			print("Tried to parse not-complete 1f212 message")
+			return
+		
+		#LENGTH-information = data[0]
+		#seq_nr = data[1]
+		instance = data[2]
+		#dc_type = data[3] 		#not used in MWS
+		
+		if (self._is_not_NA([data[4]])):
+			soc = data[4]
+			print(f"soc: {soc}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.SOC,
+				instance = instance,
+				value = soc,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)						
+		
+		if (self._is_not_NA([data[5]])):
+			soh = data[5]
+			print(f"soh: {soh}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.SOH,
+				instance = instance,
+				value = soh,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)	
+				
+		if (self._is_not_NA([data[6], data[7]])):
+			autonomy = data[6] + data[7]*256
+			print(f"autonomy: {autonomy}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.BATTERY_AUTON,
+				instance = instance,
+				value = autonomy,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)	
+	
+	
 	def _is_not_NA(self, data_array):
 		return not all(byte == 0xFF or byte == 0x7F for byte in data_array)
-		
+	
 	def print_byte_array(self, data):
 		hex_string = ' '.join(f'{b:02X} | ' for b in data)
 		print(hex_string)
-		
-		
-		
+	
+	
+	
 class multiframe_handler:
 	def __init__(self):
 		#                   |SrcAdr   |PGN       |LastSeqNr - Message Frames (unpacked)
