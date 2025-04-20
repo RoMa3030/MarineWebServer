@@ -8,6 +8,8 @@ import uvicorn
 import threading
 import time
 
+import json
+
 import engine_data_reader
 
 #----------------------------------------------------------------------------------------
@@ -36,6 +38,17 @@ def read_root(request: Request):
 async def favicon():
     return FileResponse("static/favicon.ico")
 
+
+@app.get("/api/LayoutConfiguration")
+async def get_settings():
+    try:
+        with open("config/config.JSON", "r") as f:
+            settings = json.load(f)
+        return JSONResponse(content=settings)
+    except FileNotFoundError:
+        print("Layout configuration File not found!")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading settings: {str(e)}")
 
 @app.get("/api/engine-data")
 def get_engine_data():

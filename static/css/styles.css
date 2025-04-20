@@ -34,20 +34,20 @@ body {
     justify-content: center;
 }
 
-.instance_designator {
+.sv_instance_designator {
     font-size: 2rem;
     color: #7f8c8d;
     margin: 0;
 }
 
-.number {
+.sv_number {
     font-size: 6rem;
     font-weight: bold;
     margin: 4px;
     color: #2c3e50;
 }
 
-.label {
+.sv_label {
     font-size: 2.2rem;
     color: #7f8c8d;
     margin-top: 15px;

@@ -1,0 +1,85 @@
+{
+  "unitSelection": {
+    "length": "m",
+    "temperature": "C",
+    "pressure": "bar",
+    "volume": "L"
+  },
+  "engineDesignations": [
+    "Port Engine",
+    "Starboard Engine",
+	"Engine 3",
+	"Engine 4"
+  ],
+  "layouts": {
+    "level1Type": "Grid_3_2",
+    "sections": [
+      {
+        "level2Type": "SingleValue",
+        "dataFields": [
+          {
+            "dataType": 1,
+            "instance": 0,
+            "range_min": 0,
+            "range_max": 3000
+          }
+        ]
+      },
+      {
+        "level2Type": "Gauge",
+        "dataFields": [
+          {
+            "dataType": 4,
+            "instance": 0,
+            "range_min": 40,
+            "range_max": 120
+          }
+        ]
+      },
+      {
+        "level2Type": "SingleValue",
+        "dataFields": [
+          {
+            "dataType": 3,
+            "instance": 0,
+            "range_min": 0,
+            "range_max": 12
+          }
+        ]
+      },
+      {
+        "level2Type": "SingleValue",
+        "dataFields": [
+          {
+            "dataType": 8,
+            "instance": 0,
+            "range_min": 0,
+            "range_max": 2
+          }
+        ]
+      },
+      {
+        "level2Type": "SingleValue",
+        "dataFields": [
+          {
+            "dataType": 14,
+            "instance": 0,
+            "range_min": 0,
+            "range_max": 100
+          }
+        ]
+      },
+      {
+        "level2Type": "SingleValue",
+        "dataFields": [
+          {
+            "dataType": 15,
+            "instance": 0,
+            "range_min": 0,
+            "range_max": 100
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,28 +1,4 @@
 
-/*// first function to fetch and update engine data
-console.log("javaScript file loaded");
-
-
-function updateEngineData(){
-	console.log("fetching data");
-	fetch('/api/engine-data')
-		.then(response => response.json())
-		.then(data => {
-			document.getElementById('dtfld_01').textContent = data.rpm + ' RPM';
-		})
-		.catch(error => console.eror('Error fetching engine data:', error));
-}
-
-
-// update data wehen page loads
-document.addEventListener('DOMContentLoaded', function(){
-	updateEngineData();
-	setInterval(updateEngineData, 5000);	// call function every 5 seconds
-
-
-});
-*/
-// dashboard.js - Contains the data fetching and dashboard logic
 function updateEngineData() {
     fetch('/api/engine-data')
         .then(response => response.json())
@@ -47,5 +23,42 @@ function updateEngineData() {
         });
 }
 
-// Start the update cycle when the page loads
-document.addEventListener('DOMContentLoaded', updateEngineData);
+async function fetchSettings() {
+    try {
+        const response = await fetch('/api/LayoutConfiguration');
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const layoutConfig = await response.json();
+        console.log('Settings loaded:', layoutConfig);
+        return layoutConfig;
+    } catch (error) {
+        console.error('Error fetching layout configuration:', error);
+        throw error;
+    }
+}
+  
+
+function initializeApp(settings) {
+    console.log('Initializing app with settings:', settings);
+
+}
+
+
+
+
+
+
+// Event Listeners
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        window.appSettings = await fetchSettings();
+        initializeApp(settings);
+    } catch (error) {
+        console.log('Failed to load application settings');
+    }
+    updateEngineData(); // make sure, the gauges are loaded from the init function first, before starting this loop
+  });
+  
+//document.addEventListener('DOMContentLoaded', updateEngineData);
