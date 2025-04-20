@@ -33,7 +33,9 @@ class n2k_handler:
 					print(combined_msg)
 					self._parse_0x1f201(src_adr, pgn, combined_msg)					
 			case 0x1f211:
-				self._parse_0x1f211(src_adr, pgn, msg_data)
+				self._parse_0x1f211(src_adr, pgn, msg_data)				
+			case 0x1fd0c:
+				self._parse_0x1fd0c(src_adr, pgn, msg_data)
 		
 
 	def _parse_0x1f200(self, src, pgn, data):
@@ -236,12 +238,13 @@ class n2k_handler:
 				source_type = source_types.NMEA2000,
 				address = src,
 				timestamp = None)
+			
 				
 	def _parse_0x1f211(self, src, pgn, data):
 		if len(data) != 8:
 			print("Tried parsing incomplete message")
 		
-		self.print_byte_array(data)
+		#self.print_byte_array(data)
 		instance = data[0] & 0x0F
 		tank_type_code = data[0] >> 4
 		
@@ -250,27 +253,27 @@ class n2k_handler:
 		
 		match(tank_type_code):
 			case 0:	# FUEL
-				print("fuel")
+				#print("fuel")
 				param_type = parameter_type.FUEL_LEVEL
 				param_cap_type = parameter_type.FUEL_LEVEL_CAP
 			case 1:	# FRESH
-				print("fresh")
+				#print("fresh")
 				param_type = parameter_type.FRESH_LEVEL
 				param_cap_type = parameter_type.FRESH_LEVEL_CAP
 			case 2:	# WASTE
-				print("waste")
+				#print("waste")
 				param_type = parameter_type.WASTE_LEVEL
 				param_cap_type = parameter_type.WASTE_LEVEL_CAP
 			case 3:	# LIVE_WELL
-				print("live well")
+				#print("live well")
 				param_type = parameter_type.LIVE_WELL_LEVEL
 				param_cap_type = parameter_type.LIVE_WELL_LEVEL_CAP
 			case 4:	# OIL
-				print("oil")
+				#print("oil")
 				param_type = parameter_type.OIL_LEVEL
 				param_cap_type = parameter_type.OIL_LEVEL_CAP
 			case 5:	# BLACK_WATER
-				print("black water")
+				#print("black water")
 				param_type = parameter_type.BLACK_WATER_LEVEL
 				param_cap_type = parameter_type.BLACK_WATER_LEVEL_CAP
 			case _:
@@ -282,7 +285,7 @@ class n2k_handler:
 			if level > 32764:
 				level -= 65536
 			level /= 250
-			print(f"Level: {level}")
+			#print(f"Level: {level}")
 			self.data_storage.store_data_point(
 				parameter=param_type,
 				instance = instance,
@@ -294,7 +297,7 @@ class n2k_handler:
 		if (self._is_not_NA([data[3], data[4], data[5], data[6]])):
 			capacity = data[3] + data[4]*2**8 + data[5]*2**16 + data[6]*2**24
 			capacity /= 10
-			print(f"capacity: {capacity}")
+			#print(f"capacity: {capacity}")
 			self.data_storage.store_data_point(
 				parameter=param_cap_type,
 				instance = instance,
@@ -302,8 +305,41 @@ class n2k_handler:
 				source_type = source_types.NMEA2000,
 				address = src,
 				timestamp = None)		
+			
 				
-				
+	def _parse_0x1fd0c(self, src, pgn, data):
+		if len(data) != 8:
+			print("Tried parsing incomplete message")
+		
+		#seq_nr = data[0] # not used in MWS
+		instance = data[1]
+		temp_type_code = data[2]
+		
+		param_type = None
+		
+		match(temp_type_code):
+			case 0:	# SEA TEMP
+				param_type = parameter_type.SEA_TEMP
+			case 1:	# OUTSIDE TEMP
+				param_type = parameter_type.OUTSIDE_TEMP
+			case 14: # EXHAUST GAS TEMP
+				param_type = parameter_type.EXHAUST_GAS_TEMP
+			case _:
+				print("invalid/unsupported temperature type")
+				return
+		
+		if (self._is_not_NA([data[3], data[4], data[5]])):
+			temp = data[3] + data[4]*2**8 + data[5]*2**16
+			temp /= 1000
+			temp -= KELVIN_OFFSET
+			print(f"Temp: {temp}")
+			self.data_storage.store_data_point(
+				parameter=param_type,
+				instance = instance,
+				value = temp,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)		
 					
 	def _is_not_NA(self, data_array):
 		return not all(byte == 0xFF or byte == 0x7F for byte in data_array)

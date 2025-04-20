@@ -4,6 +4,7 @@ from typing import Dict
 from datetime import datetime
 
 class parameter_type(Enum):
+	#Engine
 	ENG_SPEED = auto()
 	ENG_OIL_TEMP = auto()
 	ENG_OIL_PRESS = auto()
@@ -14,9 +15,20 @@ class parameter_type(Enum):
 	BOOST_PRESS	= auto()
 	TRIM = auto()
 	RUDDER = auto()
+	FUEL_RATE = auto()
+	ENG_HOURS = auto()
+	FUEL_PRESS = auto()
+	ALARMS_EDS1 = auto()
+	ALARMS_EDS2 = auto()
+	ENG_LOAD = auto()
+	ENG_TORQUE = auto()
+	
+	#Battery
 	BATTERY_POT = auto()
 	ALTERNATOR_POT = auto()
 	AMMETER = auto()
+	
+	#Level
 	FUEL_LEVEL = auto()
 	FRESH_LEVEL = auto()
 	WASTE_LEVEL = auto()
@@ -29,13 +41,15 @@ class parameter_type(Enum):
 	LIVE_WELL_LEVEL_CAP = auto()
 	OIL_LEVEL_CAP = auto()
 	BLACK_WATER_LEVEL_CAP = auto()
-	FUEL_RATE = auto()
-	ENG_HOURS = auto()
-	FUEL_PRESS = auto()
-	ALARMS_EDS1 = auto()
-	ALARMS_EDS2 = auto()
-	ENG_LOAD = auto()
-	ENG_TORQUE = auto()
+	
+	#Temperature
+	SEA_TEMP = auto()
+	OUTSIDE_TEMP = auto()
+	EXHAUST_GAS_TEMP = auto()
+	
+	
+	
+	
 	
 	
 class source_types(Enum):
