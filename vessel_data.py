@@ -20,6 +20,13 @@ class parameter_type(Enum):
 	FUEL_LEVEL = 14
 	FRESH_LEVEL = 15
 	WASTE_LEVEL = 16
+	FUEL_RATE = 17
+	ENG_HOURS = 18
+	FUEL_PRESS = 19
+	ALARMS_EDS1 = 20
+	ALARMS_EDS2 = 21
+	ENG_LOAD = 22
+	ENG_TORQUE = 23
 	
 	
 class source_types(Enum):

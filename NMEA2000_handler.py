@@ -4,6 +4,7 @@ import can
 from typing import Dict, List, Tuple
 
 MULTIFRAME_MESSAGES = [0x1F201,0x1F212]
+KELVIN_OFFSET = 273.15
 
 class n2k_handler:
 	
@@ -76,13 +77,169 @@ class n2k_handler:
 			
 		
 	def _parse_0x1f201(self, src, pgn, data):
-		instance = data[0]
-		print("I arrived in the 1f201 message parser")
+		if len(data) < 27:
+			print("Tried to parse not-complete 1f201 message")
+			return
+			
+		instance = data[1]
 		
+		if (self._is_not_NA([data[2], data[3]])):
+			oil_press = data[2] + data[3]*256
+			oil_press /= 1000
+			print(f"oil_press: {oil_press}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.ENG_OIL_PRESS,
+				instance = instance,
+				value = oil_press,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+				
+		if (self._is_not_NA([data[4], data[5]])):
+			oil_temp = data[4] + data[5]*256
+			oil_temp /= 10
+			oil_temp -= KELVIN_OFFSET
+			print(f"oil_temp: {oil_temp}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.ENG_OIL_TEMP,
+				instance = instance,
+				value = oil_temp,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+				
+		if (self._is_not_NA([data[6], data[7]])):
+			coolant = data[6] + data[7]*256
+			coolant /= 100
+			coolant -= KELVIN_OFFSET
+			print(f"coolant: {coolant}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.COOLANT_TEMP,
+				instance = instance,
+				value = coolant,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+			
+		if (self._is_not_NA([data[8], data[9]])):
+			altern_potential = data[8] + data[9]*256
+			if altern_potential > 32764:
+				altern_potential -= 65536
+			altern_potential /= 100
+			print(f"altern_potential: {altern_potential}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.ALTERNATOR_POT,
+				instance = instance,
+				value = altern_potential,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
 		
+		if (self._is_not_NA([data[10], data[11]])):
+			fuel_rate = data[10] + data[11]*256
+			if fuel_rate > 32764:
+				fuel_rate -= 65536
+			fuel_rate /= 10 # L / h (instead of m³/h)
+			print(f"fuel_rate: {fuel_rate}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.FUEL_RATE,
+				instance = instance,
+				value = fuel_rate,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
 		
+		if (self._is_not_NA([data[12], data[13], data[14], data[15]])):
+			hours = data[12] + data[13]*2**8 + data[14]*2**16 + data[15]*2**24
+			hours /= 3600 
+			print(f"hours: {hours}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.ENG_HOURS,
+				instance = instance,
+				value = hours,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
 		
+		if (self._is_not_NA([data[16], data[17]])):
+			coolant_press = data[16] + data[17]*256
+			coolant_press /= 1000
+			print(f"coolant_press: {coolant_press}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.COOLANT_PRESS,
+				instance = instance,
+				value = coolant_press,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
 		
+		if (self._is_not_NA([data[18], data[19]])):
+			fuel_press = data[18] + data[19]*256
+			fuel_press /= 100
+			print(f"fuel_press: {fuel_press}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.FUEL_PRESS,
+				instance = instance,
+				value = fuel_press,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+		
+		# 1 byte reserved
+		
+		if (self._is_not_NA([data[21], data[22]])):
+			alarm1 = data[21] + data[22]*2**8
+			print(f"alarm1: {hex(alarm1)}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.ALARMS_EDS1,
+				instance = instance,
+				value = alarm1,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+		
+		if (self._is_not_NA([data[23], data[24]])):
+			alarm2 = data[23] + data[24]*2**8
+			print(f"alarm1: {hex(alarm2)}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.ALARMS_EDS2,
+				instance = instance,
+				value = alarm2,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+		
+		if (self._is_not_NA([data[25]])):
+			load = data[25]
+			if load > 127:
+				load -= 256	
+			print(f"load: {load}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.ENG_LOAD,
+				instance = instance,
+				value = load,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+		
+		if (self._is_not_NA([data[26]])):
+			torque = data[26]
+			if torque > 127:
+				torque -= 256	
+			print(f"torque: {torque}")
+			self.data_storage.store_data_point(
+				parameter=parameter_type.ENG_TORQUE,
+				instance = instance,
+				value = torque,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+				
+				
+				
+				
+				
+					
 	def _is_not_NA(self, data_array):
 		return not all(byte == 0xFF or byte == 0x7F for byte in data_array)
 		
