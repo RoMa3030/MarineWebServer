@@ -4,29 +4,38 @@ from typing import Dict
 from datetime import datetime
 
 class parameter_type(Enum):
-	ENG_SPEED = 1
-	ENG_OIL_TEMP = 2
-	ENG_OIL_PRESS = 3
-	COOLANT_TEMP = 4
-	COOLANT_PRESS = 5
-	GEAR_OIL_TEMP = 6
-	GEAR_OIL_PRESS = 7
-	BOOST_PRESS	= 8
-	TRIM = 9
-	RUDDER = 10
-	BATTERY_POT = 11
-	ALTERNATOR_POT = 12
-	AMMETER = 13
-	FUEL_LEVEL = 14
-	FRESH_LEVEL = 15
-	WASTE_LEVEL = 16
-	FUEL_RATE = 17
-	ENG_HOURS = 18
-	FUEL_PRESS = 19
-	ALARMS_EDS1 = 20
-	ALARMS_EDS2 = 21
-	ENG_LOAD = 22
-	ENG_TORQUE = 23
+	ENG_SPEED = auto()
+	ENG_OIL_TEMP = auto()
+	ENG_OIL_PRESS = auto()
+	COOLANT_TEMP = auto()
+	COOLANT_PRESS = auto()
+	GEAR_OIL_TEMP = auto()
+	GEAR_OIL_PRESS = auto()
+	BOOST_PRESS	= auto()
+	TRIM = auto()
+	RUDDER = auto()
+	BATTERY_POT = auto()
+	ALTERNATOR_POT = auto()
+	AMMETER = auto()
+	FUEL_LEVEL = auto()
+	FRESH_LEVEL = auto()
+	WASTE_LEVEL = auto()
+	LIVE_WELL_LEVEL = auto()
+	OIL_LEVEL = auto()
+	BLACK_WATER_LEVEL = auto()
+	FUEL_LEVEL_CAP = auto()
+	FRESH_LEVEL_CAP = auto()
+	WASTE_LEVEL_CAP = auto()
+	LIVE_WELL_LEVEL_CAP = auto()
+	OIL_LEVEL_CAP = auto()
+	BLACK_WATER_LEVEL_CAP = auto()
+	FUEL_RATE = auto()
+	ENG_HOURS = auto()
+	FUEL_PRESS = auto()
+	ALARMS_EDS1 = auto()
+	ALARMS_EDS2 = auto()
+	ENG_LOAD = auto()
+	ENG_TORQUE = auto()
 	
 	
 class source_types(Enum):

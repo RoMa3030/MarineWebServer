@@ -30,9 +30,10 @@ class n2k_handler:
 			case 0x1f201:
 				msg_complete, combined_msg = self._mf_handler.add_frame(src_adr, pgn, msg_data)
 				if msg_complete:
-					print("Completed MF-Message assembly")
 					print(combined_msg)
-					self._parse_0x1f201(src_adr, pgn, combined_msg)
+					self._parse_0x1f201(src_adr, pgn, combined_msg)					
+			case 0x1f211:
+				self._parse_0x1f211(src_adr, pgn, msg_data)
 		
 
 	def _parse_0x1f200(self, src, pgn, data):
@@ -80,13 +81,14 @@ class n2k_handler:
 		if len(data) < 27:
 			print("Tried to parse not-complete 1f201 message")
 			return
-			
+		
+		#data[0] = LENGTH-information
 		instance = data[1]
 		
 		if (self._is_not_NA([data[2], data[3]])):
 			oil_press = data[2] + data[3]*256
 			oil_press /= 1000
-			print(f"oil_press: {oil_press}")
+			#print(f"oil_press: {oil_press}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.ENG_OIL_PRESS,
 				instance = instance,
@@ -99,7 +101,7 @@ class n2k_handler:
 			oil_temp = data[4] + data[5]*256
 			oil_temp /= 10
 			oil_temp -= KELVIN_OFFSET
-			print(f"oil_temp: {oil_temp}")
+			#print(f"oil_temp: {oil_temp}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.ENG_OIL_TEMP,
 				instance = instance,
@@ -112,7 +114,7 @@ class n2k_handler:
 			coolant = data[6] + data[7]*256
 			coolant /= 100
 			coolant -= KELVIN_OFFSET
-			print(f"coolant: {coolant}")
+			#print(f"coolant: {coolant}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.COOLANT_TEMP,
 				instance = instance,
@@ -126,7 +128,7 @@ class n2k_handler:
 			if altern_potential > 32764:
 				altern_potential -= 65536
 			altern_potential /= 100
-			print(f"altern_potential: {altern_potential}")
+			#print(f"altern_potential: {altern_potential}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.ALTERNATOR_POT,
 				instance = instance,
@@ -140,7 +142,7 @@ class n2k_handler:
 			if fuel_rate > 32764:
 				fuel_rate -= 65536
 			fuel_rate /= 10 # L / h (instead of m³/h)
-			print(f"fuel_rate: {fuel_rate}")
+			#print(f"fuel_rate: {fuel_rate}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.FUEL_RATE,
 				instance = instance,
@@ -152,7 +154,7 @@ class n2k_handler:
 		if (self._is_not_NA([data[12], data[13], data[14], data[15]])):
 			hours = data[12] + data[13]*2**8 + data[14]*2**16 + data[15]*2**24
 			hours /= 3600 
-			print(f"hours: {hours}")
+			#print(f"hours: {hours}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.ENG_HOURS,
 				instance = instance,
@@ -164,7 +166,7 @@ class n2k_handler:
 		if (self._is_not_NA([data[16], data[17]])):
 			coolant_press = data[16] + data[17]*256
 			coolant_press /= 1000
-			print(f"coolant_press: {coolant_press}")
+			#print(f"coolant_press: {coolant_press}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.COOLANT_PRESS,
 				instance = instance,
@@ -176,7 +178,7 @@ class n2k_handler:
 		if (self._is_not_NA([data[18], data[19]])):
 			fuel_press = data[18] + data[19]*256
 			fuel_press /= 100
-			print(f"fuel_press: {fuel_press}")
+			#print(f"fuel_press: {fuel_press}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.FUEL_PRESS,
 				instance = instance,
@@ -189,7 +191,7 @@ class n2k_handler:
 		
 		if (self._is_not_NA([data[21], data[22]])):
 			alarm1 = data[21] + data[22]*2**8
-			print(f"alarm1: {hex(alarm1)}")
+			#print(f"alarm1: {hex(alarm1)}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.ALARMS_EDS1,
 				instance = instance,
@@ -200,7 +202,7 @@ class n2k_handler:
 		
 		if (self._is_not_NA([data[23], data[24]])):
 			alarm2 = data[23] + data[24]*2**8
-			print(f"alarm1: {hex(alarm2)}")
+			#print(f"alarm1: {hex(alarm2)}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.ALARMS_EDS2,
 				instance = instance,
@@ -213,7 +215,7 @@ class n2k_handler:
 			load = data[25]
 			if load > 127:
 				load -= 256	
-			print(f"load: {load}")
+			#print(f"load: {load}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.ENG_LOAD,
 				instance = instance,
@@ -226,7 +228,7 @@ class n2k_handler:
 			torque = data[26]
 			if torque > 127:
 				torque -= 256	
-			print(f"torque: {torque}")
+			#print(f"torque: {torque}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.ENG_TORQUE,
 				instance = instance,
@@ -235,14 +237,80 @@ class n2k_handler:
 				address = src,
 				timestamp = None)
 				
-				
-				
+	def _parse_0x1f211(self, src, pgn, data):
+		if len(data) != 8:
+			print("Tried parsing incomplete message")
+		
+		self.print_byte_array(data)
+		instance = data[0] & 0x0F
+		tank_type_code = data[0] >> 4
+		
+		param_type = None
+		param_cap_type = None
+		
+		match(tank_type_code):
+			case 0:	# FUEL
+				print("fuel")
+				param_type = parameter_type.FUEL_LEVEL
+				param_cap_type = parameter_type.FUEL_LEVEL_CAP
+			case 1:	# FRESH
+				print("fresh")
+				param_type = parameter_type.FRESH_LEVEL
+				param_cap_type = parameter_type.FRESH_LEVEL_CAP
+			case 2:	# WASTE
+				print("waste")
+				param_type = parameter_type.WASTE_LEVEL
+				param_cap_type = parameter_type.WASTE_LEVEL_CAP
+			case 3:	# LIVE_WELL
+				print("live well")
+				param_type = parameter_type.LIVE_WELL_LEVEL
+				param_cap_type = parameter_type.LIVE_WELL_LEVEL_CAP
+			case 4:	# OIL
+				print("oil")
+				param_type = parameter_type.OIL_LEVEL
+				param_cap_type = parameter_type.OIL_LEVEL_CAP
+			case 5:	# BLACK_WATER
+				print("black water")
+				param_type = parameter_type.BLACK_WATER_LEVEL
+				param_cap_type = parameter_type.BLACK_WATER_LEVEL_CAP
+			case _:
+				print("invalid/unsupported tank type")
+				return
+		
+		if (self._is_not_NA([data[1], data[2]])):
+			level = data[1] + data[2]*256
+			if level > 32764:
+				level -= 65536
+			level /= 250
+			print(f"Level: {level}")
+			self.data_storage.store_data_point(
+				parameter=param_type,
+				instance = instance,
+				value = level,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)			
+		
+		if (self._is_not_NA([data[3], data[4], data[5], data[6]])):
+			capacity = data[3] + data[4]*2**8 + data[5]*2**16 + data[6]*2**24
+			capacity /= 10
+			print(f"capacity: {capacity}")
+			self.data_storage.store_data_point(
+				parameter=param_cap_type,
+				instance = instance,
+				value = capacity,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)		
 				
 				
 					
 	def _is_not_NA(self, data_array):
 		return not all(byte == 0xFF or byte == 0x7F for byte in data_array)
 		
+	def print_byte_array(self, data):
+		hex_string = ' '.join(f'{b:02X} | ' for b in data)
+		print(hex_string)
 		
 		
 		
