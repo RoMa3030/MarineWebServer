@@ -57,7 +57,21 @@ class vessel_data_manager:
 			time_stamp = timestamp
 		)		
 		
+	def get_data_point_comp(self, parameter: parameter_type, instance: int):
+		# returns ALL information for this data_point (including source, timestamp,...)
+		if (parameter in self._data):
+			if (instance in self._data[parameter]):
+				return self._data[parameter][instance]
 		
+		return float('nan')
+		
+	def get_data_point(self, parameter: parameter_type, instance: int):
+		# returns value only
+		if (parameter in self._data):
+			if (instance in self._data[parameter]):
+				return self._data[parameter][instance].value
+		
+		return float('nan')
 		
 		
 		

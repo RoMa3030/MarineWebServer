@@ -5,6 +5,7 @@ import pigpio
 import os
 import can
 import vessel_data
+from vessel_data import parameter_type
 import NMEA2000_handler
 
 ADC_ADDRESS = 0x48
@@ -26,7 +27,7 @@ class engine_data_interface:
 		}
 		
 		self.data = vessel_data.vessel_data_manager()
-		self._n2k = NMEA2000_handler.n2k_handler()
+		self._n2k = NMEA2000_handler.n2k_handler(self.data)
 		
 		# setup I2C communication (To ADC)
 		self._pi = pigpio.pi()
@@ -48,6 +49,12 @@ class engine_data_interface:
 			print(f"RPM = {self.engine_data['rpm']}")
 			time.sleep(1)"""
 
+	
+	
+	
+	# -------------------------------------------------------------------------------------
+	#       ANALOG READINGS
+	# -------------------------------------------------------------------------------------
 
 	def _adc_read(self, ain):
 		"""
@@ -139,7 +146,9 @@ class engine_data_interface:
 		#print(f"Sensor Resistance: {R_sens:.3f}")		
 		return R_sens
 	
-	
+	# -------------------------------------------------------------------------------------
+	#       CAN INTERFACE
+	# -------------------------------------------------------------------------------------
 	def initialize_can_interface(self):
 		os.system('sudo ip link set can0 type can bitrate 250000')
 		os.system('sudo ifconfig can0 up')
@@ -148,11 +157,18 @@ class engine_data_interface:
 		
 		print("CAN interface initialized")
 		
+		
 	def _read_can(self):
 		msg = self._can0.recv(RX_TIMEOUT)
 		if msg:
 			#print(msg)
 			self._n2k.parse_message(msg)
+			rpm = self.data.get_data_point(parameter_type.ENG_SPEED, 0)
+			print(f" I READ RPM = {rpm}")
+		
+	# -------------------------------------------------------------------------------------
+	#       Shutdown
+	# -------------------------------------------------------------------------------------
 		
 	def shutdown(self):
 		self._pi.i2c_close(self._i2c_handle)
