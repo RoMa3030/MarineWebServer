@@ -163,8 +163,8 @@ class engine_data_interface:
 		if msg:
 			#print(msg)
 			self._n2k.parse_message(msg)
-			rpm = self.data.get_data_point(parameter_type.ENG_SPEED, 0)
-			print(f" I READ RPM = {rpm}")
+			#rpm = self.data.get_data_point(parameter_type.ENG_SPEED, 0)
+			#print(f" I READ RPM = {rpm}")
 		
 	# -------------------------------------------------------------------------------------
 	#       Shutdown
