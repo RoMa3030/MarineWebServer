@@ -1,9 +1,9 @@
 
 import numpy as np
 import time
-import pigpio
+#import pigpio
 import os
-import can
+#import can
 import vessel_data
 from vessel_data import parameter_type
 import NMEA2000_handler
@@ -26,7 +26,7 @@ class engine_data_interface:
 			"fuel-level": 89
 		}
 		
-		self.data = vessel_data.vessel_data_manager()
+		"""self.data = vessel_data.vessel_data_manager()
 		self._n2k = NMEA2000_handler.n2k_handler(self.data)
 		
 		# setup I2C communication (To ADC)
@@ -38,20 +38,20 @@ class engine_data_interface:
 		self._active_ain = -1	
 			
 		self._can0 = None
-		self.initialize_can_interface()
+		self.initialize_can_interface()"""
 			
 	def read_engine_data(self):
 		
 		while True:
 			#result = self._adc_read(2)	
-			self._read_can()
-			"""self.engine_data["rpm"] += 1
-			engine_data["coolant_temp"] += 1
-		if (engine_data["coolant_temp"] >= 120):
-			engine_data["coolant_temp"] = 50
-		print(f"RPM = {self.engine_data['rpm']}")
-		print(f"Coolant = {engine_data['coolant_temp']}")
-			time.sleep(1)"""
+			#self._read_can()
+			self.engine_data["rpm"] += 1
+			self.engine_data["coolant_temp"] += 1
+			if (self.engine_data["coolant_temp"] >= 120):
+				self.engine_data["coolant_temp"] = 50
+			#print(f"RPM = {self.engine_data['rpm']}")
+			#print(f"Coolant = {engine_data['coolant_temp']}")
+			time.sleep(1)
 
 	
 	
@@ -175,9 +175,13 @@ class engine_data_interface:
 	# -------------------------------------------------------------------------------------
 		
 	def shutdown(self):
-		self._pi.i2c_close(self._i2c_handle)
-		self._pi.stop()
-		os.system('sudo ifconfig can0 down')
+		#wrapped in try, so no errors are thrown on Windows PC
+		try:
+			self._pi.i2c_close(self._i2c_handle)
+			self._pi.stop()
+			os.system('sudo ifconfig can0 down')
+		except NameError:
+			pass
 		print("Engine Data Reader shutting down")
 		
 		

@@ -1,6 +1,6 @@
 from vessel_data import parameter_type
 from vessel_data import source_types
-import can
+#import can
 import numpy as np
 from typing import Dict, List, Tuple
 

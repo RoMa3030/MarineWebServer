@@ -7,7 +7,7 @@ import uvicorn
 
 import threading
 import time
-import pigpio
+#import pigpio
 import signal
 
 from engine_data_reader import engine_data_interface
