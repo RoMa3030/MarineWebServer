@@ -175,13 +175,9 @@ class engine_data_interface:
 	# -------------------------------------------------------------------------------------
 		
 	def shutdown(self):
-		#wrapped in try, so no errors are thrown on Windows PC
-		try:
-			self._pi.i2c_close(self._i2c_handle)
-			self._pi.stop()
-			os.system('sudo ifconfig can0 down')
-		except NameError:
-			pass
+		"""self._pi.i2c_close(self._i2c_handle)
+		self._pi.stop()
+		os.system('sudo ifconfig can0 down')"""
 		print("Engine Data Reader shutting down")
 		
 		

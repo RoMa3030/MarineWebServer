@@ -1,0 +1,194 @@
+{
+    "dataTypes": {
+      "1": {
+        "label": "Engine Speed",
+        "unit": "RPM",
+        "unitType": "none"
+      },
+      "2": {
+        "label": "Engine Oil Temperature",
+        "unit": "°",
+        "unitType": "temperature"
+      },
+      "3": {
+        "label": "Engine Oil Pressure",
+        "unit": "",
+        "unitType": "pressure"
+      },
+      "4": {
+        "label": "Coolant Temperature",
+        "unit": "°",
+        "unitType": "temperature"
+      },
+      "5": {
+        "label": "Coolant Pressure",
+        "unit": "",
+        "unitType": "pressure"
+      },
+      "6": {
+        "label": "Gear Oil Temperature",
+        "unit": "°",
+        "unitType": "temperature"
+      },
+      "7": {
+        "label": "Gear Oil Pressure",
+        "unit": "",
+        "unitType": "pressure"
+      },
+      "8": {
+        "label": "Boost Pressure",
+        "unit": "",
+        "unitType": "pressure"
+      },
+      "9": {
+        "label": "Trim",
+        "unit": "%",
+        "unitType": "percentage"
+      },
+      "10": {
+        "label": "Rudder",
+        "unit": "°",
+        "unitType": "angle"
+      },
+      "11": {
+        "label": "Fuel Rate",
+        "unit": "L/h",
+        "unitType": "flow"
+      },
+      "12": {
+        "label": "Engine Hours",
+        "unit": "h",
+        "unitType": "time"
+      },
+      "13": {
+        "label": "Fuel Pressure",
+        "unit": "",
+        "unitType": "pressure"
+      },
+      "14": {
+        "label": "Alarms EDS1",
+        "unit": "",
+        "unitType": "none"
+      },
+      "15": {
+        "label": "Alarms EDS2",
+        "unit": "",
+        "unitType": "none"
+      },
+      "16": {
+        "label": "Engine Load",
+        "unit": "%",
+        "unitType": "percentage"
+      },
+      "17": {
+        "label": "Engine Torque",
+        "unit": "%",
+        "unitType": "percentage"
+      },
+      "18": {
+        "label": "Battery Potential",
+        "unit": "V",
+        "unitType": "voltage"
+      },
+      "19": {
+        "label": "Alternator Potential",
+        "unit": "V",
+        "unitType": "voltage"
+      },
+      "20": {
+        "label": "Current",
+        "unit": "A",
+        "unitType": "current"
+      },
+      "21": {
+        "label": "Battery Temperature",
+        "unit": "°",
+        "unitType": "temperature"
+      },
+      "22": {
+        "label": "State of Charge",
+        "unit": "%",
+        "unitType": "percentage"
+      },
+      "23": {
+        "label": "Battery Autonomy",
+        "unit": "h",
+        "unitType": "time"
+      },
+      "24": {
+        "label": "Fuel Level",
+        "unit": "%",
+        "unitType": "percentage"
+      },
+      "25": {
+        "label": "Fresh Water Level",
+        "unit": "%",
+        "unitType": "percentage"
+      },
+      "26": {
+        "label": "Waste Level",
+        "unit": "%",
+        "unitType": "percentage"
+      },
+      "27": {
+        "label": "Live Well Level",
+        "unit": "%",
+        "unitType": "percentage"
+      },
+      "28": {
+        "label": "Oil Level",
+        "unit": "%",
+        "unitType": "percentage"
+      },
+      "29": {
+        "label": "Black Water Level",
+        "unit": "%",
+        "unitType": "percentage"
+      },
+      "30": {
+        "label": "Fuel Capacity",
+        "unit": "",
+        "unitType": "volume"
+      },
+      "31": {
+        "label": "Fresh Water Capacity",
+        "unit": "",
+        "unitType": "volume"
+      },
+      "32": {
+        "label": "Waste Capacity",
+        "unit": "",
+        "unitType": "volume"
+      },
+      "33": {
+        "label": "Live Well Capacity",
+        "unit": "",
+        "unitType": "volume"
+      },
+      "34": {
+        "label": "Oil Capacity",
+        "unit": "",
+        "unitType": "volume"
+      },
+      "35": {
+        "label": "Black Water Capacity",
+        "unit": "",
+        "unitType": "volume"
+      },
+      "36": {
+        "label": "Sea Temperature",
+        "unit": "°",
+        "unitType": "temperature"
+      },
+      "37": {
+        "label": "Outside Temperature",
+        "unit": "°",
+        "unitType": "temperature"
+      },
+      "38": {
+        "label": "Exhaust Gas Temperature",
+        "unit": "°",
+        "unitType": "temperature"
+      }
+    }
+  }

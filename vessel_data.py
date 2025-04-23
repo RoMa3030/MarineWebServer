@@ -5,51 +5,51 @@ from datetime import datetime
 
 class parameter_type(Enum):
 	#Engine
-	ENG_SPEED = auto()
-	ENG_OIL_TEMP = auto()
-	ENG_OIL_PRESS = auto()
-	COOLANT_TEMP = auto()
-	COOLANT_PRESS = auto()
-	GEAR_OIL_TEMP = auto()
-	GEAR_OIL_PRESS = auto()
-	BOOST_PRESS	= auto()
-	TRIM = auto()
-	RUDDER = auto()
-	FUEL_RATE = auto()
-	ENG_HOURS = auto()
-	FUEL_PRESS = auto()
-	ALARMS_EDS1 = auto()
-	ALARMS_EDS2 = auto()
-	ENG_LOAD = auto()
-	ENG_TORQUE = auto()
+	ENG_SPEED = 1
+	ENG_OIL_TEMP = 2
+	ENG_OIL_PRESS = 3
+	COOLANT_TEMP = 4
+	COOLANT_PRESS = 5
+	GEAR_OIL_TEMP = 6
+	GEAR_OIL_PRESS = 7
+	BOOST_PRESS	= 8
+	TRIM = 9
+	RUDDER = 10
+	FUEL_RATE = 11
+	ENG_HOURS = 12
+	FUEL_PRESS = 13
+	ALARMS_EDS1 = 14
+	ALARMS_EDS2 = 15
+	ENG_LOAD = 16
+	ENG_TORQUE = 17
 	
 	#Battery
-	BATTERY_POT = auto()
-	ALTERNATOR_POT = auto()
-	AMMETER = auto()
-	BATTERY_TEMP = auto()
-	SOC = auto()
-	SOH = auto()
-	BATTERY_AUTON = auto()
+	BATTERY_POT = 18
+	ALTERNATOR_POT = 19 
+	AMMETER = 20
+	BATTERY_TEMP = 21
+	SOC = 22
+	SOH = 22
+	BATTERY_AUTON = 23
 	
 	#Level
-	FUEL_LEVEL = auto()
-	FRESH_LEVEL = auto()
-	WASTE_LEVEL = auto()
-	LIVE_WELL_LEVEL = auto()
-	OIL_LEVEL = auto()
-	BLACK_WATER_LEVEL = auto()
-	FUEL_LEVEL_CAP = auto()
-	FRESH_LEVEL_CAP = auto()
-	WASTE_LEVEL_CAP = auto()
-	LIVE_WELL_LEVEL_CAP = auto()
-	OIL_LEVEL_CAP = auto()
-	BLACK_WATER_LEVEL_CAP = auto()
+	FUEL_LEVEL = 24
+	FRESH_LEVEL = 25
+	WASTE_LEVEL = 26
+	LIVE_WELL_LEVEL = 27
+	OIL_LEVEL = 28
+	BLACK_WATER_LEVEL = 29 
+	FUEL_LEVEL_CAP = 30
+	FRESH_LEVEL_CAP = 31
+	WASTE_LEVEL_CAP = 32
+	LIVE_WELL_LEVEL_CAP = 33 
+	OIL_LEVEL_CAP = 34
+	BLACK_WATER_LEVEL_CAP = 35 
 	
 	#Temperature
-	SEA_TEMP = auto()
-	OUTSIDE_TEMP = auto()
-	EXHAUST_GAS_TEMP = auto()
+	SEA_TEMP = 36
+	OUTSIDE_TEMP = 37
+	EXHAUST_GAS_TEMP = 38
 	
 	
 	

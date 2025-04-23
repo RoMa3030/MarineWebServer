@@ -2,6 +2,9 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse
+from fastapi.responses import JSONResponse
+from fastapi import HTTPException
 from contextlib import asynccontextmanager
 import uvicorn
 
@@ -47,17 +50,35 @@ async def favicon():
 @app.get("/api/LayoutConfiguration")
 async def get_settings():
     try:
-        with open("config/config.JSON", "r") as f:
-            settings = json.load(f)
+        with open("config/LayoutConfig.JSON", "r") as f1:
+            settings = json.load(f1)
         return JSONResponse(content=settings)
     except FileNotFoundError:
         print("Layout configuration File not found!")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error loading settings: {str(e)}")
 
+
+@app.get("/api/DataTypeMappings")
+async def get_DataTypeMappings():
+    try:
+        with open("config/DataTypeMapping.JSON", "r") as f2:
+            mapping = json.load(f2)
+        return JSONResponse(content=mapping)
+    except FileNotFoundError:
+        print("Data type mapping file not found!")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading data type mapping: {str(e)}")
+
+
 @app.get("/api/engine-data")
 def get_engine_data():
     return engine_interface.engine_data
+
+
+
+
+
 
 
 #----------------------------------------------------------------------------------------

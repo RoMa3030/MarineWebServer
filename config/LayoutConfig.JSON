@@ -8,8 +8,8 @@
   "engineDesignations": [
     "Port Engine",
     "Starboard Engine",
-	"Engine 3",
-	"Engine 4"
+	  "Engine 3",
+	  "Engine 4"
   ],
   "layouts": {
     "level1Type": "Grid_3_2",
@@ -51,18 +51,7 @@
         "level2Type": "SingleValue",
         "dataFields": [
           {
-            "dataType": 8,
-            "instance": 0,
-            "range_min": 0,
-            "range_max": 2
-          }
-        ]
-      },
-      {
-        "level2Type": "SingleValue",
-        "dataFields": [
-          {
-            "dataType": 14,
+            "dataType": 24,
             "instance": 0,
             "range_min": 0,
             "range_max": 100
@@ -73,7 +62,18 @@
         "level2Type": "SingleValue",
         "dataFields": [
           {
-            "dataType": 15,
+            "dataType": 25,
+            "instance": 0,
+            "range_min": 0,
+            "range_max": 100
+          }
+        ]
+      },
+      {
+        "level2Type": "SingleValue",
+        "dataFields": [
+          {
+            "dataType": 26,
             "instance": 0,
             "range_min": 0,
             "range_max": 100
