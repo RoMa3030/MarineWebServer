@@ -4,7 +4,11 @@ from typing import Dict
 from datetime import datetime
 
 class parameter_type(Enum):
-	#Engine
+    # !!!	Do not change order of parameters	!!!
+    # (Webserver is refering to same order)
+    # When doing any changes never the less, also change in Config/DataTypeMapping.JSON
+    
+	# Engine
 	ENG_SPEED = 1
 	ENG_OIL_TEMP = 2
 	ENG_OIL_PRESS = 3
@@ -23,7 +27,7 @@ class parameter_type(Enum):
 	ENG_LOAD = 16
 	ENG_TORQUE = 17
 	
-	#Battery
+	# Battery
 	BATTERY_POT = 18
 	ALTERNATOR_POT = 19 
 	AMMETER = 20
@@ -32,7 +36,7 @@ class parameter_type(Enum):
 	SOH = 22
 	BATTERY_AUTON = 23
 	
-	#Level
+	# Level
 	FUEL_LEVEL = 24
 	FRESH_LEVEL = 25
 	WASTE_LEVEL = 26
@@ -46,15 +50,10 @@ class parameter_type(Enum):
 	OIL_LEVEL_CAP = 34
 	BLACK_WATER_LEVEL_CAP = 35 
 	
-	#Temperature
+	# Temperature
 	SEA_TEMP = 36
 	OUTSIDE_TEMP = 37
 	EXHAUST_GAS_TEMP = 38
-	
-	
-	
-	
-	
 	
 class source_types(Enum):
 	NMEA2000 = 1
@@ -71,7 +70,6 @@ class data_point:
 	
 	def __str__(self):
 		return f"Value: {self.value}, Source Type: {self.source_type}, Address: {self.source_address}, Time: {self.time_stamp}"
-		
 
 class vessel_data_manager:
 	def __init__(self):
