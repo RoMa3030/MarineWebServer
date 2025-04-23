@@ -73,7 +73,7 @@ async def get_DataTypeMappings():
 
 @app.get("/api/engine-data")
 def get_engine_data():
-    return engine_interface.engine_data
+    return engine_interface.get_current_engine_data()
 
 
 

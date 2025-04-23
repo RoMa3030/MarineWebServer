@@ -1,6 +1,65 @@
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Load both configuration files in parallel
+        const [settings, dataTypeMappings] = await Promise.all([
+            fetchSettings(),
+            fetchDataTypeMappings()
+        ]);
+        
+        // Store in application state
+        appState.settings = settings;
+        appState.dataTypeMappings = dataTypeMappings;
+
+        renderLayout(appState.settings);
+        initializeGauges(appState.settings);
+    } catch (error) {
+        console.log('Failed to initialize page layout');
+        console.log(error)
+
+    }
+    updateEngineData(); // make sure, the gauges are loaded from the init function first, before starting this loop
+});
+
 
 function updateEngineData() {
     fetch('/api/engine-data')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(floatArray => {
+            console.log("Received data:", floatArray);
+            console.log("Type of data:", typeof floatArray);
+            floatArray.forEach((value, index) => {
+                if (!Number.isNaN(value) && value !== null && value !== -9999.99) {
+                    console.log(`Value at index ${index} is ${value}`);
+                    /*
+                    /
+                    /
+                    /
+                    /
+                    
+                    TO DO
+
+                    IMPLEMENT UPDATING OF DISPLAYED INFORMATION
+                    
+                    /
+                    /
+                    /
+                    /
+                    /
+                    */
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching engine data:', error);
+        });
+
+
+    /*fetch('/api/engine-data')
         .then(response => response.json())
         .then(data => {
 			// Update numeric fields
@@ -20,10 +79,8 @@ function updateEngineData() {
         })
         .finally(() => {
             setTimeout(updateEngineData, 1000);
-        });
+        });*/
 }
-
-
 
 
 // Initialzation of Layout
@@ -32,6 +89,9 @@ let appState = {
     dataTypeMappings: null
 };
 
+// ------------------------------------------------------------------------------------
+//     Rendering website layout on startup
+// ------------------------------------------------------------------------------------
 async function fetchSettings() {
     try {
         const response = await fetch('/api/LayoutConfiguration');
@@ -319,30 +379,4 @@ function initializeGauges() {
 
     });
 }
-
-
-// Event Listeners
-
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        // Load both configuration files in parallel
-        const [settings, dataTypeMappings] = await Promise.all([
-            fetchSettings(),
-            fetchDataTypeMappings()
-        ]);
-        
-        // Store in application state
-        appState.settings = settings;
-        appState.dataTypeMappings = dataTypeMappings;
-
-        renderLayout(appState.settings);
-        initializeGauges(appState.settings);
-    } catch (error) {
-        console.log('Failed to initialize page layout');
-        console.log(error)
-
-    }
-    //updateEngineData(); // make sure, the gauges are loaded from the init function first, before starting this loop
-  });
   
-//document.addEventListener('DOMContentLoaded', updateEngineData);

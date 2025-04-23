@@ -2,6 +2,7 @@ from enum import Enum, auto
 from dataclasses import dataclass
 from typing import Dict
 from datetime import datetime
+import json
 
 class parameter_type(Enum):
     # !!!	Do not change order of parameters	!!!
@@ -74,7 +75,9 @@ class data_point:
 class vessel_data_manager:
 	def __init__(self):
 		self._data = {}
-		
+		self.web_data_interface = self._load_website_interface_data()
+ 
+ 
 	def store_data_point(self, parameter: parameter_type, instance: int, value: float, source_type: source_types, address: int, timestamp: datetime = None):
 		if timestamp is None:
 			timestamp = datetime.now()
@@ -89,6 +92,7 @@ class vessel_data_manager:
 			time_stamp = timestamp
 		)		
 		
+  
 	def get_data_point_comp(self, parameter: parameter_type, instance: int):
 		# returns ALL information for this data_point (including source, timestamp,...)
 		if (parameter in self._data):
@@ -97,6 +101,7 @@ class vessel_data_manager:
 		
 		return float('nan')
 		
+  
 	def get_data_point(self, parameter: parameter_type, instance: int):
 		# returns value only
 		if (parameter in self._data):
@@ -104,6 +109,55 @@ class vessel_data_manager:
 				return self._data[parameter][instance].value
 		
 		return float('nan')
+
+	
+	def get_updated_web_values(self):
+		data_array = []
+		print(self._data)
+		for data_point in self.web_data_interface:
+			parameter = data_point[0]
+			instance = data_point[1]
+			if (parameter in self._data):
+				if (instance in self._data[parameter]):
+					data_array.append(self._data[parameter][instance].value)
+					print(self._data[parameter][instance].value)
+				else:
+					data_array.append(float('nan'))
+			else:
+				data_array.append(float('nan'))
+    
+		return data_array
+ 
+ 
+	def update_website_interface_data(self):
+		self.web_data_interface = self._load_website_interface_data()
+ 
+ 
+	def _load_website_interface_data(self):
+		"""
+		To not have to send all the available vessel information to the website, and filter it out there again,
+		the idea is to only send the required information in an array of floats in the order in which they're 
+		displayed on the website
+		This function is to find out which data must be put in the array.
+  
+		Layout:
+		array[2x(number of datafield)]
+		for each datafield: Datatype, instance
+		"""
+		print("Hard coded: dynamic - todo")
+		return [[1,0], [4,0], [3,0], [24,0], [25,0], [26,0]]
+		
+  
+	def create_fake_data_for_testing(self):
+		val = 50
+		for data_point in self.web_data_interface:
+			parameter = data_point[0]
+			instance = data_point[1]
+			self.store_data_point(parameter, instance, val, 0, 0, None)
+			val += 1
+  
+  
+
 		
 		
 		

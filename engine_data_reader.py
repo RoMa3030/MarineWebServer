@@ -7,6 +7,7 @@ import os
 import vessel_data
 from vessel_data import parameter_type
 import NMEA2000_handler
+import math
 
 ADC_ADDRESS = 0x48
 CONVERSION_REGISTER_ADR = 0X00
@@ -26,8 +27,8 @@ class engine_data_interface:
 			"fuel-level": 89
 		}
 		
-		"""self.data = vessel_data.vessel_data_manager()
-		self._n2k = NMEA2000_handler.n2k_handler(self.data)
+		self.data_mngr = vessel_data.vessel_data_manager()
+		"""self._n2k = NMEA2000_handler.n2k_handler(self.data)
 		
 		# setup I2C communication (To ADC)
 		self._pi = pigpio.pi()
@@ -40,20 +41,26 @@ class engine_data_interface:
 		self._can0 = None
 		self.initialize_can_interface()"""
 			
+   
 	def read_engine_data(self):
 		
+		self.data_mngr.create_fake_data_for_testing()
 		while True:
 			#result = self._adc_read(2)	
 			#self._read_can()
-			self.engine_data["rpm"] += 1
+			"""self.engine_data["rpm"] += 1
 			self.engine_data["coolant_temp"] += 1
 			if (self.engine_data["coolant_temp"] >= 120):
-				self.engine_data["coolant_temp"] = 50
+				self.engine_data["coolant_temp"] = 50"""
 			#print(f"RPM = {self.engine_data['rpm']}")
 			#print(f"Coolant = {engine_data['coolant_temp']}")
+			
 			time.sleep(1)
 
-	
+	def get_current_engine_data(self):
+		eng_data = self.data_mngr.get_updated_web_values()
+		json_compliant_data = [-9999.99 if math.isnan(x) else x for x in eng_data]
+		return json_compliant_data
 	
 	
 	# -------------------------------------------------------------------------------------
