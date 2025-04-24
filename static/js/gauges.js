@@ -43,7 +43,7 @@ function createGauge(containerId, value, min, max, unit, instanceTitle, valueDes
 
     // Value text
     const valueText = document.createElementNS(svgns, "text");
-    const valueFontSize = "6rem";
+    const valueFontSize = "4rem";
     valueText.setAttribute("text-anchor", "middle");
     valueText.setAttribute("x", centerX);
     valueText.setAttribute("y", gaugeBaseHight-24);
