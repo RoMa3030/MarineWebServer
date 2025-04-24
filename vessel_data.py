@@ -145,7 +145,7 @@ class vessel_data_manager:
 		for each datafield: Datatype, instance
 		"""
 		print("Hard coded: dynamic - todo")
-		return [[1,0], [4,0], [3,0], [24,0], [25,0], [26,0]]
+		return [[1,0], [4,0], [3,0], [18,0], [20,0], [21,0]]
 		
   
 	def create_fake_data_for_testing(self):

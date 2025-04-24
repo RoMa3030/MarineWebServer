@@ -72,17 +72,22 @@ function createGauge(containerId, value, min, max, unit, instanceTitle, valueDes
     container.appendChild(gaugeSvg);
 }
 
-function updateGauge(containerId, value, min, max, unit) {
+function updateGauge(containerId, value) {
     // Update value text
     const valueText = document.getElementById(`${containerId}-value`);
-    valueText.textContent = value + (unit ? ' ' + unit : '');
+    const container = document.getElementById(containerId);
+    const dataType = container.dataset.dataType;
+    const unit = getUnit(dataType);
+    const min = container.dataset.min;
+    const max = container.dataset.max;
+
+    valueText.textContent = value + (unit ? unit : '');
 
     // Update indicator graphic
     const indicator = document.getElementById(`${containerId}-indicator`);
     const [gaugeBaseHight, centerX, radius] = calculateGaugeDimensions(containerId);
     const percentage = getIndicatorPercentage(value, min, max);
     drawGaugeArc(indicator, gaugeBaseHight, centerX, radius, percentage, "blue", 30);
-
 }
 
 function calculateGaugeDimensions(containerId){

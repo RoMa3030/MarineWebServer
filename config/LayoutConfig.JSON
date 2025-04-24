@@ -48,10 +48,10 @@
         ]
       },
       {
-        "level2Type": "SingleValue",
+        "level2Type": "Gauge",
         "dataFields": [
           {
-            "dataType": 24,
+            "dataType": 18,
             "instance": 0,
             "range_min": 0,
             "range_max": 100
@@ -62,7 +62,7 @@
         "level2Type": "SingleValue",
         "dataFields": [
           {
-            "dataType": 25,
+            "dataType": 20,
             "instance": 0,
             "range_min": 0,
             "range_max": 100
@@ -73,7 +73,7 @@
         "level2Type": "SingleValue",
         "dataFields": [
           {
-            "dataType": 26,
+            "dataType": 21,
             "instance": 0,
             "range_min": 0,
             "range_max": 100

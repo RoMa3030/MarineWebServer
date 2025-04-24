@@ -35,22 +35,7 @@ function updateEngineData() {
             floatArray.forEach((value, index) => {
                 if (!Number.isNaN(value) && value !== null && value !== -9999.99) {
                     console.log(`Value at index ${index} is ${value}`);
-                    /*
-                    /
-                    /
-                    /
-                    /
-                    
-                    TO DO
-
-                    IMPLEMENT UPDATING OF DISPLAYED INFORMATION
-                    
-                    /
-                    /
-                    /
-                    /
-                    /
-                    */
+                    updateDataField(index, value);
                 }
             });
         })
@@ -80,6 +65,24 @@ function updateEngineData() {
         .finally(() => {
             setTimeout(updateEngineData, 1000);
         });*/
+}
+
+function updateDataField(numerator, value) {
+    // Not suitable yet for layouts with more than 1 data pages
+    const sectionType = appState.settings.layouts.sections[numerator].level2Type;
+    const containerID = `dtfld_${(numerator+1).toString().padStart(2, '0')}`;
+    switch(sectionType){
+        case 'Gauge':
+            updateGauge(containerID, value);
+            break;
+        case 'SingleValue':
+            numberField = document.getElementById(containerID);
+            numberField.textContent = value.toString() + getUnit(numberField.dataset.dataType);
+            break;
+        default:
+            console.log("This level2layout-type is not supported yet")
+    }
+        
 }
 
 
@@ -269,53 +272,42 @@ function getLabelForDataType(dataType) {
 }
 
 function getUnit(dataType) {
-    // Get unit selection from app settings
-    const unitSelection = appState.settings?.unitSelection || {
-        length: 'm',
-        temperature: '°C',
-        pressure: 'bar',
-        volume: 'L'
-    };
-    
-    // Check if we have data type mappings loaded
-    if (!appState.dataTypeMappings?.dataTypes?.[dataType]) {
-        // Fallback if mappings not available
-        return getFallbackUnit(dataType, unitSelection);
+    let unit = "";
+    if (appState.dataTypeMappings && 
+        appState.dataTypeMappings.dataTypes && 
+        appState.dataTypeMappings.dataTypes[dataType]) {
+        
+        const mapping = appState.dataTypeMappings.dataTypes[dataType];
+        unit = mapping.unit || '';
+        
+        if(mapping.unitType !== "none")
+        {
+            if (appState.settings &&
+                appState.settings.unitSelection) {
+                switch (mapping.unitType) {
+                    case 'temperature':
+                        unit = "°" + appState.settings.unitSelection.temperature;
+                        break;
+                    case 'pressure':
+                        unit = " " + appState.settings.unitSelection.pressure;
+                        break;
+                    case 'volume':
+                        unit = " " + appState.settings.unitSelection.volume;
+                        break;
+                    case 'length':
+                        unit = " " + appState.settings.unitSelection.length;
+                        break;
+                    case 'flow':
+                        unit = " " + appState.settings.unitSelection.volume +'/h';
+                        break;
+                }
+            }else{
+                console.log("Settings not available to read units preference");
+            }            
+        }else{
+            unit = " " + appState.dataTypeMappings.dataTypes[dataType].unit;
+        }
     }
-    
-    // Get the mapping for this data type
-    const mapping = appState.dataTypeMappings.dataTypes[dataType];
-    let unit = mapping.unit || '';
-    
-    // Apply unit selection based on unit type
-    switch (mapping.unitType) {
-        case 'temperature':
-            unit = unitSelection.temperature;
-            break;
-            
-        case 'pressure':
-            unit = unitSelection.pressure;
-            break;
-            
-        case 'volume':
-            unit = unitSelection.volume;
-            break;
-            
-        case 'length':
-            unit = unitSelection.length;
-            break;
-            
-        case 'flow':
-            // Handle flow units (like L/h)
-            if (unitSelection.volume !== 'L' && unit.includes('L/')) {
-                unit = unit.replace('L/', `${unitSelection.volume}/`);
-            }
-            break;
-            
-        // No modifications needed for other unit types
-        // (percentage, time, angle, voltage, current, none)
-    }
-    
     return unit;
 }
 
@@ -335,16 +327,16 @@ function getDefaultValueForDataType(dataType, unitSelection) {
         // Add dynamic unit based on unitType and unitSelection
         switch (mapping.unitType) {
             case 'temperature':
-                unit += unitSelection.temperature;
+                unit = unitSelection.temperature;
                 break;
             case 'pressure':
-                unit += unitSelection.pressure;
+                unit = unitSelection.pressure;
                 break;
             case 'volume':
-                unit += unitSelection.volume;
+                unit = unitSelection.volume;
                 break;
             case 'length':
-                unit += unitSelection.length;
+                unit = unitSelection.length;
                 break;
             case 'flow':
                 // Replace L with selected volume unit if not L

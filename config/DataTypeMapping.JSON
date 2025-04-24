@@ -7,187 +7,187 @@
       },
       "2": {
         "label": "Engine Oil Temperature",
-        "unit": "°",
+        "unit": "none",
         "unitType": "temperature"
       },
       "3": {
         "label": "Engine Oil Pressure",
-        "unit": "",
+        "unit": "none",
         "unitType": "pressure"
       },
       "4": {
         "label": "Coolant Temperature",
-        "unit": "°",
+        "unit": "none",
         "unitType": "temperature"
       },
       "5": {
         "label": "Coolant Pressure",
-        "unit": "",
+        "unit": "none",
         "unitType": "pressure"
       },
       "6": {
         "label": "Gear Oil Temperature",
-        "unit": "°",
+        "unit": "none",
         "unitType": "temperature"
       },
       "7": {
         "label": "Gear Oil Pressure",
-        "unit": "",
+        "unit": "none",
         "unitType": "pressure"
       },
       "8": {
         "label": "Boost Pressure",
-        "unit": "",
+        "unit": "none",
         "unitType": "pressure"
       },
       "9": {
         "label": "Trim",
         "unit": "%",
-        "unitType": "percentage"
+        "unitType": "none"
       },
       "10": {
         "label": "Rudder",
-        "unit": "°",
-        "unitType": "angle"
+        "unit": "deg",
+        "unitType": "none"
       },
       "11": {
         "label": "Fuel Rate",
-        "unit": "L/h",
-        "unitType": "flow"
+        "unit": "none",
+        "unitType": "Flow"
       },
       "12": {
         "label": "Engine Hours",
         "unit": "h",
-        "unitType": "time"
+        "unitType": "none"
       },
       "13": {
         "label": "Fuel Pressure",
-        "unit": "",
+        "unit": "none",
         "unitType": "pressure"
       },
       "14": {
         "label": "Alarms EDS1",
-        "unit": "",
+        "unit": "none",
         "unitType": "none"
       },
       "15": {
         "label": "Alarms EDS2",
-        "unit": "",
+        "unit": "none",
         "unitType": "none"
       },
       "16": {
         "label": "Engine Load",
         "unit": "%",
-        "unitType": "percentage"
+        "unitType": "none"
       },
       "17": {
         "label": "Engine Torque",
         "unit": "%",
-        "unitType": "percentage"
+        "unitType": "none"
       },
       "18": {
         "label": "Battery Potential",
         "unit": "V",
-        "unitType": "voltage"
+        "unitType": "none"
       },
       "19": {
         "label": "Alternator Potential",
         "unit": "V",
-        "unitType": "voltage"
+        "unitType": "none"
       },
       "20": {
         "label": "Current",
         "unit": "A",
-        "unitType": "current"
+        "unitType": "none"
       },
       "21": {
         "label": "Battery Temperature",
-        "unit": "°",
+        "unit": "none",
         "unitType": "temperature"
       },
       "22": {
         "label": "State of Charge",
         "unit": "%",
-        "unitType": "percentage"
+        "unitType": "none"
       },
       "23": {
         "label": "Battery Autonomy",
         "unit": "h",
-        "unitType": "time"
+        "unitType": "none"
       },
       "24": {
         "label": "Fuel Level",
         "unit": "%",
-        "unitType": "percentage"
+        "unitType": "none"
       },
       "25": {
         "label": "Fresh Water Level",
         "unit": "%",
-        "unitType": "percentage"
+        "unitType": "none"
       },
       "26": {
         "label": "Waste Level",
         "unit": "%",
-        "unitType": "percentage"
+        "unitType": "none"
       },
       "27": {
         "label": "Live Well Level",
         "unit": "%",
-        "unitType": "percentage"
+        "unitType": "none"
       },
       "28": {
         "label": "Oil Level",
         "unit": "%",
-        "unitType": "percentage"
+        "unitType": "none"
       },
       "29": {
         "label": "Black Water Level",
         "unit": "%",
-        "unitType": "percentage"
+        "unitType": "none"
       },
       "30": {
         "label": "Fuel Capacity",
-        "unit": "",
-        "unitType": "volume"
+        "unit": "%",
+        "unitType": "none"
       },
       "31": {
         "label": "Fresh Water Capacity",
-        "unit": "",
+        "unit": "none",
         "unitType": "volume"
       },
       "32": {
         "label": "Waste Capacity",
-        "unit": "",
+        "unit": "none",
         "unitType": "volume"
       },
       "33": {
         "label": "Live Well Capacity",
-        "unit": "",
+        "unit": "none",
         "unitType": "volume"
       },
       "34": {
         "label": "Oil Capacity",
-        "unit": "",
+        "unit": "none",
         "unitType": "volume"
       },
       "35": {
         "label": "Black Water Capacity",
-        "unit": "",
+        "unit": "none",
         "unitType": "volume"
       },
       "36": {
         "label": "Sea Temperature",
-        "unit": "°",
+        "unit": "none",
         "unitType": "temperature"
       },
       "37": {
         "label": "Outside Temperature",
-        "unit": "°",
+        "unit": "none",
         "unitType": "temperature"
       },
       "38": {
         "label": "Exhaust Gas Temperature",
-        "unit": "°",
+        "unit": "none",
         "unitType": "temperature"
       }
     }
