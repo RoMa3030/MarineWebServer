@@ -10,7 +10,7 @@ import uvicorn
 
 import threading
 import time
-import pigpio
+#import pigpio
 import signal
 
 from engine_data_reader import engine_data_interface
@@ -39,7 +39,7 @@ templates = Jinja2Templates(directory="templates")
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request):
     # render and return the index.html template
-    return templates.TemplateResponse("index.html",{"request": request})
+    return templates.TemplateResponse("MWS.html",{"request": request})
     
 
 @app.get("/favicon.ico")
@@ -75,7 +75,11 @@ async def get_DataTypeMappings():
 def get_engine_data():
     return engine_interface.get_current_engine_data()
 
-
+#--------------------------------------------------------------------------------------
+@app.get("/Config", response_class=HTMLResponse)
+def read_root(request: Request):
+    # render and return the index.html template
+    return templates.TemplateResponse("MWS_Config.html",{"request": request})
 
 
 

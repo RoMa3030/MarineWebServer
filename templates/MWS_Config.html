@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MWS Configuration Page</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/ConfigPage_Styles.css') }}">
+  <link rel="icon" href="{{ url_for('static', path='/favicon.ico') }}">
+</head>
+<body>
+
+    <h1>MWS Configuration Page</h1>
+
+    <div class="section">
+      <h2>Units</h2>
+      <div class="field-group">
+        <label for="unitLength">Length</label>
+        <select id="unitLength">
+          <option>Metric</option>
+          <option>Imperial</option>
+          <option>Nautic</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="unitTemperature">Temperature</label>
+        <select id="unitTemperature">
+          <option>Celcius</option>
+          <option>Fahrenheit</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="unitPressure">Pressure</label>
+        <select id="unitPressure">
+          <option>bar</option>
+          <option>psi</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="unitVolume">Volume</label>
+        <select id="unitVolume">
+          <option>Liter</option>
+          <option>Gallon</option>
+        </select>
+      </div>
+    </div>
+  
+    <div class="section">
+      <h2>Engine Designations</h2>
+      <div class="field-group">
+        <label for="engine1">Engine 1</label>
+        <input type="text" id="engine1" placeholder="Designation 1">
+      </div>
+      <div class="field-group">
+        <label for="engine2">Engine 2</label>
+        <input type="text" id="engine2" placeholder="Designation 2">
+      </div>
+      <div class="field-group">
+        <label for="engine3">Engine 3</label>
+        <input type="text" id="engine3" placeholder="Designation 3">
+      </div>
+      <div class="field-group">
+        <label for="engine4">Engine 4</label>
+        <input type="text" id="engine4" placeholder="Designation 4">
+      </div>
+    </div>
+  
+    <div class="section">
+        <h2>Layout</h2>
+        <div class="field-group">
+            <label for="layout1">Page 1</label>
+            <div class="dropdown-container">
+                <select id="layout1">
+                    <option>Empty</option>
+                    <option>Numeric Grid 3x2</option>
+                    <option>Dash</option>
+                    <option>Columns</option>
+                </select>
+                <button>Select Data</button>
+            </div>
+        </div>
+        <div class="field-group">
+            <label for="layout2">Page 2</label>
+            <div class="dropdown-container">
+                <select id="layout2">
+                    <option>Empty</option>
+                </select>
+                <button>Select Data</button>
+            </div>
+        </div>
+        <div class="field-group">
+            <label for="layout3">Page 3</label>
+            <div class="dropdown-container">
+                <select id="layout3">
+                    <option>Empty</option>
+                </select>
+                <button>Select Data</button>
+            </div>
+        </div>
+        <div class="field-group">
+            <label for="layout4">Page 4</label>
+            <div class="dropdown-container">
+                <select id="layout4">
+                    <option>Empty</option>
+                </select>
+                <button>Select Data</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
