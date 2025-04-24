@@ -180,6 +180,7 @@ class vessel_data_manager:
  
  
 	def update_website_interface_data(self):
+		# Allwos for external trigering of updating interface. (Currently not used)
 		self.web_data_interface = self._load_website_interface_data()
  
  
@@ -191,11 +192,20 @@ class vessel_data_manager:
 		This function is to find out which data must be put in the array.
   
 		Layout:
-		array[2x(number of datafield)]
-		for each datafield: Datatype, instance
+		array[2x(number of datafields)]
+		for each datafield: [Datatype, instance]
 		"""
-		print("Hard coded: dynamic - todo")
-		return [[0,0], [3,0], [2,0], [17,0], [19,0], [20,0]]
+		with open('config/LayoutConfig.JSON', 'r', encoding='utf-8') as f:
+			page_config = json.load(f)
+
+		interface_description = []
+		for page in page_config.get("layouts", []):
+			for section in page.get("sections", []):
+				for field in section.get("dataFields", []):
+					instance = field.get("instance")
+					data_type = field.get("dataType")
+					interface_description.append([data_type, instance])  		
+		return interface_description
 		
   
 	def create_fake_data_for_testing(self):

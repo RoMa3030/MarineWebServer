@@ -8,7 +8,6 @@ MULTIFRAME_MESSAGES = [0x1F201,0x1F212]
 KELVIN_OFFSET = 273.15
 
 class n2k_handler:
-	
 	def __init__(self, data_storage_obj):
 		self.data_storage = data_storage_obj
 		self._mf_handler = multiframe_handler()
