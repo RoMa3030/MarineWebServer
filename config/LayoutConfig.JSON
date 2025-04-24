@@ -18,7 +18,7 @@
         "level2Type": "SingleValue",
         "dataFields": [
           {
-            "dataType": 1,
+            "dataType": 0,
             "instance": 0,
             "range_min": 0,
             "range_max": 3000
@@ -29,7 +29,7 @@
         "level2Type": "Gauge",
         "dataFields": [
           {
-            "dataType": 4,
+            "dataType": 3,
             "instance": 0,
             "range_min": 40,
             "range_max": 120
@@ -40,7 +40,7 @@
         "level2Type": "SingleValue",
         "dataFields": [
           {
-            "dataType": 3,
+            "dataType": 2,
             "instance": 0,
             "range_min": 0,
             "range_max": 12
@@ -51,7 +51,18 @@
         "level2Type": "Gauge",
         "dataFields": [
           {
-            "dataType": 18,
+            "dataType": 17,
+            "instance": 0,
+            "range_min": 0,
+            "range_max": 100
+          }
+        ]
+      },
+      {
+        "level2Type": "SingleValue",
+        "dataFields": [
+          {
+            "dataType": 19,
             "instance": 0,
             "range_min": 0,
             "range_max": 100
@@ -63,17 +74,6 @@
         "dataFields": [
           {
             "dataType": 20,
-            "instance": 0,
-            "range_min": 0,
-            "range_max": 100
-          }
-        ]
-      },
-      {
-        "level2Type": "SingleValue",
-        "dataFields": [
-          {
-            "dataType": 21,
             "instance": 0,
             "range_min": 0,
             "range_max": 100

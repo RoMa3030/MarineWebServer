@@ -41,30 +41,10 @@ function updateEngineData() {
         })
         .catch(error => {
             console.error('Error fetching engine data:', error);
-        });
-
-
-    /*fetch('/api/engine-data')
-        .then(response => response.json())
-        .then(data => {
-			// Update numeric fields
-			document.getElementById('dtfld_01').textContent = data.rpm + ' RPM';
-
-            // Update/create gauges
-            if (document.getElementById('dtfld_02').children.length === 0) {
-                createGauge('dtfld_02', data.coolant_temp, 40, 120, '°C', 'Engine 1', "Coolant Temperature");
-                // Create other gauges...
-            } else {
-                updateGauge('temp-gauge', data.coolant_temp, 40, 120, '°C');
-                // Update other gauges...
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching engine data:', error);
         })
         .finally(() => {
-            setTimeout(updateEngineData, 1000);
-        });*/
+            setTimeout(updateEngineData, 1500);
+        });
 }
 
 function updateDataField(numerator, value) {

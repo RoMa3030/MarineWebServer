@@ -10,30 +10,30 @@ class parameter_type(Enum):
     # When doing any changes never the less, also change in Config/DataTypeMapping.JSON
     
 	# Engine
-	ENG_SPEED = 1
-	ENG_OIL_TEMP = 2
-	ENG_OIL_PRESS = 3
-	COOLANT_TEMP = 4
-	COOLANT_PRESS = 5
-	GEAR_OIL_TEMP = 6
-	GEAR_OIL_PRESS = 7
-	BOOST_PRESS	= 8
-	TRIM = 9
-	RUDDER = 10
-	FUEL_RATE = 11
-	ENG_HOURS = 12
-	FUEL_PRESS = 13
-	ALARMS_EDS1 = 14
-	ALARMS_EDS2 = 15
-	ENG_LOAD = 16
-	ENG_TORQUE = 17
+	ENG_SPEED = 0
+	ENG_OIL_TEMP = 1
+	ENG_OIL_PRESS = 2
+	COOLANT_TEMP = 3
+	COOLANT_PRESS = 4
+	GEAR_OIL_TEMP = 5
+	GEAR_OIL_PRESS = 6
+	BOOST_PRESS	= 7
+	TRIM = 8
+	RUDDER = 9
+	FUEL_RATE = 10
+	ENG_HOURS = 11
+	FUEL_PRESS = 12
+	ALARMS_EDS1 = 13
+	ALARMS_EDS2 = 14
+	ENG_LOAD = 15
+	ENG_TORQUE = 16
 	
 	# Battery
-	BATTERY_POT = 18
-	ALTERNATOR_POT = 19 
-	AMMETER = 20
-	BATTERY_TEMP = 21
-	SOC = 22
+	BATTERY_POT = 17
+	ALTERNATOR_POT = 18
+	AMMETER = 19
+	BATTERY_TEMP = 20
+	SOC = 21
 	SOH = 22
 	BATTERY_AUTON = 23
 	
@@ -55,6 +55,56 @@ class parameter_type(Enum):
 	SEA_TEMP = 36
 	OUTSIDE_TEMP = 37
 	EXHAUST_GAS_TEMP = 38
+
+""" DEFAULT_PRECISION:
+		Defines globally what precisions should be applied to each datatype in number of decimals
+    	prec. 2: 	123.456 => 	123.46
+    	prec. 1: 	123.456 =>	123.4
+    	prec. 0: 	123.456 =>	123
+    	prec. -1: 	123.456 =>  120   
+     """
+DEFAULT_PRECISION = [
+	0,# ENG_SPEED = 0
+	0,# ENG_OIL_TEMP = 1
+	1,# ENG_OIL_PRESS = 2
+	0,# COOLANT_TEMP = 3
+	1,# COOLANT_PRESS = 4
+	0,# GEAR_OIL_TEMP = 5
+	1,# GEAR_OIL_PRESS = 6
+	1,# BOOST_PRESS	= 7
+	0,# TRIM = 8
+	0,# RUDDER = 9
+	1,# FUEL_RATE = 10
+	1,# ENG_HOURS = 11
+	1,# FUEL_PRESS = 12
+	0,# ALARMS_EDS1 = 13
+	0,# ALARMS_EDS2 = 14
+	0,# ENG_LOAD = 15
+	0,# ENG_TORQUE = 16
+	2,# BATTERY_POT = 17
+	2,# ALTERNATOR_POT = 18 
+	0,# AMMETER = 19
+	0,# BATTERY_TEMP = 20
+	0,# SOC = 21
+	0,# SOH = 22
+	0,# BATTERY_AUTON = 23
+	0,# FUEL_LEVEL = 24
+	0,# FRESH_LEVEL = 25
+	0,# WASTE_LEVEL = 26
+	0,# LIVE_WELL_LEVEL = 27
+	0,# OIL_LEVEL = 28
+	0,# BLACK_WATER_LEVEL = 29 
+	0,# FUEL_LEVEL_CAP = 30
+	0,# FRESH_LEVEL_CAP = 31
+	0,# WASTE_LEVEL_CAP = 32
+	0,# LIVE_WELL_LEVEL_CAP = 33 
+	0,# OIL_LEVEL_CAP = 34
+	0,# BLACK_WATER_LEVEL_CAP = 35 
+	1,# SEA_TEMP = 36
+	0,# OUTSIDE_TEMP = 37
+	0# EXHAUST_GAS_TEMP = 38
+]
+
 	
 class source_types(Enum):
 	NMEA2000 = 1
@@ -71,6 +121,7 @@ class data_point:
 	
 	def __str__(self):
 		return f"Value: {self.value}, Source Type: {self.source_type}, Address: {self.source_address}, Time: {self.time_stamp}"
+
 
 class vessel_data_manager:
 	def __init__(self):
@@ -113,14 +164,13 @@ class vessel_data_manager:
 	
 	def get_updated_web_values(self):
 		data_array = []
-		print(self._data)
 		for data_point in self.web_data_interface:
 			parameter = data_point[0]
 			instance = data_point[1]
 			if (parameter in self._data):
 				if (instance in self._data[parameter]):
-					data_array.append(self._data[parameter][instance].value)
-					print(self._data[parameter][instance].value)
+					rounded = round(self._data[parameter][instance].value, DEFAULT_PRECISION[parameter])
+					data_array.append(rounded)
 				else:
 					data_array.append(float('nan'))
 			else:
@@ -145,11 +195,11 @@ class vessel_data_manager:
 		for each datafield: Datatype, instance
 		"""
 		print("Hard coded: dynamic - todo")
-		return [[1,0], [4,0], [3,0], [18,0], [20,0], [21,0]]
+		return [[0,0], [3,0], [2,0], [17,0], [19,0], [20,0]]
 		
   
 	def create_fake_data_for_testing(self):
-		val = 50
+		val = 50.123
 		for data_point in self.web_data_interface:
 			parameter = data_point[0]
 			instance = data_point[1]
