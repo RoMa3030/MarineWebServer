@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
         console.log('Failed to initialize page layout');
         console.log(error)
-
     }
+    console.log("initialiation completed")
     updateEngineData(); // make sure, the gauges are loaded from the init function first, before starting this loop
 });
 
@@ -30,11 +30,11 @@ function updateEngineData() {
             return response.json();
         })
         .then(floatArray => {
-            console.log("Received data:", floatArray);
-            console.log("Type of data:", typeof floatArray);
+            //console.log("Received data:", floatArray);
+            //console.log("Type of data:", typeof floatArray);
             floatArray.forEach((value, index) => {
                 if (!Number.isNaN(value) && value !== null && value !== -9999.99) {
-                    console.log(`Value at index ${index} is ${value}`);
+                    //console.log(`Value at index ${index} is ${value}`);
                     updateDataField(index, value);
                 }
             });
@@ -49,20 +49,25 @@ function updateEngineData() {
 
 function updateDataField(numerator, value) {
     // Not suitable yet for layouts with more than 1 data pages
-    const sectionType = appState.settings.layouts.sections[numerator].level2Type;
-    const containerID = `dtfld_${(numerator+1).toString().padStart(2, '0')}`;
-    switch(sectionType){
-        case 'Gauge':
-            updateGauge(containerID, value);
-            break;
-        case 'SingleValue':
-            numberField = document.getElementById(containerID);
-            numberField.textContent = value.toString() + getUnit(numberField.dataset.dataType);
-            break;
-        default:
-            console.log("This level2layout-type is not supported yet")
-    }
-        
+    appState.settings.layouts.forEach((layout, layoutIndex) => {
+        if(layoutIndex === 0) {
+            const sectionType = layout.sections[numerator].level2Type;
+            const containerID = `dtfld_${(numerator+1).toString().padStart(2, '0')}`;
+            switch(sectionType){
+                case 'Gauge':
+                    updateGauge(containerID, value);
+                    break;
+                case 'SingleValue':
+                    numberField = document.getElementById(containerID);
+                    numberField.textContent = value.toString() + getUnit(numberField.dataset.dataType);
+                    break;
+                default:
+                    console.log("This level2layout-type is not supported yet")
+            }
+        }else{
+            console.log("Layouts with more than one page are currently not supported yet.");
+        }
+    });
 }
 
 
@@ -112,32 +117,44 @@ function renderLayout(layoutConfig) {
     container.innerHTML = '';
     
     // Check if layoutConfig is valid
-    if (!layoutConfig || !layoutConfig.layouts) {
+    /*if (!layoutConfig || !layoutConfig.layouts) {
         console.error('Invalid layout configuration');
         return;
-    }
+    }*/
+    // Check if layoutConfig is valid
+    if (!layoutConfig || !Array.isArray(layoutConfig.layouts)) {
+        console.error('Invalid layout configuration');
+        return;
+    } 
 
-    if (layoutConfig.layouts.level1Type == 'Grid_3_2') {
-        const sections = layoutConfig.layouts.sections || [];
-        
-        // Create the fixed 3x2 grid
-        const grid = document.createElement('div');
-        grid.className = 'grid';
-        console.log('Grid element created');
+    layoutConfig.layouts.forEach((layout, layoutIndex) => {
+        // code is currently not suitable for web-app that displays several pages -> layouts after page1 are ignored
+        if(layoutIndex === 0) {
+            if (layout.level1Type == 'Grid_3_2') {
+                const sections = layout.sections || [];
+                
+                // Create the fixed 3x2 grid
+                const grid = document.createElement('div');
+                grid.className = 'grid';
+                console.log('Grid element created');
 
-        console.log('sections: ',sections)
-        // Create exactly 6 cards (3x2 grid)
-        for (let index = 0; index < 6; index++) {
-            console.log('Added Card nr. ', index);
-            const section = sections[index] || {}; // Use empty object if section doesn't exist
-            const card = createCard(section, index + 1, layoutConfig);
-            grid.appendChild(card);
+                //console.log('sections: ',sections)
+                // Create exactly 6 cards (3x2 grid)
+                for (let index = 0; index < 6; index++) {
+                    //console.log('Added Card nr. ', index);
+                    const section = sections[index] || {}; // Use empty object if section doesn't exist
+                    const card = createCard(section, index + 1, layoutConfig);
+                    grid.appendChild(card);
+                }
+                
+                container.appendChild(grid);
+            }else{
+                console.error('The defined Level-1-Layout type is not supported yet.');
+            }
+        }else{
+            console.log("Layouts with several pages are not supported yet");
         }
-        
-        container.appendChild(grid);
-    }else{
-        console.error('The defined Level-1-Layout type is not supported yet.')
-    }
+    });
 }
 
 function createCard(section, index, layoutConfig) {
@@ -165,7 +182,6 @@ function createCard(section, index, layoutConfig) {
     switch (section.level2Type) {
         case 'Gauge':
             gaugeContainerId = `dtfld_${idIndex}`;
-            console.log("Starting to create gauge");
             const gaugeContainer = document.createElement('div');       //
             gaugeContainer.id = gaugeContainerId;                       // create and give standardized name
             gaugeContainer.className = 'gauge-container';               // define the type as named in the CSS
@@ -173,25 +189,8 @@ function createCard(section, index, layoutConfig) {
             gaugeContainer.dataset.instance = engineDesignation;       //      Fill in the data
             gaugeContainer.dataset.min = dataField.range_min;           //
             gaugeContainer.dataset.max = dataField.range_max;           //
-            
-            /*
-            // Add instance designator if available
-            if (engineDesignation) {
-                const instanceElement = document.createElement('p');
-                instanceElement.id = `instdes_${idIndex}`;
-                instanceElement.className = 'instance_designator';
-                instanceElement.textContent = engineDesignation;
-                card.appendChild(instanceElement);
-            }*/
-            
+                        
             card.appendChild(gaugeContainer);
-            /*
-            // Add a label based on data type
-            const gaugeLabel = document.createElement('p');
-            gaugeLabel.id = `lbl_${idIndex}`;
-            gaugeLabel.className = 'label';
-            gaugeLabel.textContent = getLabelForDataType(dataField.dataType);
-            card.appendChild(gaugeLabel);*/
             break;
             
         case 'SingleValue':
