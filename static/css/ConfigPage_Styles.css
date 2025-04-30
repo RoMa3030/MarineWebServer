@@ -27,6 +27,14 @@ h2 {
     font-weight: 600;
 }
 
+h3 {
+    font-size: 1.5em;
+    color: #333;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
 /* Section Container */
 .section {
     margin: 20px auto;
@@ -41,8 +49,23 @@ h2 {
 .field-group {
     display: flex;
     flex-direction: column;
-    gap: 10px;
     margin-bottom: 20px;
+}
+
+.dropdown-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dropdown-row select {
+    width: 200px;
+}
+
+.dropdown-row button {
+    flex-shrink: 0;
+    width: 150px;
+    padding: 10px;
 }
 
 /* Label Styling */
@@ -81,12 +104,51 @@ button:hover {
     background-color: #333;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .field-group {
-        flex-direction: column;
-    }
-    select, input[type="text"], button {
-        width: 100%;
-    }
+.line-button {
+    background-color: #505050;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    gap: 10px;
+    width: 40px;
 }
+
+.line-button:hover {
+    background-color: #333;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    width: 120px;
+    text-align: center;
+}
+
+input[type="text"] {
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 6px;
+    box-sizing: border-box;
+}
+
+
+/* Responsive Design */
+@media (max-width: 800px) {
+    .dropdown-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .dropdown-row select,
+    .dropdown-row button {
+      width: 100%;
+    }
+  }
