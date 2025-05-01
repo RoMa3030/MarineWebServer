@@ -72,6 +72,10 @@ h3 {
     margin: 5px;
 }
 
+.datafield-editor label, .datafield-editor select {
+    margin-right: 15px;
+}
+
 /* Label Styling */
 label {
     font-size: 1em;

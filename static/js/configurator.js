@@ -34,36 +34,38 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 function InitLayoutEditors() {
-    for(let i=1; i<=4; i++) {
+    for(let i=0; i<4; i++) {
         const dropdown = document.getElementById(`sel-layout${i}`);
         if (dropdown) {
             dropdown.addEventListener('change', function(event) {
                 const layout = event.target.value;
-                const editorId = `layout-editor-${i-1}`;  // Convert to 0-based index for layout-editor-0, layout-editor-1, etc.
-                renderLayoutEditor(layout, editorId, i-1);
+                const editorId = `layout-editor-${i}`;  // Convert to 0-based index for layout-editor-0, layout-editor-1, etc.
+                renderLayoutEditor(layout, editorId, i);
             });
         }
     }
 }
 
-function renderLayoutEditor(layout, editorId, index) {
+function renderLayoutEditor(layout, editorId, lvl1_index) {
     const editorContainer = document.getElementById(editorId);
     switch(layout) {
         case("Empty"):
+            editorContainer.innerHTML = '';
+            showEditorDetails(false,editorContainer);
             break;
 
         case("Numeric Grid 3x2"):
-        const Lvl2EditorField = document.createElement('div');
-        Lvl2EditorField.className = 'Lvl2-Editor-Field';
+            const Lvl2EditorField = document.createElement('div');
+            Lvl2EditorField.className = 'Lvl2-Editor-Field';
 
-            for(let j=0; j<6; j++) {
+            for(let lvl2_index=0; lvl2_index<6; lvl2_index++) {
                 // Create Dropdown to select Level-2-Layout
                 const lvl2TypeLabel = document.createElement('label');
-                lvl2TypeLabel.textContent = 'Layout:  ';
-                lvl2TypeLabel.setAttribute('for', `lvl2Type-${index}-${j}`);
+                lvl2TypeLabel.textContent = `${lvl2_index+1}. Card-Layout: `;
+                lvl2TypeLabel.setAttribute('for', `lvl2Type-${lvl1_index}-${lvl2_index}`);
 
                 const lvl2TypeSelect = document.createElement('select');
-                lvl2TypeSelect.id = `lvl2Type-${index}-${j}`;
+                lvl2TypeSelect.id = `lvl2Type-${lvl1_index}-${lvl2_index}`;
                 lvl2TypeSelect.className = "lvl2_layout_select";
 
                 const options = ["SingleValue","Gauge"/*,"TripleValue","Columns"*/];
@@ -72,66 +74,99 @@ function renderLayoutEditor(layout, editorId, index) {
                     const optionElement = document.createElement('option');
                     optionElement.textContent = opt;
                     lvl2TypeSelect.appendChild(optionElement);
-                }
-                
+                }                
                 Lvl2EditorField.appendChild(lvl2TypeLabel);
                 Lvl2EditorField.appendChild(lvl2TypeSelect);
+                
 
                 // Create empty element to later add dynamically add different numbers of DataField selectors
                 const dataFieldEditor = document.createElement('div');
-                dataFieldEditor.id = `datafield-editor-${index}-${j}`;
+                dataFieldEditor.id = `datafield-editor-${lvl1_index}-${lvl2_index}`;
+                dataFieldEditor.className = "datafield-editor";
+                // Add dataset values - will probably allow to make for an easier parser (go through all datatypes and ignore the parent containers)
+                dataFieldEditor.dataset.level1_index = lvl1_index;
+                dataFieldEditor.dataset.level2_index = lvl2_index;
                 Lvl2EditorField.appendChild(dataFieldEditor);
+                Lvl2EditorField.append(dataFieldEditor, document.createElement('br'));
+
+                // add listener to automatically create the correct number of data-fields, when lvl2 layout is changed
+                lvl2TypeSelect.addEventListener('change', function(event) {
+                    RenderDataFieldEditorList(dataFieldEditor.id);
+                });
             }
             editorContainer.appendChild(Lvl2EditorField);
+            console.log(editorContainer);
+
+            //render the default datafield editors:
+            const dataFieldEditors = Lvl2EditorField.querySelectorAll('.datafield-editor');
+            dataFieldEditors.forEach((lvl2_editor, index) => {
+                console.log(`Processing datafield editor ${index}:`, lvl2_editor);
+                RenderDataFieldEditorList(lvl2_editor.id);
+            });
+            showEditorDetails(true, editorContainer);       // Automatically "un-collaps" details
             break;
         default:
-            console.log("not supported yet!")
+            console.log("not supported yet!");
+            break;
     }
 }
 
-function renderSingleLayoutEditor() {
-    /*// Create a div to group each pair of selects
-    const fieldDiv = document.createElement('div');
-    fieldDiv.className = 'field-pair';
+function RenderDataFieldEditorList(dataFieldEditor_id) {
+    numOfDatafields = 1; //ToDo
+    console.log("Editor ID:");
+    console.log(dataFieldEditor_id);
+    // Create a div to group each pair of selects
+    const dfDiv = document.getElementById(dataFieldEditor_id);
+    dfDiv.innerHTML = "";
+    const level1_index = dfDiv.dataset.level1_index;
+    const level2_index = dfDiv.dataset.level2_index;    
 
-    // Create parameter label and select
-    const paramLabel = document.createElement('label');
-    paramLabel.textContent = 'Parameter';
-    paramLabel.setAttribute('for', `param-${index}-${j}`);
+    for(let dfIndex=0; dfIndex<numOfDatafields; dfIndex++) {
+        // Create parameter label and select
+        const paramLabel = document.createElement('label');
+        paramLabel.textContent = 'Parameter:';
+        paramLabel.setAttribute('for', `param-${level1_index}-${level2_index}-${dfIndex}`);
 
-    const paramSelect = document.createElement('select');
-    paramSelect.id = `param-${index}-${j}`;
+        const paramSelect = document.createElement('select');
+        paramSelect.id = `param-${level1_index}-${level2_index}-${dfIndex}`;
 
+        // Create instance label and select
+        const instanceLabel = document.createElement('label');
+        instanceLabel.textContent = 'Instance:';
+        instanceLabel.setAttribute('for', `instance-${level1_index}-${level2_index}-${dfIndex}`);
 
+        const instanceSelect = document.createElement('select');
+        instanceSelect.id = `instance-${level1_index}-${level2_index}-${dfIndex}`;
 
-    // Create instance label and select
-    const instanceLabel = document.createElement('label');
-    instanceLabel.textContent = 'Instance';
-    instanceLabel.setAttribute('for', `instance-${index}-${j}`);
+        // Add options to instance select
+        for(let i=0; i<4; i++) {
+            const optionElement = document.createElement('option');
+            optionElement.textContent = i;
+            instanceSelect.appendChild(optionElement);
+        }
 
-    const instanceSelect = document.createElement('select');
-    instanceSelect.id = `instance-${index}-${j}`;
+        // Add elements to the field div
+        dfDiv.appendChild(paramLabel);
+        dfDiv.appendChild(paramSelect);
+        dfDiv.appendChild(instanceLabel);
+        dfDiv.appendChild(instanceSelect);
 
-    // Add options to instance select
-    for(let i=0; i<4; i++) {
-        const optionElement = document.createElement('option');
-        optionElement.textContent = i;
-        instanceSelect.appendChild(optionElement);
+        // Add the field div to the container
+        //editorContainer.appendChild(dfDiv);
+
+        //Define dropdown options only after appending the element to the layout
+        loadParameterOptions(paramSelect.id, [14,15]);
     }
-
-    // Add elements to the field div
-    fieldDiv.appendChild(paramLabel);
-    fieldDiv.appendChild(paramSelect);
-    fieldDiv.appendChild(instanceLabel);
-    fieldDiv.appendChild(instanceSelect);
-
-    // Add the field div to the container
-    editorContainer.appendChild(fieldDiv);
-
-    //Define dropdown options only after appending the element to the layout
-    loadParameterOptions(paramSelect.id, [14,15]);*/
 }
 
+
+function showEditorDetails(OpenState, editorContainer) {
+    //collaps details element
+    const detailsElement = editorContainer.parentElement;
+    if (detailsElement.tagName.toLowerCase() === 'details') {
+        detailsElement.open = OpenState;
+    }
+}
 
 function loadAdcParameterOptions(select_id) {    
     const parametersToIgnore = ["10","13","14","15","16","21","22","23","30","31","32","33","34","35"];
@@ -139,8 +174,6 @@ function loadAdcParameterOptions(select_id) {
 }
 
 function loadParameterOptions(select_id, parameters_to_ignore =[]) {
-    console.log("select ID:");
-    console.log(select_id);
     const selectElement = document.getElementById(select_id);
 
     for (const key in mappings.dataTypes) {
