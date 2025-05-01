@@ -68,6 +68,10 @@ h3 {
     padding: 10px;
 }
 
+.lvl2_layout_select{
+    margin: 5px;
+}
+
 /* Label Styling */
 label {
     font-size: 1em;
@@ -84,6 +88,8 @@ select, input[type="text"], button {
     background-color: #f9f9f9;
     color: #333;
 }
+
+
 
 select:focus, input[type="text"]:focus {
     outline: none;

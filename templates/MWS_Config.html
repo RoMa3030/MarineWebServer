@@ -72,41 +72,46 @@
         <h2>Layout</h2>
         <div class="field-group">
             <label for="layout1">Page 1</label>
-            <div class="dropdown-row">
-                <select id="layout1">
-                    <option>Empty</option>
-                    <option>Numeric Grid 3x2</option>
-                    <option>Dash</option>
-                    <option>Columns</option>
-                </select>
-                <button>Select Data</button>
-            </div>
-        </div>
+            <select id="sel-layout1">
+                <option>Empty</option>
+                <option>Numeric Grid 3x2</option>
+                <option>Dash</option>
+                <option>Columns</option>
+            </select>
+                <!--<button id="btn-Layout1">Select Data</button>-->
+            <details>
+              <summary>Define Data-Fields</summary>
+              <div class="layout-editor" id="layout-editor-0">
+              </div>
+            </details>
+        </div>        
+        <hr style="height: 1px; background-color: #ccc; border: none; margin: 20px 0;">
+        
         <div class="field-group">
             <label for="layout2">Page 2</label>
             <div class="dropdown-row">
-                <select id="layout2">
+                <select id="sel-layout2">
                     <option>Empty</option>
                 </select>
-                <button>Select Data</button>
+                <button id="btn-Layout2">Select Data</button>
             </div>
         </div>
         <div class="field-group">
             <label for="layout3">Page 3</label>
             <div class="dropdown-row">
-                <select id="layout3">
+                <select id="sel-layout3">
                     <option>Empty</option>
                 </select>
-                <button>Select Data</button>
+                <button id="btn-Layout3">Select Data</button>
             </div>
         </div>
         <div class="field-group">
             <label for="layout4">Page 4</label>
             <div class="dropdown-row">
-                <select id="layout4">
+                <select id="sel-layout4">
                     <option>Empty</option>
                 </select>
-                <button>Select Data</button>
+                <button id="btn-Layout4">Select Data</button>
             </div>
         </div>
     </div>
@@ -294,7 +299,6 @@
         </table>
         <button class="line-button" id="adc4-add-btn">+</button>
         <button class="line-button" id="adc4-rmv-btn">-</button>
-        <hr style="height: 1px; background-color: #ccc; border: none; margin: 20px 0;">
       </div>
     </div>
   </div>
