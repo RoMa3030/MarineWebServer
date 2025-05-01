@@ -19,7 +19,7 @@ import vessel_data
 import json
 
 engine_interface = engine_data_interface()
-
+LAYOUT_CONFIG_FILE = "config/LayoutConfig.JSON"
 #----------------------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -81,9 +81,27 @@ def read_root(request: Request):
     # render and return the index.html template
     return templates.TemplateResponse("MWS_Config.html",{"request": request})
 
-
-
-
+    
+@app.post("/api/save-config")
+async def save_config(request: Request):
+    try:
+        # Get the raw JSON data
+        config_data = await request.json()
+        
+        # Print received data for debugging
+        print("This arrived at API:")
+        print(config_data)
+        
+        # Save the raw JSON to a file
+        with open(LAYOUT_CONFIG_FILE, "w") as f:
+            json.dump(config_data, f, indent=2)
+        
+        # Return a success response
+        return {"status": "success", "message": "Configuration saved successfully"}
+    except Exception as e:
+        # Handle any errors
+        print(f"Error saving config: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error saving configuration: {str(e)}")
 
 #----------------------------------------------------------------------------------------
 def signal_handler(sig, frame):

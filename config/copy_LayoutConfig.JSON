@@ -6,10 +6,10 @@
     "volume": "L"
   },
   "engineDesignations": [
-    "e1",
-    "e2",
-    "e3",
-    "e4"
+    "Port Engine",
+    "Starboard Engine",
+	  "Engine 3",
+	  "Engine 4"
   ],
   "layouts": [
     {
