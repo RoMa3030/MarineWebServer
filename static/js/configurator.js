@@ -22,9 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log("Parameters loaded")
     saveButton = document.getElementById("save-btn");
     saveButton.addEventListener('click', saveConfiguration);
-
     InitLayoutEditors();
-    
     InitLineButtons("adc1-add-btn","adc1-rmv-btn","adc1-table");
     InitLineButtons("adc2-add-btn","adc2-rmv-btn","adc2-table");
     InitLineButtons("adc3-add-btn","adc3-rmv-btn","adc3-table");
@@ -68,7 +66,7 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
                 lvl2TypeSelect.id = `lvl2Type-${lvl1_index}-${lvl2_index}`;
                 lvl2TypeSelect.className = "lvl2_layout_select";
 
-                const options = ["SingleValue","Gauge"/*,"TripleValue","Columns"*/];
+                const options = ["SingleValue","Gauge","TripleValue","Columns"];
                 for(const opt of options)
                 {
                     const optionElement = document.createElement('option');
@@ -91,7 +89,8 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
 
                 // add listener to automatically create the correct number of data-fields, when lvl2 layout is changed
                 lvl2TypeSelect.addEventListener('change', function(event) {
-                    RenderDataFieldEditorList(dataFieldEditor.id);
+                    const layout = event.target.value;
+                    RenderDataFieldEditorList(dataFieldEditor.id, layout);
                 });
             }
             editorContainer.appendChild(Lvl2EditorField);
@@ -100,8 +99,7 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
             //render the default datafield editors:
             const dataFieldEditors = Lvl2EditorField.querySelectorAll('.datafield-editor');
             dataFieldEditors.forEach((lvl2_editor, index) => {
-                console.log(`Processing datafield editor ${index}:`, lvl2_editor);
-                RenderDataFieldEditorList(lvl2_editor.id);
+                RenderDataFieldEditorList(lvl2_editor.id, "SingleValue");
             });
             showEditorDetails(true, editorContainer);       // Automatically "un-collaps" details
             break;
@@ -111,8 +109,22 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
     }
 }
 
-function RenderDataFieldEditorList(dataFieldEditor_id) {
-    numOfDatafields = 1; //ToDo
+function RenderDataFieldEditorList(dataFieldEditor_id, layout) {    
+    numOfDatafields = 1;
+    switch(layout){
+        case "SingleValue":
+            numOfDatafields = 1;
+            break;
+        case "Gauge":
+            numOfDatafields = 1;
+            break;
+        case "TripleValue":
+            numOfDatafields = 3;
+            break;
+        case "Columns":
+            numOfDatafields = 1;    // TBD ? Probably 3?
+            break;
+    }
     console.log("Editor ID:");
     console.log(dataFieldEditor_id);
     // Create a div to group each pair of selects
@@ -150,6 +162,7 @@ function RenderDataFieldEditorList(dataFieldEditor_id) {
         dfDiv.appendChild(paramSelect);
         dfDiv.appendChild(instanceLabel);
         dfDiv.appendChild(instanceSelect);
+        dfDiv.append(instanceSelect, document.createElement('br'));
 
         // Add the field div to the container
         //editorContainer.appendChild(dfDiv);
