@@ -130,6 +130,7 @@ function RenderDataFieldEditorList(dataFieldEditor_id, layout) {
     // Create a div to group each pair of selects
     const dfDiv = document.getElementById(dataFieldEditor_id);
     dfDiv.innerHTML = "";
+    dfDiv.style.paddingLeft = "20px";
     const level1_index = dfDiv.dataset.level1_index;
     const level2_index = dfDiv.dataset.level2_index;    
 
@@ -157,21 +158,45 @@ function RenderDataFieldEditorList(dataFieldEditor_id, layout) {
             instanceSelect.appendChild(optionElement);
         }
 
+        // Add fields for range selection
+        const rangeField = document.createElement('div');
+        rangeField.id = `range-${level1_index}-${level2_index}-${dfIndex}`;
+        rangeField.className = "min-max-select";
+        const rangeLabel = document.createElement('label');
+        rangeLabel.textContent = "Range:";
+
+        const rangeMin = document.createElement('input');
+        rangeMin.type = "number";
+        rangeMin.id = `range-min-${level1_index}-${level2_index}-${dfIndex}`;
+        rangeMin.placeholder = "min";
+
+        const spacer = document.createElement('span');
+        spacer.style.width = "10px";
+        spacer.style.display = "inline-block";
+
+        const rangeMax = document.createElement('input');
+        rangeMax.type = "number";
+        rangeMax.id = `range-max-${level1_index}-${level2_index}-${dfIndex}`;
+        rangeMax.placeholder = "max";
+
+        rangeField.appendChild(rangeLabel);
+        rangeField.appendChild(rangeMin);
+        rangeField.appendChild(spacer);
+        rangeField.appendChild(rangeMax);
+
         // Add elements to the field div
         dfDiv.appendChild(paramLabel);
         dfDiv.appendChild(paramSelect);
         dfDiv.appendChild(instanceLabel);
         dfDiv.appendChild(instanceSelect);
         dfDiv.append(instanceSelect, document.createElement('br'));
-
-        // Add the field div to the container
-        //editorContainer.appendChild(dfDiv);
+        dfDiv.appendChild(rangeField);
+        dfDiv.append(rangeField, document.createElement('br'));
 
         //Define dropdown options only after appending the element to the layout
         loadParameterOptions(paramSelect.id, [14,15]);
     }
 }
-
 
 function showEditorDetails(OpenState, editorContainer) {
     //collaps details element
