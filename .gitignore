@@ -3,4 +3,4 @@ venv/
 
 __pycache__/
 config/LayoutConfig.JSON
-
+config/ADC_Config.JSON

@@ -20,6 +20,7 @@ import json
 
 engine_interface = engine_data_interface()
 LAYOUT_CONFIG_FILE = "config/LayoutConfig.JSON"
+ADC_CONFIG_FILE = "config/ADC_Config.JSON"
 #----------------------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -82,8 +83,8 @@ def read_root(request: Request):
     return templates.TemplateResponse("MWS_Config.html",{"request": request})
 
     
-@app.post("/api/save-config")
-async def save_config(request: Request):
+@app.post("/api/save-page-config")
+async def save_page_config(request: Request):
     try:
         # Get the raw JSON data
         config_data = await request.json()
@@ -100,6 +101,23 @@ async def save_config(request: Request):
         return {"status": "success", "message": "Configuration saved successfully"}
     except Exception as e:
         # Handle any errors
+        print(f"Error saving config: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error saving configuration: {str(e)}")
+    
+@app.post("/api/save-adc-config")
+async def save_adc_config(request: Request):
+    try:
+        config_data = await request.json()
+        
+        print("This arrived at API (ADC):")
+        print(config_data)
+        
+        with open(ADC_CONFIG_FILE, "w") as f:
+            json.dump(config_data, f, indent=2)
+            
+        return {"status": "success", "message": "Configuration saved successfully"}
+    
+    except Exception as e:
         print(f"Error saving config: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error saving configuration: {str(e)}")
 

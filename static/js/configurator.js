@@ -242,7 +242,7 @@ function InitLineButtons(addButtonId, removeButtonId, tableId) {
 }
 
 
-function addRow(table) {
+/*function addRow(table) {
     // Get the current number of rows (excluding the header row)
     const rowCount = table.querySelectorAll('tr').length - 1;
 
@@ -266,6 +266,45 @@ function addRow(table) {
     newRow.appendChild(cell1);
     newRow.appendChild(cell2);
     table.appendChild(newRow);
+}*/
+
+function addRow(table) {
+    // Get the tbody element
+    const tbody = table.querySelector('tbody');
+    
+    // If tbody doesn't exist, create one
+    if (!tbody) {
+        const newTbody = document.createElement('tbody');
+        table.appendChild(newTbody);
+        tbody = newTbody;
+    }
+    
+    // Get the current number of rows (excluding the header row)
+    const rowCount = tbody.querySelectorAll('tr').length;
+    
+    // Create a new row
+    const newRow = document.createElement('tr');
+    
+    // Create first cell (Volt/Ohm input)
+    const cell1 = document.createElement('td');
+    const input1 = document.createElement('input');
+    input1.type = 'number';
+    input1.name = `cell-${rowCount}-0`; // Fixed index to start at 0 for the first column
+    cell1.appendChild(input1);
+    
+    // Create second cell (Sensor input)
+    const cell2 = document.createElement('td');
+    const input2 = document.createElement('input');
+    input2.type = 'number';
+    input2.name = `cell-${rowCount}-1`; // Fixed index to be 1 for the second column
+    cell2.appendChild(input2);
+    
+    // Append cells to the row
+    newRow.appendChild(cell1);
+    newRow.appendChild(cell2);
+    
+    // Append the new row to tbody
+    tbody.appendChild(newRow);
 }
 
 function removeRow(table) {
@@ -647,11 +686,153 @@ function populateForm(config) {
   }
   */
 
-
-async function saveAdcCofiguration() {
-
+function parseAdcConfigurationForm() {
+    // Initialize the array to hold our four ADC configurations
+    const adcConfig = [];
+    
+    // Process each of the four ADC inputs
+    for (let adcIndex = 1; adcIndex <= 4; adcIndex++) {
+        // Get the parameter dropdown
+        const parameterDropdown = document.getElementById(`adc${adcIndex}-dd`);
+        
+        // Get the instance dropdown
+        const instanceDropdown = document.getElementById(`Instance-adc${adcIndex}`);
+        
+        // Get the table with the curve data
+        const adcTable = document.getElementById(`adc${adcIndex}-table`);
+        
+        // Create the configuration object for this ADC
+        const adcItem = {
+            // ADC is activated if anything other than "Not used" is selected
+            activated: parameterDropdown && parameterDropdown.value !== "Not used",
+            
+            // The dataType is the selected parameter value, or null if "Not used"
+            dataType: parameterDropdown && parameterDropdown.value !== "Not used" 
+                ? parseInt(parameterDropdown.value, 10) 
+                : null,
+            
+            // Get the instance value (default to 0 if not found)
+            instance: instanceDropdown 
+                ? parseInt(instanceDropdown.value, 10) 
+                : 0,
+            
+            // Initialize empty points array
+            points: []
+        };
+        
+        // Only process points if the table exists and ADC is activated
+        if (adcTable && adcItem.activated) {
+            // Get all rows from the table (skip the header row)
+            const rows = adcTable.querySelectorAll('tbody tr');
+            
+            // Start from index 1 to skip the header row
+            for (let rowIndex = 1; rowIndex < rows.length; rowIndex++) {
+                const row = rows[rowIndex];
+                
+                // Get the two input cells in this row
+                const inputs = row.querySelectorAll('input[type="number"]');
+                
+                // Only process valid rows with two numeric inputs
+                if (inputs.length === 2 && 
+                    inputs[0].value !== "" && 
+                    inputs[1].value !== "") {
+                    
+                    // Get the input values and convert to numbers
+                    const xValue = parseFloat(inputs[0].value);
+                    const yValue = parseFloat(inputs[1].value);
+                    
+                    // Add the point to the points array
+                    adcItem.points.push([xValue, yValue]);
+                }
+            }
+        }
+        // Add this ADC configuration to the array
+        adcConfig.push(adcItem);
+    }
+    // Return the complete ADC configuration array
+    return adcConfig;
 }
 
+function checkAdcUserInputs() {
+    let isValid = true;
+    let ErrorMessage = "";
+    outerLoop: for (let adcIndex = 1; adcIndex <= 4; adcIndex++) {
+        const parameterDropdown = document.getElementById(`adc${adcIndex}-dd`);
+        const adcTable = document.getElementById(`adc${adcIndex}-table`);
+        
+        // Only check inputs that are used
+        if(parameterDropdown.value === "Not used") {
+            continue;
+        }
+        
+        if (adcTable) {
+            const rows = adcTable.querySelectorAll('tbody tr');
+            
+            // Start from index 1 to skip the header row
+            for (let rowIndex = 1; rowIndex < rows.length; rowIndex++) {
+                const row = rows[rowIndex];
+                const inputs = row.querySelectorAll('input[type="number"]');
+                
+                if (inputs.length !== 2) {
+                    ErrorMessage = `ADC Input ${adcIndex}: Table formatting wrong`;
+                    isValid = false;
+                    break outerLoop;
+                }
+
+                if (inputs[0].value === "" || inputs[1].value === "") {
+                    ErrorMessage = `ADC Input ${adcIndex}: Don't leafe any field empty`;
+                    isValid = false;
+                    break outerLoop;
+                }
+
+                const sensorValue = parseFloat(inputs[0].value);
+                if(adcIndex <= 2 && sensorValue > 410){
+                    ErrorMessage = `ADC Input ${adcIndex}: Ohm-values may not exceed 410 Ohm`;
+                    isValid = false;
+                    break outerLoop;
+                }
+                if(adcIndex > 2 && sensorValue > 5.1){
+                    ErrorMessage = `ADC Input ${adcIndex}: Voltage-values may not exceed 5.1 Volt`;
+                    isValid = false;
+                    break outerLoop;
+                }
+            }
+        }
+    }
+    return { success: isValid, message: ErrorMessage };
+}
+
+
+async function saveAdcCofiguration() {
+    // Check user inputs
+    const {isValid, message} = checkAdcUserInputs();
+    if(!isValid)
+    {
+        alert(message);
+        return;
+    }
+
+    // Parse config from user form
+    const config = parseAdcConfigurationForm();
+
+    // Post Config to server
+    try {
+        const response = await fetch('/api/save-adc-config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Successfully saved to server:', result);
+        } else {
+            console.error('Failed to save to server:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error saving configuration to server:', error);
+    }
+}
 
 async function savePageConfiguration() {
     try {
@@ -669,13 +850,13 @@ async function savePageConfiguration() {
         // Parse form and update configuration
         const config = await parsePageConfigurationForm(currentConfig);
         
-        // For demonstration: Save to localStorage
-        localStorage.setItem('mwsConfig', JSON.stringify(config, null, 2));
-        console.log('Configuration saved to localStorage:', config);
+        // Save to localStorage
+        /*localStorage.setItem('mwsConfig', JSON.stringify(config, null, 2));
+        console.log('Configuration saved to localStorage:', config);*/
         
-        // In a real implementation, send to server
+        // send to server
         try {
-            const response = await fetch('/api/save-config', {
+            const response = await fetch('/api/save-page-config', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(config)
@@ -697,6 +878,3 @@ async function savePageConfiguration() {
     }
 }
 
-//***************************************************************************************************
-//      LEVEL 2 LAYOUT
-// ************************************************************************************************ */
