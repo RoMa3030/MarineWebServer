@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         mappings = await response.json();
         console.log('Data type mappings loaded:', mappings);
         
+        // add parameters from JSON to DropDown select
         loadAdcParameterOptions("adc1-dd");
         loadAdcParameterOptions("adc2-dd");
         loadAdcParameterOptions("adc3-dd");
@@ -19,15 +20,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log(error);
         return;
     }
-    console.log("Parameters loaded")
-    saveButton = document.getElementById("save-btn");
-    saveButton.addEventListener('click', saveConfiguration);
+    //console.log("Parameters loaded")
+    // add button listeners
+    saveButton = document.getElementById("save-layout-btn");
+    saveButton.addEventListener('click', savePageConfiguration);
+    saveButton = document.getElementById("save-adc-btn");
+    saveButton.addEventListener('click', saveAdcCofiguration);
     InitLayoutEditors();
     InitLineButtons("adc1-add-btn","adc1-rmv-btn","adc1-table");
     InitLineButtons("adc2-add-btn","adc2-rmv-btn","adc2-table");
     InitLineButtons("adc3-add-btn","adc3-rmv-btn","adc3-table");
     InitLineButtons("adc4-add-btn","adc4-rmv-btn","adc4-table");
-     
 });
 
 
@@ -221,8 +224,8 @@ function loadParameterOptions(select_id, parameters_to_ignore =[]) {
         ) {
             const label = mappings.dataTypes[key].label;
             const option = document.createElement("option");
-            option.value = key;
-            option.textContent = label;
+            option.value = key;             // value = key: for easier parsing
+            option.textContent = label;     // only "textContent" human readable -> not functional
             selectElement.appendChild(option);
         }
     }
@@ -246,17 +249,17 @@ function addRow(table) {
     // Create a new row
     const newRow = document.createElement('tr');
 
-    // Create first cell (Volt input)
+    // Create first cell (Volt/Ohm input)
     const cell1 = document.createElement('td');
     const input1 = document.createElement('input');
-    input1.type = 'text';
+    input1.type = 'number';
     input1.name = `cell-${rowCount}-1`;
     cell1.appendChild(input1);
 
     // Create second cell (Sensor input)
     const cell2 = document.createElement('td');
     const input2 = document.createElement('input');
-    input2.type = 'text';
+    input2.type = 'number';
     input2.name = `cell-${rowCount}-2`;
     cell2.appendChild(input2);
 
@@ -333,45 +336,44 @@ function storeCurrentConfig() {
  * @param {Object} existingConfig - The existing configuration (optional)
  * @returns {Object} Updated configuration object
  */
-async function parseConfigurationForm(existingConfig = null) {
+async function parsePageConfigurationForm(existingConfig = null) {
     // Start with existing config or create new default structure
     let config = existingConfig || {
-      unitSelection: {
-        length: "m",
-        temperature: "C",
-        pressure: "bar",
-        volume: "L"
-      },
-      engineDesignations: ["Engine 1", "Engine 2", "Engine 3", "Engine 4"],
-      layouts: []
+        unitSelection: {
+            length: "m",
+            temperature: "C",
+            pressure: "bar",
+            volume: "L"
+        },
+        engineDesignations: ["Engine 1", "Engine 2", "Engine 3", "Engine 4"],
+        layouts: []
     };
   
     // If no config was passed, try to load from localStorage or server
     if (!existingConfig) {
-      try {
-        // Try to load from localStorage first (for testing/development)
-        const savedConfig = localStorage.getItem('mwsConfig');
-        if (savedConfig) {
-          config = JSON.parse(savedConfig);
-          console.log('Loaded configuration from localStorage');
-        } else {
-          const response = await fetch('/api/get-config');
-          if (response.ok) {
-            config = await response.json();
-            console.log('Loaded configuration from server');
-          }
+        try {
+            // Try to load from localStorage first (for testing/development)
+            const savedConfig = localStorage.getItem('mwsConfig');
+            if (savedConfig) {
+                config = JSON.parse(savedConfig);
+                console.log('Loaded configuration from localStorage');
+            } else {
+                const response = await fetch('/api/get-config');
+                if (response.ok) {
+                    config = await response.json();
+                    console.log('Loaded configuration from server');
+                }
+            }
+        } catch (error) {
+            console.error('Error loading configuration:', error);
+            // Continue with default config
         }
-      } catch (error) {
-        console.error('Error loading configuration:', error);
-        // Continue with default config
-      }
     }
   
     // Parse unit selections
     const unitLengthSelect = document.getElementById('sel-unitLength');
     if (unitLengthSelect) {
         const lengthValue = unitLengthSelect.value;
-        // Map the selected value to the expected format
         switch (lengthValue) {
             case 'Metric':
                 config.unitSelection.length = 'm';
@@ -388,27 +390,24 @@ async function parseConfigurationForm(existingConfig = null) {
     const unitTempSelect = document.getElementById('sel-unitTemperature');
     if (unitTempSelect) {
         const tempValue = unitTempSelect.value;
-        // Map the selected value to the expected format
         config.unitSelection.temperature = tempValue === 'Celcius' ? 'C' : 'F';
     }
   
     const unitPressureSelect = document.getElementById('sel-unitPressure');
     if (unitPressureSelect) {
         const pressureValue = unitPressureSelect.value;
-        // Use the value directly as it matches the expected format
         config.unitSelection.pressure = pressureValue.toLowerCase();
     }
   
     const unitVolumeSelect = document.getElementById('sel-unitVolume');
     if (unitVolumeSelect) {
         const volumeValue = unitVolumeSelect.value;
-        // Map the selected value to the expected format
         config.unitSelection.volume = volumeValue === 'Liter' ? 'L' : 'gal';
     }
   
     // Parse engine designations
-    for (let i = 1; i <= 4; i++) {
-        const engineInput = document.getElementById(`engine${i}`);
+    for (let i = 0; i < 4; i++) {
+        const engineInput = document.getElementById(`des-engine${i}`);
         if (engineInput && engineInput.value.trim()) {
             config.engineDesignations[i - 1] = engineInput.value.trim();
         }
@@ -416,8 +415,8 @@ async function parseConfigurationForm(existingConfig = null) {
   
     // Handle layouts - first clear existing layouts if form has values
     let hasLayoutSelections = false;
-    for (let i = 1; i <= 4; i++) {
-        const layoutSelect = document.getElementById(`layout${i}`);
+    for (let i = 0; i < 4; i++) {
+        const layoutSelect = document.getElementById(`sel-layout${i}`);
         if (layoutSelect && layoutSelect.value !== 'Empty') {
             hasLayoutSelections = true;
             break;
@@ -426,43 +425,111 @@ async function parseConfigurationForm(existingConfig = null) {
     
     // Only reset layouts if we have new ones to add
     if (hasLayoutSelections) {
-      config.layouts = [];
-      
-      // Parse layouts
-      for (let i = 1; i <= 4; i++) {
-        const layoutSelect = document.getElementById(`layout${i}`);
-        if (layoutSelect && layoutSelect.value !== 'Empty') {
-          // Map the layout type to the expected format
-          let layoutType = "";
-          switch (layoutSelect.value) {
-            case 'Numeric Grid 3x2':
-              layoutType = "Grid_3_2";
-              break;
-            case 'Dash':
-              layoutType = "Dash";
-              break;
-            case 'Columns':
-              layoutType = "Columns";
-              break;
-            default:
-              continue; // Skip if not a recognized layout type
-          }
-  
-          // For now, we'll add a predefined layout based on the example for Grid_3_2
-          if (layoutType === "Grid_3_2") {
-            config.layouts.push({
-              level1Type: layoutType,
-              sections: []
-            });
-          } else if (layoutType === "Dash" || layoutType === "Columns") {
-            // Add placeholder layout for other types
-            config.layouts.push({
-              level1Type: layoutType,
-              sections: [] // Would be populated based on UI selections
-            });
-          }
+        config.layouts = [];
+        
+        // Parse layouts
+        for (let pageIndex = 0; pageIndex < 4; pageIndex++) {
+            const layoutSelect = document.getElementById(`sel-layout${pageIndex}`);
+            if (layoutSelect && layoutSelect.value !== 'Empty') {
+                // Map the layout type to the expected format
+                let layoutType = "";
+                switch (layoutSelect.value) {
+                    case 'Numeric Grid 3x2':
+                        layoutType = "Grid_3_2";
+                        break;
+                    case 'Dash':
+                        layoutType = "Dash";
+                        break;
+                    case 'Columns':
+                        layoutType = "Columns";
+                        break;
+                    default:
+                        continue; // Skip if not a recognized layout type
+                }
+
+                // Create the layout object
+                const layoutObj = {
+                    level1Type: layoutType,
+                    sections: []
+                };
+                
+                // Get the layout editor for this page
+                const layoutEditor = document.getElementById(`layout-editor-${pageIndex}`);
+                
+                if (layoutEditor) {
+                    // Find all level 2 layout selectors
+                    const level2Selectors = layoutEditor.querySelectorAll('.lvl2_layout_select');
+                    
+                    // For each level 2 layout
+                    for (let sectionIndex = 0; sectionIndex < level2Selectors.length; sectionIndex++) {
+                        const level2Selector = level2Selectors[sectionIndex];
+                        const level2Type = level2Selector.value;
+                        
+                        // Create the section object
+                        const section = {
+                            level2Type: level2Type,
+                            dataFields: []
+                        };
+                        
+                        // Find the corresponding datafield editor
+                        const dataFieldEditor = document.getElementById(`datafield-editor-${pageIndex}-${sectionIndex}`);
+                        
+                        if (dataFieldEditor) {
+                            // The number of parameters depends on the level2Type
+                            let paramCount = 1; // Default for SingleValue and Gauge
+                            
+                            if (level2Type === 'TripleValue') {
+                                paramCount = 3;
+                            } else if (level2Type === 'Columns') {
+                                paramCount = 1; // Adjust as needed based on your UI structure
+                            }
+                            
+                            // For each parameter in this datafield
+                            for (let dfIndex = 0; dfIndex < paramCount; dfIndex++) {
+                                const paramSelect = document.getElementById(`param-${pageIndex}-${sectionIndex}-${dfIndex}`);
+                                const instanceSelect = document.getElementById(`instance-${pageIndex}-${sectionIndex}-${dfIndex}`);
+                                
+                                if (paramSelect && instanceSelect) {
+                                    // Get min and max values if they exist
+                                    let rangeMin = null;
+                                    let rangeMax = null;
+                                    
+                                    const minInput = document.getElementById(`range-min-${pageIndex}-${sectionIndex}-${dfIndex}`);
+                                    const maxInput = document.getElementById(`range-max-${pageIndex}-${sectionIndex}-${dfIndex}`);
+                                    
+                                    if (minInput && minInput.value !== "") {
+                                        rangeMin = parseFloat(minInput.value);
+                                    }
+                                    
+                                    if (maxInput && maxInput.value !== "") {
+                                        rangeMax = parseFloat(maxInput.value);
+                                    }
+                                    
+                                    // Create the dataField object
+                                    const dataField = {
+                                        dataType: parseInt(paramSelect.value, 10),
+                                        instance: parseInt(instanceSelect.value, 10),
+                                        range_min: rangeMin,
+                                        range_max: rangeMax
+                                    };
+                                    // Add the dataField to the section
+                                    section.dataFields.push(dataField);
+                                }
+                            }
+                        }
+                        
+                        // Add the section to the layout
+                        layoutObj.sections.push(section);
+                    }
+                }
+                
+                // Add the layout to the config
+                config.layouts.push(layoutObj);
+
+            }
+            // Nothing to do on empty pages
+            // -> so there will be no empty pages / instead they are moved together
         }
-      }
     }
     return config;
 }
@@ -581,10 +648,12 @@ function populateForm(config) {
   */
 
 
-/**
- * Save the configuration to a server or localStorage
- */
-async function saveConfiguration() {
+async function saveAdcCofiguration() {
+
+}
+
+
+async function savePageConfiguration() {
     try {
         // Get current configuration (possibly loaded earlier)
         let currentConfig = null;
@@ -598,7 +667,7 @@ async function saveConfiguration() {
         }
         
         // Parse form and update configuration
-        const config = await parseConfigurationForm(currentConfig);
+        const config = await parsePageConfigurationForm(currentConfig);
         
         // For demonstration: Save to localStorage
         localStorage.setItem('mwsConfig', JSON.stringify(config, null, 2));

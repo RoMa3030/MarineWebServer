@@ -126,7 +126,7 @@ class data_point:
 class vessel_data_manager:
 	def __init__(self):
 		self._data = {}
-		self.web_data_interface = self._load_website_interface_data()
+		self.web_data_interface = self._load_website_interface_description()
  
  
 	def store_data_point(self, parameter: parameter_type, instance: int, value: float, source_type: source_types, address: int, timestamp: datetime = None):
@@ -179,12 +179,12 @@ class vessel_data_manager:
 		return data_array
  
  
-	def update_website_interface_data(self):
+	def update_website_interface_description(self):
 		# Allwos for external trigering of updating interface. (Currently not used)
-		self.web_data_interface = self._load_website_interface_data()
+		self.web_data_interface = self._load_website_interface_description()
  
  
-	def _load_website_interface_data(self):
+	def _load_website_interface_description(self):
 		"""
 		To not have to send all the available vessel information to the website, and filter it out there again,
 		the idea is to only send the required information in an array of floats in the order in which they're 
