@@ -753,6 +753,36 @@ function parseAdcConfigurationForm() {
     return adcConfig;
 }
 
+
+function checkPageUserInputs() {
+    let isValid = true;
+    let ErrorMessage = "";
+
+    /*// much can not be defined wrong, as the dropdowns always contain a valid value.
+    // alarms must not be defined (anyways not implemented yet)
+    // therfore only check if all ranges are defined
+    const rangeElements = document.querySelectorAll('.min-max-select');
+    for (let i = 0; i < rangeElements.length; i++) {
+        const label = rangeElements[i].querySelector('label');
+        
+        if (label && label.textContent.trim() === "Range:") {
+            const inputFields = element.querySelector('input[type="number"]');
+
+            if(inputFields.length !== 2) {
+                isValid == false;
+                ErrorMessage = `Layout Definition / DataField Nr: ${i} - Error in page layout`;
+                break;
+            }
+            if(inputFields[0] === "" || inputFields[1] === "" ) {
+                isValid == false;
+                ErrorMessage = `Layout Definition / DataField Nr: ${i} - Not all ranges are defined`;
+                break;
+            }
+        }
+    }*/
+    return {isValid, ErrorMessage };
+}
+
 function checkAdcUserInputs() {
     let isValid = true;
     let ErrorMessage = "";
@@ -799,7 +829,7 @@ function checkAdcUserInputs() {
             }
         }
     }
-    return { success: isValid, message: ErrorMessage };
+    return { isValid, ErrorMessage };
 }
 
 
@@ -835,6 +865,14 @@ async function saveAdcCofiguration() {
 }
 
 async function savePageConfiguration() {
+    // Check user inputs
+    /*const {isValid, message} = checkPageUserInputs();
+    if(!isValid)
+    {
+        alert(message);
+        return;
+    }*/
+
     try {
         // Get current configuration (possibly loaded earlier)
         let currentConfig = null;
