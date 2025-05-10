@@ -8,6 +8,7 @@ import vessel_data
 from vessel_data import parameter_type
 import NMEA2000_handler
 import math
+import subprocess
 
 ADC_ADDRESS = 0x48
 CONVERSION_REGISTER_ADR = 0X00
@@ -46,6 +47,7 @@ class engine_data_interface:
 		
 		self.data_mngr.create_fake_data_for_testing()
 		while True:
+			self._read_can()
 			#result = self._adc_read(2)	
 			#self._read_can()
 			"""self.engine_data["rpm"] += 1
@@ -54,6 +56,7 @@ class engine_data_interface:
 				self.engine_data["coolant_temp"] = 50"""
 			#print(f"RPM = {self.engine_data['rpm']}")
 			#print(f"Coolant = {engine_data['coolant_temp']}")
+		
 			
 			time.sleep(1)
 
@@ -161,7 +164,7 @@ class engine_data_interface:
 	#       CAN INTERFACE
 	# -------------------------------------------------------------------------------------
 	def initialize_can_interface(self):
-		os.system('sudo ip link set can0 type can bitrate 250000')
+		os.system('sudo ip link set can0 type can bitrate 250000 listen-only on')
 		os.system('sudo ifconfig can0 up')
 		
 		self._can0 = can.interface.Bus(channel = 'can0', interface = 'socketcan')
@@ -172,10 +175,10 @@ class engine_data_interface:
 	def _read_can(self):
 		msg = self._can0.recv(RX_TIMEOUT)
 		if msg:
-			#print(msg)
+			print(msg)
 			self._n2k.parse_message(msg)
-			#rpm = self.data.get_data_point(parameter_type.ENG_SPEED, 0)
-			#print(f" I READ RPM = {rpm}")
+			rpm = self.data_mngr.get_data_point(parameter_type.ENG_SPEED, 0)
+			print(f" I READ RPM = {rpm}")
 		
 	# -------------------------------------------------------------------------------------
 	#       Shutdown
