@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MWS Configuration Page</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/ConfigPage_Styles.css') }}">
+  <link rel="icon" href="{{ url_for('static', path='/favicon.ico') }}">
+  <script src="{{ url_for('static', path='/js/configurator.js') }}"></script>
+</head>
+<body>
+
+    <h1>MWS Configuration Page</h1>
+    <div class="section">
+      <button id="save-layout-btn">Save Page Configuration</button>
+      <!--   <button id="load-layout-btn">Load Current Configuration</button>   -->
+    </div>
+
+    <div class="section">
+      <h2>UNITS</h2>
+      <div class="field-group">
+        <label for="unitLength">Length</label>
+        <select id="sel-unitLength">
+          <option>Metric</option>
+          <option>Imperial</option>
+          <option>Nautic</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="unitTemperature">Temperature</label>
+        <select id="sel-unitTemperature">
+          <option>Celcius</option>
+          <option>Fahrenheit</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="unitPressure">Pressure</label>
+        <select id="sel-unitPressure">
+          <option>bar</option>
+          <option>psi</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="unitVolume">Volume</label>
+        <select id="sel-unitVolume">
+          <option>Liter</option>
+          <option>Gallon</option>
+        </select>
+      </div>
+    </div>
+  
+    <div class="section">
+      <h2>ENGINE DESIGNATIONS</h2>
+      <div class="field-group">
+        <label for="engine1">Engine 1</label>
+        <input type="text" id="des-engine0" placeholder="Engine 1">
+      </div>
+      <div class="field-group">
+        <label for="engine2">Engine 2</label>
+        <input type="text" id="des-engine1" placeholder="Engine 2">
+      </div>
+      <div class="field-group">
+        <label for="engine3">Engine 3</label>
+        <input type="text" id="des-engine2" placeholder="Engine 3">
+      </div>
+      <div class="field-group">
+        <label for="engine4">Engine 4</label>
+        <input type="text" id="des-engine3" placeholder="Engine 4">
+      </div>
+    </div>
+  
+    
+    <div class="section">
+        <h2>LAYOUT</h2>
+        <div class="field-group">
+            <label for="layout0">Page 1</label>
+            <select id="sel-layout0">
+                <option>Empty</option>
+                <option>Numeric Grid 3x2</option>
+                <option>Dash</option>
+                <option>Columns</option>
+            </select>
+            <details>
+              <summary>Define Data-Fields</summary>
+              <div class="layout-editor" id="layout-editor-0">
+              </div>
+            </details>
+        </div>        
+        <hr style="height: 1px; background-color: #ccc; border: none; margin: 20px 0;">
+
+        <div class="field-group">
+          <label for="layout1">Page 2</label>
+          <select id="sel-layout1">
+              <option>Empty</option>
+              <option>Numeric Grid 3x2</option>
+              <option>Dash</option>
+              <option>Columns</option>
+          </select>
+          <details>
+            <summary>Define Data-Fields</summary>
+            <div class="layout-editor" id="layout-editor-1">
+            </div>
+          </details>
+        </div>        
+      <hr style="height: 1px; background-color: #ccc; border: none; margin: 20px 0;">
+
+      <div class="field-group">
+        <label for="layout2">Page 3</label>
+        <select id="sel-layout2">
+            <option>Empty</option>
+            <option>Numeric Grid 3x2</option>
+            <option>Dash</option>
+            <option>Columns</option>
+        </select>
+        <details>
+          <summary>Define Data-Fields</summary>
+          <div class="layout-editor" id="layout-editor-2">
+          </div>
+        </details>
+      </div>        
+    <hr style="height: 1px; background-color: #ccc; border: none; margin: 20px 0;">
+
+    <div class="field-group">
+      <label for="layout3">Page 4</label>
+      <select id="sel-layout3">
+          <option>Empty</option>
+          <option>Numeric Grid 3x2</option>
+          <option>Dash</option>
+          <option>Columns</option>
+      </select>
+          <!--<button id="btn-Layout1">Select Data</button>-->
+      <details>
+        <summary>Define Data-Fields</summary>
+        <div class="layout-editor" id="layout-editor-3">
+        </div>
+      </details>
+    </div>   
+  </div>
+
+
+    <div class="section">
+      <h2>ANALOG INPUTS</h2>
+      <br>
+      <button id="save-adc-btn">SAVE ADC CONFIGURATION</button> 
+      <br>
+      <div class="adc-group">
+          <h3>Resistive 1</h3>
+          <label for="adc1">Parameter</label>
+            <select id="adc1-dd">
+                <option>Not used</option>
+            </select>
+          <label>Instance</label>
+              <select id="Instance-adc1">
+                <option>0</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+              </select>
+              <br>
+              <br>
+          <label>Sensor Curve</label>
+          <table id="adc1-table">
+            <tbody>
+              <tr>
+                <th>Ohm</th>
+                <th id="adc1-header">Sensor</th>
+              </tr>
+              <tr>
+                <td><input type="number" name="cell-0-0" /></td>
+                <td><input type="number" name="cell-0-1" /></td>
+              </tr>
+              <tr>
+                <td><input type="number" name="cell-1-0" /></td>
+                <td><input type="number" name="cell-1-1" /></td>
+              </tr>
+              <tr>
+                <td><input type="number" name="cell-2-0" /></td>
+                <td><input type="number" name="cell-2-1" /></td>
+              </tr>
+              <tr>
+                <td><input type="number" name="cell-3-0" /></td>
+                <td><input type="number" name="cell-3-1" /></td>
+              </tr>
+            </tbody>
+          </table>
+          <button class="line-button" id="adc1-add-btn">+</button>
+          <button class="line-button" id="adc1-rmv-btn">-</button>
+          <hr style="height: 1px; background-color: #ccc; border: none; margin: 20px 0;">
+      </div>
+      
+      
+      <div class="adc-group">
+        <h3>Resistive 2</h3>
+        <label for="adc2">Parameter</label>
+          <select id="adc2-dd">
+              <option>Not used</option>
+          </select>
+        <label>Instance</label>
+            <select id="Instance-adc2">
+              <option>0</option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+            </select>
+            <br>
+            <br>
+        <label>Sensor Curve</label>
+        <table id="adc2-table">
+          <tbody>
+            <tr>
+              <th>Ohm</th>
+              <th id="adc2-header">Sensor</th>
+            </tr>
+            <tr>
+              <td><input type="number" name="cell-0-0" /></td>
+              <td><input type="number" name="cell-0-1" /></td>
+            </tr>
+            <tr>
+              <td><input type="number" name="cell-1-0" /></td>
+              <td><input type="number" name="cell-1-1" /></td>
+            </tr>
+            <tr>
+              <td><input type="number" name="cell-2-0" /></td>
+              <td><input type="number" name="cell-2-1" /></td>
+            </tr>
+            <tr>
+              <td><input type="number" name="cell-3-0" /></td>
+              <td><input type="number" name="cell-3-1" /></td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="line-button" id="adc2-add-btn">+</button>
+        <button class="line-button" id="adc2-rmv-btn">-</button>
+        <hr style="height: 1px; background-color: #ccc; border: none; margin: 20px 0;">
+      </div>
+
+      
+      <div class="adc-group">
+        <h3>Voltage 1</h3>
+        <label for="adc3">Parameter</label>
+          <select id="adc3-dd">
+              <option>Not used</option>
+          </select>
+        <label>Instance</label>
+            <select id="Instance-adc3">
+              <option>0</option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+            </select>
+            <br>
+            <br>
+        <label>Sensor Curve</label>
+        <table id="adc3-table">
+          <tbody>
+            <tr>
+              <th>Voltage</th>
+              <th id="adc3-header">Sensor</th>
+            </tr>
+            <tr>
+              <td><input type="number" name="cell-0-0" /></td>
+              <td><input type="number" name="cell-0-1" /></td>
+            </tr>
+            <tr>
+              <td><input type="number" name="cell-1-0" /></td>
+              <td><input type="number" name="cell-1-1" /></td>
+            </tr>
+            <tr>
+              <td><input type="number" name="cell-2-0" /></td>
+              <td><input type="number" name="cell-2-1" /></td>
+            </tr>
+            <tr>
+              <td><input type="number" name="cell-3-0" /></td>
+              <td><input type="number" name="cell-3-1" /></td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="line-button" id="adc3-add-btn">+</button>
+        <button class="line-button" id="adc3-rmv-btn">-</button>
+        <hr style="height: 1px; background-color: #ccc; border: none; margin: 20px 0;">
+      </div>
+
+      
+      <div class="adc-group">
+        <h3>Voltage 2</h3>
+        <label for="adc4">Parameter</label>
+          <select id="adc4-dd">
+              <option>Not used</option>
+          </select>
+        <label>Instance</label>
+            <select id="Instance-adc4">
+              <option>0</option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+            </select>
+            <br>
+            <br>
+        <label>Sensor Curve</label>
+        <table id="adc4-table">
+          <tbody>
+            <tr>
+              <th>Voltage</th>
+              <th id="adc4-header">Sensor</th>
+            </tr>
+            <tr>
+              <td><input type="number" name="cell-0-0" /></td>
+              <td><input type="number" name="cell-0-1" /></td>
+            </tr>
+            <tr>
+              <td><input type="number" name="cell-1-0" /></td>
+              <td><input type="number" name="cell-1-1" /></td>
+            </tr>
+            <tr>
+              <td><input type="number" name="cell-2-0" /></td>
+              <td><input type="number" name="cell-2-1" /></td>
+            </tr>
+            <tr>
+              <td><input type="number" name="cell-3-0" /></td>
+              <td><input type="number" name="cell-3-1" /></td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="line-button" id="adc4-add-btn">+</button>
+        <button class="line-button" id="adc4-rmv-btn">-</button>
+      </div>
+    </div>
+  </div>
+
+    
+</body>
+</html>

@@ -10,7 +10,7 @@ import uvicorn
 
 import threading
 import time
-import pigpio
+#import pigpio
 import signal
 
 from engine_data_reader import engine_data_interface
@@ -19,7 +19,8 @@ import vessel_data
 import json
 
 engine_interface = engine_data_interface()
-
+LAYOUT_CONFIG_FILE = "config/LayoutConfig.JSON"
+ADC_CONFIG_FILE = "config/ADC_Config.JSON"
 #----------------------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -39,7 +40,7 @@ templates = Jinja2Templates(directory="templates")
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request):
     # render and return the index.html template
-    return templates.TemplateResponse("index.html",{"request": request})
+    return templates.TemplateResponse("MWS.html",{"request": request})
     
 
 @app.get("/favicon.ico")
@@ -75,11 +76,50 @@ async def get_DataTypeMappings():
 def get_engine_data():
     return engine_interface.get_current_engine_data()
 
+#--------------------------------------------------------------------------------------
+@app.get("/Config", response_class=HTMLResponse)
+def read_root(request: Request):
+    # render and return the index.html template
+    return templates.TemplateResponse("MWS_Config.html",{"request": request})
 
-
-
-
-
+    
+@app.post("/api/save-page-config")
+async def save_page_config(request: Request):
+    try:
+        # Get the raw JSON data
+        config_data = await request.json()
+        
+        # Print received data for debugging
+        print("This arrived at API:")
+        print(config_data)
+        
+        # Save the raw JSON to a file
+        with open(LAYOUT_CONFIG_FILE, "w") as f:
+            json.dump(config_data, f, indent=2)
+        
+        # Return a success response
+        return {"status": "success", "message": "Configuration saved successfully"}
+    except Exception as e:
+        # Handle any errors
+        print(f"Error saving config: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error saving configuration: {str(e)}")
+    
+@app.post("/api/save-adc-config")
+async def save_adc_config(request: Request):
+    try:
+        config_data = await request.json()
+        
+        print("This arrived at API (ADC):")
+        print(config_data)
+        
+        with open(ADC_CONFIG_FILE, "w") as f:
+            json.dump(config_data, f, indent=2)
+            
+        return {"status": "success", "message": "Configuration saved successfully"}
+    
+    except Exception as e:
+        print(f"Error saving config: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error saving configuration: {str(e)}")
 
 #----------------------------------------------------------------------------------------
 def signal_handler(sig, frame):
