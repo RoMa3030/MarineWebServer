@@ -15,7 +15,6 @@ import signal
 
 from engine_data_reader import engine_data_interface
 import vessel_data
-
 import json
 
 engine_interface = engine_data_interface()

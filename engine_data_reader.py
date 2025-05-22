@@ -12,6 +12,10 @@ import math
 import subprocess
 
 RX_TIMEOUT = 10.0
+AIN_R1 = 2
+AIN_R2 = 1
+AIN_V1 = 0
+AIN_V2 = 3
 
 class engine_data_interface:
 	
@@ -24,25 +28,25 @@ class engine_data_interface:
 		
 		self.data_mngr = vessel_data.vessel_data_manager()
 		self._n2k = NMEA2000_handler.n2k_handler(self.data_mngr)
-		self._adc = ADC_Handling.analog_handler()
 		
 		# setup I2C communication (To ADC)
 		self._pi = pigpio.pi()
 		if not self._pi.connected:
 			print("couldn't establish the PiGPIO object")
 			
-		self._i2c_handle = self._pi.i2c_open(1, ADC_ADDRESS)	
+		self._i2c_handle = self._pi.i2c_open(1, ADC_Handling.ADC_ADDRESS)	
 			
 		self._can0 = None
 		self.initialize_can_interface()
+		self._adc = ADC_Handling.analog_handler(self._pi, self._i2c_handle)
 			
    
 	def read_engine_data(self):
 		
 		self.data_mngr.create_fake_data_for_testing()
 		while True:
-			val, param, inst = read_can(0)
-			print(val)
+			#val, param, inst = self._adc.adc_read()
+			#print(val)
 			#result = self._adc_read(2)	
 			#self._read_can()
 			"""self.engine_data["rpm"] += 1
@@ -52,8 +56,17 @@ class engine_data_interface:
 			#print(f"RPM = {self.engine_data['rpm']}")
 			#print(f"Coolant = {engine_data['coolant_temp']}")
 		
+			ohm, val, param, inst = self._adc.adc_read(AIN_R2)
+			time.sleep(2)
+			print(f"ADC R2")
+			print(f"Raw sensor value: {ohm}")
+			print(f"param: {param}, inst: {inst}, value: {val}")
 			
-			time.sleep(1)
+			"""ohm, val, param, inst = self._adc.adc_read(2)
+			time.sleep(0.5)
+			print(f"ADC R2")
+			print(f"Raw sensor value: {ohm}")
+			print(f"param: {param}, inst: {inst}, value: {val}")"""
 
 	def get_current_engine_data(self):
 		eng_data = self.data_mngr.get_updated_web_values()
@@ -93,9 +106,9 @@ class engine_data_interface:
 	# -------------------------------------------------------------------------------------
 		
 	def shutdown(self):
-		"""self._pi.i2c_close(self._i2c_handle)
+		self._pi.i2c_close(self._i2c_handle)
 		self._pi.stop()
-		os.system('sudo ifconfig can0 down')"""
+		os.system('sudo ifconfig can0 down')
 		print("Engine Data Reader shutting down")
 		
 		
