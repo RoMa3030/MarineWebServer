@@ -8,11 +8,14 @@ import can
 import vessel_data
 import ADC_Handling
 from vessel_data import parameter_type
+from vessel_data import source_types
+
 import NMEA2000_handler
 import math
 import subprocess
 
-RX_TIMEOUT = 10.0
+
+RX_TIMEOUT = 0.5
 AIN_R1 = 2
 AIN_R2 = 1
 AIN_V1 = 0
@@ -21,6 +24,8 @@ AIN_V2 = 3
 class engine_data_interface:
 	
 	def __init__(self):
+		self._interface_running = False
+		
 		# data container
 		self.data_mngr = vessel_data.vessel_data_manager()
 		
@@ -37,43 +42,20 @@ class engine_data_interface:
 		self._adc = ADC_Handling.analog_handler(self._pi, self._i2c_handle)
 		
 		# setup timer
-		self._active_ains = _adc.get_actives()
+		self._active_ains = self._adc.get_actives()
 		self._current_ain_index = 0
 		self._adc_interval = 1.0
 		if self._active_ains:
-			self._adc_interval = 1.0/(self._active_ains.length) 
+			self._interface_running = True
+			self._adc_interval = 1.0/(len(self._active_ains)) 
 			self._start_Timer(self._adc_interval)
 			
    
 	def read_engine_data(self):
 		#self.data_mngr.create_fake_data_for_testing()
-		while True:
+		while self._interface_running:
+			# ADC reading triggered in "timer-ISR"
 			self._read_can()
-			
-			#val, param, inst = self._adc.adc_read()
-			#print(val)
-			#result = self._adc_read(2)	
-			#self._read_can()
-			"""self.engine_data["rpm"] += 1
-			self.engine_data["coolant_temp"] += 1
-			if (self.engine_data["coolant_temp"] >= 120):
-				self.engine_data["coolant_temp"] = 50"""
-			#print(f"RPM = {self.engine_data['rpm']}")
-			#print(f"Coolant = {engine_data['coolant_temp']}")
-		
-			"""
-			ohm, val, param, inst = self._adc.adc_read(AIN_R2)
-			print(f"ADC R2")
-			print(f"Raw sensor value: {ohm}")
-			print(f"param: {param}, inst: {inst}, value: {val}")
-			time.sleep(2)
-			"""
-			
-			"""ohm, val, param, inst = self._adc.adc_read(2)
-			time.sleep(0.5)
-			print(f"ADC R2")
-			print(f"Raw sensor value: {ohm}")
-			print(f"param: {param}, inst: {inst}, value: {val}")"""
 
 
 	def get_current_engine_data(self):
@@ -86,9 +68,7 @@ class engine_data_interface:
 	def initialize_can_interface(self):
 		os.system('sudo ip link set can0 type can bitrate 250000 listen-only on')
 		os.system('sudo ifconfig can0 up')
-		
 		self._can0 = can.interface.Bus(channel = 'can0', interface = 'socketcan')
-		
 		print("CAN interface initialized")
 		
 		
@@ -102,33 +82,40 @@ class engine_data_interface:
 		
 		
 	def _adc_timer_interrupt(self):
-		print("Timer triggered")
-		FINISH HERE
-		FINISH HERE
+		if not self._interface_running:		# catch shutdown moment
+			return
 		
-		
-		
+		# Read Input
 		_, sensor_val, param, inst = self._adc.adc_read(self._active_ains[self._current_ain_index])
 		if sensor_val != np.isnan:
 			self.data_mngr.store_data_point(
-				parameter: param,
-				instance: inst,
-				value: sensor_val,
-				source_type: source_types,
-				address: int
+				parameter = param,
+				instance = inst,
+				value = sensor_val,
+				source_type = source_types.ANALOG,
+				address = -1
 			)
 		
+		# Prepare next input
+		self._current_ain_index += 1
+		if self._current_ain_index >= len(self._active_ains):
+			self._current_ain_index = 0
 		
+		# reset timer
 		self._start_Timer(self._adc_interval)
 		
 		
 	def _start_Timer(self, duration):
-		timer = threading.Timer(duration, _adc_timer_interrupt)
-		timer.deamon = True
-		timer.start()
+		if self._interface_running:
+			timer = threading.Timer(duration, self._adc_timer_interrupt)
+			timer.deamon = True
+			timer.start()
 			
 		
 	def shutdown(self):
+		# Executed from Main-Thread!
+		self._interface_running = False		 	# As timer runs in separate thread, flag must be cleared to stop.
+		time.sleep(RX_TIMEOUT * 1.2)			# Delay to finish CAN reading
 		self._pi.i2c_close(self._i2c_handle)
 		self._pi.stop()
 		os.system('sudo ifconfig can0 down')
