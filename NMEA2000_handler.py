@@ -19,9 +19,9 @@ class n2k_handler:
 		src_adr = head & 0xFF
 		pgn = (head & 0x7FFFF00) >> 8
 		
-		print(f"head: {hex(head)}")
+		"""print(f"head: {hex(head)}")
 		print(f"Src: {hex(src_adr)}")
-		print(f"pgn: {hex(pgn)}")
+		print(f"pgn: {hex(pgn)}")"""
 		#print(f"data: {msg_data}")
 		
 		match(pgn):
@@ -63,7 +63,7 @@ class n2k_handler:
 		if (self._is_not_NA([data[3], data[4]])):
 			boost = data[3] + data[4]*256
 			boost /= 1000
-			#print(f"boost: {boost}")
+			#print(f"boost: {boost} - instance: {instance}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.BOOST_PRESS,
 				instance = instance,
@@ -292,7 +292,7 @@ class n2k_handler:
 			if level > 32764:
 				level -= 65536
 			level /= 250
-			#print(f"Level: {level}")
+			print(f"Level: {level}, instance:{instance}, parameter:{param_type}")
 			self.data_storage.store_data_point(
 				parameter=param_type,
 				instance = instance,

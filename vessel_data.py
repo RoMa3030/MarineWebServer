@@ -1,3 +1,4 @@
+import numpy as np
 from enum import Enum, auto
 from dataclasses import dataclass
 from typing import Dict
@@ -105,11 +106,13 @@ DEFAULT_PRECISION = [
 	0# EXHAUST_GAS_TEMP = 38
 ]
 
-	
+DEFAULT_TIMEOUT = 5.0		#[s] timeout for data values
+
 class source_types(Enum):
-	NMEA2000 = 1
+	# !!! Order represents default Priority !!!
+	ANALOG = 1
 	J1939 = 2
-	ANALOG = 3
+	NMEA2000 = 3
 	INTERNAL = 4 
 	
 @dataclass
@@ -130,18 +133,39 @@ class vessel_data_manager:
  
  
 	def store_data_point(self, parameter: parameter_type, instance: int, value: float, source_type: source_types, address: int, timestamp: datetime = None):
+		if np.isnan(value):
+			return
+		#print(f"Stored: Parameter-{parameter} | Instance-{instance} | Value-{value} | source-{source_type}")
+		is_new_data_point = False
+		
+		#  Ensure data node exists
 		if timestamp is None:
 			timestamp = datetime.now()
-			
 		if parameter not in self._data:
 			self._data[parameter] = {}
-			
+			is_new_data_point = True		
+		
+		# store data
+		if not is_new_data_point:
+			if source_type.value > self._data[parameter][instance].source_type.value:	#value required because enum isn't handles as int in python!
+				age = datetime.now() - self._data[parameter][instance].time_stamp
+				if age.total_seconds() <= DEFAULT_TIMEOUT:
+					"""
+					Deny storing data point ONLY, if data is from lower priority source AND available data is not timed out yet.
+					Nested ifs for faster processeing - doesn't calculate age each time.
+					"""
+					print("I: Denied overwriting data point from lover priority source")
+					return
+				
 		self._data[parameter][instance] = data_point(
 			value = value,
 			source_type = source_type,
 			source_address = address,
 			time_stamp = timestamp
-		)		
+		)
+		#print(f"I: stored value: {self._data[parameter][instance]}")
+		print(f"After storing")
+		print(self._data)
 		
   
 	def get_data_point_comp(self, parameter: parameter_type, instance: int):
@@ -157,8 +181,14 @@ class vessel_data_manager:
 		# returns value only
 		if (parameter in self._data):
 			if (instance in self._data[parameter]):
-				return self._data[parameter][instance].value
-		
+				age = datetime.now() - self._data[parameter][instance].time_stamp
+				if age.total_seconds() <= DEFAULT_TIMEOUT:
+					return self._data[parameter][instance].value
+				else:
+					#del self._data[parameter][instance]	# currently value is not reset after timeout / if required, probably better to do in separate method
+					print("Value timed out")
+					return float('nan')
+					
 		return float('nan')
 
 	
@@ -169,13 +199,29 @@ class vessel_data_manager:
 			instance = data_point[1]
 			if (parameter in self._data):
 				if (instance in self._data[parameter]):
-					rounded = round(self._data[parameter][instance].value, DEFAULT_PRECISION[parameter])
-					data_array.append(rounded)
+					#Value exists in storage:
+					age = datetime.now() - self._data[parameter][instance].time_stamp
+					if age.total_seconds() <= DEFAULT_TIMEOUT:
+						# Data is available
+						print(f"Took value from storage: {self._data[parameter][instance].value}")
+						rounded = round(self._data[parameter][instance].value, DEFAULT_PRECISION[parameter.value])
+						print(f"rounded: {rounded}")
+						data_array.append(rounded)
+					else:
+						# Data is timed out
+						data_array.append(float('nan'))
+						print("Data available but timed out - return NAN")
 				else:
+					# instance is not available in storage
 					data_array.append(float('nan'))
+					print("Data not in storage 1")
 			else:
+				# parameter is not available in storage
 				data_array.append(float('nan'))
+				print(f"Data not in storage 2 - par:{parameter} / inst:{instance}")
     
+		print("This data is returned on API-call:")
+		print(data_array)
 		return data_array
  
  
@@ -203,8 +249,11 @@ class vessel_data_manager:
 			for section in page.get("sections", []):
 				for field in section.get("dataFields", []):
 					instance = field.get("instance")
-					data_type = field.get("dataType")
-					interface_description.append([data_type, instance])  		
+					data_type = parameter_type(field.get("dataType"))
+					interface_description.append([data_type, instance])
+					
+		print("This desribes the loaded interface")
+		print(interface_description) 		
 		return interface_description
 		
   

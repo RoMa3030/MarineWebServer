@@ -1,6 +1,7 @@
 import json
 import time
 import numpy as np
+from vessel_data import parameter_type
 
 ADC_ADDRESS = 0x48
 CONVERSION_REGISTER_ADR = 0X00
@@ -31,6 +32,7 @@ class analog_handler:
 		for ain in self._actives:
 			if ain:
 				inputs.append(i)
+			i +=1
 		return inputs
 		
 #------------------------------------------------------------------------------------------
@@ -78,10 +80,12 @@ class analog_handler:
 			active = ain.get("activated")
 			if(active):
 				instance = ain.get("instance")
-				data_type = ain.get("dataType")
+				data_type = parameter_type(ain.get("dataType"))
 				desc.append([data_type, instance])
+				print(f" Activated AIN: inst{instance} - param{data_type}")
 			else:
-				desc.append([0,0])
+				print(f"AIN-{ain} is not used")
+				desc.append([-1,-1])
 		
 		desc = self._reorder_user_settings(desc)			
 		return desc
@@ -107,6 +111,7 @@ class analog_handler:
 		!!! slope can be falling OR rising !!!		
 		"""
 		if(not self._actives[ain]):
+			print("E: Tried converting ADC measurement on non-activated input!")
 			return float('nan')
 		
 		curve = self._curves[ain]
@@ -128,6 +133,7 @@ class analog_handler:
 		if(curve[upper_bound_index][0] < inp_val <= (1.25*curve[upper_bound_index][0])):
 			return curve[upper_bound_index][1]
 		
+		print("ADC-Meas: Out of bounds")
 		return float('nan')
           
     
@@ -145,7 +151,7 @@ class analog_handler:
 		"""
 		
 		if (not self._actives[ain]):
-			return nan,nan,0,0
+			return float('nan'), float('nan'), 0, 0
 		
 		# ADC has always just one input active - active if not already the correct one
 		if (self._current_ain != ain):
@@ -162,6 +168,9 @@ class analog_handler:
 			#print(f"measured {measurement_raw} Volt")
 			
 		[parameter, instance] = self._data_interface[ain]
+		if parameter.value < 0 or instance < 0:
+			print("E: tried reading from AIN with no interface description")
+				
 		if (np.isnan(measurement_raw)):
 			return float('nan'), float('nan'), parameter, instance
 		
@@ -171,7 +180,7 @@ class analog_handler:
 		
 	def _activate_ain(self, ain):
 		if ain < 0 or ain > 3:
-			print("Tried to activate an invalid AIN")
+			print("E: Tried to activate an invalid AIN")
 			return False
 			 
 		success = True
@@ -190,7 +199,7 @@ class analog_handler:
 			self._active_ain = ain
 			
 		except Exception as e:
-			print(f"Error occured while activating analog input: {e}")
+			print(f"E: Error occured while activating analog input: {e}")
 			success = False
 			
 		return success
@@ -229,5 +238,5 @@ class analog_handler:
 		if R_sens > 500:
 			R_sens = float('nan')
 		#print(f"adc voltage: {adc_voltage:.3f}")
-		#print(f"Sensor Resistance: {R_sens:.3f}")		
+		print(f"Sensor Resistance: {R_sens:.3f}")		
 		return R_sens

@@ -30,7 +30,7 @@ class engine_data_interface:
 		self.data_mngr = vessel_data.vessel_data_manager()
 		
 		# setup CAN
-		self._n2k = NMEA2000_handler.n2k_handler(self.data_mngr)
+		self._n2k = NMEA2000_handler.n2k_handler(self.data_mngr)	# actual object is passed to class instance for adding data!
 		self._can0 = None
 		self.initialize_can_interface()
 		
@@ -43,13 +43,14 @@ class engine_data_interface:
 		
 		# setup timer
 		self._active_ains = self._adc.get_actives()
+		print(f"These are the activated inputs: {self._active_ains}")
 		self._current_ain_index = 0
 		self._adc_interval = 1.0
 		if self._active_ains:
 			self._interface_running = True
 			self._adc_interval = 1.0/(len(self._active_ains)) 
 			self._start_Timer(self._adc_interval)
-			
+		print(f"ADC-Timer interval = {self._adc_interval}")	
    
 	def read_engine_data(self):
 		#self.data_mngr.create_fake_data_for_testing()
@@ -60,25 +61,25 @@ class engine_data_interface:
 
 	def get_current_engine_data(self):
 		eng_data = self.data_mngr.get_updated_web_values()
+		print(f"Engine Data to send: {eng_data}")
+		print(self.data_mngr._data)
 		#Conversion required as JSON can not send "NaN" -> ToDo: Null possible?
 		json_compliant_data = [-9999.99 if math.isnan(x) else x for x in eng_data]
 		return json_compliant_data
 	
 	
 	def initialize_can_interface(self):
-		os.system('sudo ip link set can0 type can bitrate 250000 listen-only on')
-		os.system('sudo ifconfig can0 up')
-		self._can0 = can.interface.Bus(channel = 'can0', interface = 'socketcan')
-		print("CAN interface initialized")
+		os.system('sudo ip link set can1 type can bitrate 250000')
+		os.system('sudo ifconfig can1 up')
+		self._can0 = can.interface.Bus(channel = 'can1', interface = 'socketcan')
+		#print("CAN interface initialized")
 		
 		
 	def _read_can(self):
 		msg = self._can0.recv(RX_TIMEOUT)
 		if msg:
-			print(msg)
+			#print(msg)
 			self._n2k.parse_message(msg)
-			rpm = self.data_mngr.get_data_point(parameter_type.ENG_SPEED, 0)
-			print(f" I READ RPM = {rpm}")
 		
 		
 	def _adc_timer_interrupt(self):
@@ -86,8 +87,12 @@ class engine_data_interface:
 			return
 		
 		# Read Input
-		_, sensor_val, param, inst = self._adc.adc_read(self._active_ains[self._current_ain_index])
+		ain = self._active_ains[self._current_ain_index]
+		#print(f"I: Reading from AIN {ain}")
+		_, sensor_val, param, inst = self._adc.adc_read(ain)
 		if sensor_val != np.isnan:
+			#print(f"Stored parameter obtained from ADC - {self._current_ain_index}")
+			#print(f"sensor val:{sensor_val} / param:{param} / instance:{inst}")
 			self.data_mngr.store_data_point(
 				parameter = param,
 				instance = inst,
@@ -95,6 +100,8 @@ class engine_data_interface:
 				source_type = source_types.ANALOG,
 				address = -1
 			)
+		else:
+			print("adc_Read: returnen NAN")
 		
 		# Prepare next input
 		self._current_ain_index += 1
@@ -118,7 +125,8 @@ class engine_data_interface:
 		time.sleep(RX_TIMEOUT * 1.2)			# Delay to finish CAN reading
 		self._pi.i2c_close(self._i2c_handle)
 		self._pi.stop()
-		os.system('sudo ifconfig can0 down')
+		self._can0.shutdown()
+		os.system('sudo ifconfig can1 down')
 		print("Engine Data Reader shutting down")
 		
 		

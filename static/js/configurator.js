@@ -448,7 +448,8 @@ async function parsePageConfigurationForm(existingConfig = null) {
     for (let i = 0; i < 4; i++) {
         const engineInput = document.getElementById(`des-engine${i}`);
         if (engineInput && engineInput.value.trim()) {
-            config.engineDesignations[i - 1] = engineInput.value.trim();
+            console.log(`Storing Engine Designation: i=${i}, name=${engineInput.value.trim()}`)
+            config.engineDesignations[i] = engineInput.value.trim();
         }
     }
   
