@@ -1,10 +1,8 @@
 from vessel_data import parameter_type
 from vessel_data import source_types
-#import can
 import numpy as np
 from typing import Dict, List, Tuple
 
-MULTIFRAME_MESSAGES = [0x1F201,0x1F212]
 KELVIN_OFFSET = 273.15
 
 class n2k_handler:
@@ -354,10 +352,8 @@ class n2k_handler:
 		
 		if (self._is_not_NA([data[4], data[5]])):
 			rudder = data[4] + data[5]*256
-			print(rudder)
 			if rudder >= 2**15:
 				rudder -= 2**16
-			print(rudder)
 			rudder = rudder * 180 / (10000*np.pi)
 			
 			#print(f"rudder: {rudder}")
@@ -497,7 +493,6 @@ class multiframe_handler:
 		else:
 			# start new message combination
 			self._mf_cache[source_id][pgn] = (new_seq_nr, new_data[1:])
-			print("returned with new msg created")
 			return (False, [])
 		
 		if new_seq_nr == old_seq_nr + 1:
