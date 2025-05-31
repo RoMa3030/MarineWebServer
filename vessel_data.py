@@ -138,14 +138,18 @@ class vessel_data_manager:
 		#print(f"Stored: Parameter-{parameter} | Instance-{instance} | Value-{value} | source-{source_type}")
 		is_new_data_point = False
 		
-		#  Ensure data node exists
-		if timestamp is None:
-			timestamp = datetime.now()
+		#  Ensure data node container exists
 		if parameter not in self._data:
 			self._data[parameter] = {}
-			is_new_data_point = True		
-		
+			is_new_data_point = True
+		if instance not in self._data[parameter]:
+			#print(self._data)
+			#print(f"Instance: {instance}")			
+			is_new_data_point = True
+	
 		# store data
+		if timestamp is None:
+			timestamp = datetime.now()
 		if not is_new_data_point:
 			if source_type.value > self._data[parameter][instance].source_type.value:	#value required because enum isn't handles as int in python!
 				age = datetime.now() - self._data[parameter][instance].time_stamp
@@ -208,7 +212,6 @@ class vessel_data_manager:
 				else:
 					# instance is not available in storage
 					data_array.append(float('nan'))
-					print("Data not in storage 1")
 			else:
 				# parameter is not available in storage
 				data_array.append(float('nan'))

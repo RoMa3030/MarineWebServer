@@ -36,6 +36,8 @@ function updateEngineData() {
                 if (!Number.isNaN(value) && value !== null && value !== -9999.99) {
                     //console.log(`Value at index ${index} is ${value}`);
                     updateDataField(index, value);
+                }else{
+                    clearDataField(index, value);
                 }
             });
         })
@@ -60,6 +62,30 @@ function updateDataField(numerator, value) {
                 case 'SingleValue':
                     numberField = document.getElementById(containerID);
                     numberField.textContent = value.toString() + getUnit(numberField.dataset.dataType);
+                    break;
+                default:
+                    console.log("This level2layout-type is not supported yet")
+            }
+        }else{
+            console.log("Layouts with more than one page are currently not supported yet.");
+        }
+    });
+}
+
+
+function clearDataField(numerator, value) {
+    // Not suitable yet for layouts with more than 1 data pages
+    appState.settings.layouts.forEach((layout, layoutIndex) => {
+        if(layoutIndex === 0) {
+            const sectionType = layout.sections[numerator].level2Type;
+            const containerID = `dtfld_${(numerator+1).toString().padStart(2, '0')}`;
+            switch(sectionType){
+                case 'Gauge':
+                    clearGauge(containerID, value);
+                    break;
+                case 'SingleValue':
+                    numberField = document.getElementById(containerID);
+                    numberField.textContent = "---";
                     break;
                 default:
                     console.log("This level2layout-type is not supported yet")

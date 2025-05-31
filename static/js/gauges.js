@@ -43,7 +43,7 @@ function createGauge(containerId, value, min, max, unit, instanceTitle, valueDes
 
     // Value text
     const valueText = document.createElementNS(svgns, "text");
-    const valueFontSize = "4rem";
+    const valueFontSize = "5rem";
     valueText.setAttribute("text-anchor", "middle");
     valueText.setAttribute("x", centerX);
     valueText.setAttribute("y", gaugeBaseHight-24);
@@ -51,7 +51,7 @@ function createGauge(containerId, value, min, max, unit, instanceTitle, valueDes
     valueText.setAttribute("fill", "#2c3e50");
     valueText.setAttribute("font-weight", "bold");
     valueText.setAttribute("id", `${containerId}-value`);
-    valueText.textContent = value + (unit ? ' ' + unit : '');   // add unit only, if valid string is defined
+    valueText.textContent = value // + (unit ? ' ' + unit : '');   // add unit only, if valid string is defined
     gaugeSvg.appendChild(valueText);
 
     
@@ -81,13 +81,28 @@ function updateGauge(containerId, value) {
     const min = container.dataset.min;
     const max = container.dataset.max;
 
-    valueText.textContent = value + (unit ? unit : '');
+    valueText.textContent = value //+ (unit ? unit : '');
 
     // Update indicator graphic
     const indicator = document.getElementById(`${containerId}-indicator`);
     const [gaugeBaseHight, centerX, radius] = calculateGaugeDimensions(containerId);
     const percentage = getIndicatorPercentage(value, min, max);
     drawGaugeArc(indicator, gaugeBaseHight, centerX, radius, percentage, "blue", 30);
+}
+
+function clearGauge(containerId, value) {
+    // Update value text
+    const valueText = document.getElementById(`${containerId}-value`);
+    const container = document.getElementById(containerId);
+    const min = container.dataset.min;
+    const max = container.dataset.max;
+
+    valueText.textContent = "---";
+
+    // Update indicator graphic
+    const indicator = document.getElementById(`${containerId}-indicator`);
+    const [gaugeBaseHight, centerX, radius] = calculateGaugeDimensions(containerId);
+    drawGaugeArc(indicator, gaugeBaseHight, centerX, radius, 0, "blue", 30);
 }
 
 function calculateGaugeDimensions(containerId){
@@ -106,7 +121,13 @@ function calculateGaugeDimensions(containerId){
 }
 
 function getIndicatorPercentage(value, min, max){
-    return ((value - min) / (max - min)*100);
+    perc = ((value - min) / (max - min)*100);
+    if (perc > 100){
+        perc = 100;
+    }else if (perc < 0){
+        perc = 0;
+    }
+    return perc;
 }
 
 
