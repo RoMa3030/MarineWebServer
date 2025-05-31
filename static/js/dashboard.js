@@ -153,11 +153,11 @@ function renderLayout(layoutConfig) {
         return;
     } 
 
-    layoutConfig.layouts.forEach((layout, layoutIndex) => {
+    layoutConfig.layouts.forEach((Lvl1Layout, layoutIndex) => {
         // code is currently not suitable for web-app that displays several pages -> layouts after page1 are ignored
         if(layoutIndex === 0) {
-            if (layout.level1Type == 'Grid_3_2') {
-                const sections = layout.sections || [];
+            if (Lvl1Layout.level1Type == 'Grid_3_2') {
+                const sections = Lvl1Layout.sections || [];
                 
                 // Create the fixed 3x2 grid
                 const grid = document.createElement('div');
@@ -166,10 +166,12 @@ function renderLayout(layoutConfig) {
 
                 //console.log('sections: ',sections)
                 // Create exactly 6 cards (3x2 grid)
+                let indexOffset = 0;
                 for (let index = 0; index < 6; index++) {
                     //console.log('Added Card nr. ', index);
                     const section = sections[index] || {}; // Use empty object if section doesn't exist
-                    const card = createCard(section, index + 1, layoutConfig);
+                    const {card, additionalOffset} = createCard(section, (index+1+indexOffset), layoutConfig);
+                    indexOffset += additionalOffset;
                     grid.appendChild(card);
                 }
                 
@@ -194,7 +196,8 @@ function createCard(section, index, layoutConfig) {
     const dataField = section.dataFields && section.dataFields.length > 0 ? section.dataFields[0] : null;
     
     if (!dataField) {
-        return createEmptyCard(idIndex);
+        const card = createEmptyCard(idIndex);
+        return //{card: card, additionalIndex: 0};
     }
     
     // Get engine designation based on instance if available
@@ -220,17 +223,17 @@ function createCard(section, index, layoutConfig) {
             break;
             
         case 'SingleValue':
-            // Add instance designator
+            //AddNumericToDiv(card, idIndex, engineDesignation, dataField, "sv");
             const instanceElement = document.createElement('p');
             instanceElement.id = `instdes_${idIndex}`;
-            instanceElement.className = 'sv_instance_designator';
+            instanceElement.className = '${classPrefix}_instance_designator';
             instanceElement.textContent = engineDesignation;
             card.appendChild(instanceElement);
             
             // Add value element
             const valueElement = document.createElement('p');
             valueElement.id = `dtfld_${idIndex}`;
-            valueElement.className = 'sv_number';
+            valueElement.className = '${classPrefix}_number';
             valueElement.textContent = getDefaultValueForDataType(dataField.dataType, layoutConfig.unitSelection);
             valueElement.dataset.dataType = dataField.dataType;
             valueElement.dataset.instance = dataField.instance;
@@ -239,17 +242,64 @@ function createCard(section, index, layoutConfig) {
             // Add label
             const labelElement = document.createElement('p');
             labelElement.id = `lbl_${idIndex}`;
-            labelElement.className = 'sv_label';
+            labelElement.className = '${classPrefix}_label';
             labelElement.textContent = getLabelForDataType(dataField.dataType);
             card.appendChild(labelElement);
             break;
             
+        case 'TripleValue':
+            addIndex = 2;       // increase indexing for three data values rather than 1 only                        
+            for(let i=0; i<3; i++) {
+                const LineInTripleNumeric = document.createElement('div');
+                LineInTripleNumeric.className = 'triple-value-line';
+                engineDesignation = dataField.instance !== undefined && 
+                              layoutConfig.engineDesignations && 
+                              layoutConfig.engineDesignations[dataField.instance] 
+                              ? layoutConfig.engineDesignations[dataField.instance] 
+                              : '';
+                dataField = section.dataFields && section.dataFields.length > 0 ? section.dataFields[i] : null;
+                AddNumericToDiv(LineInTripleNumeric, idIndex, engineDesignation, dataField, "tv");
+                card.appendChild(LineInTripleNumeric)
+                
+                index +=1;
+                idIndex = index.toString().padStart(2, '0');
+            }
+            break;
+            
         default:
             console.log('level2layout-type not supported yet. Created empty card instead.')
-            return createEmptyCard(idIndex);
+            const card = createEmptyCard(idIndex);
+            return {card: card, additionalIndex: 0};
     }
     
-    return card;
+    return {card: card, additionalIndex: addIndex};
+}
+
+
+function AddNumericToDiv(DivElementId, idIndex, engineDesignation, dataField, classPrefix) {
+    const DivElement = document.getElementById(DivElelementId);
+    // Add instance designator
+    const instanceElement = document.createElement('p');
+    instanceElement.id = `instdes_${idIndex}`;
+    instanceElement.className = '${classPrefix}_instance_designator';
+    instanceElement.textContent = engineDesignation;
+    DivElement.appendChild(instanceElement);
+    
+    // Add value element
+    const valueElement = document.createElement('p');
+    valueElement.id = `dtfld_${idIndex}`;
+    valueElement.className = '${classPrefix}_number';
+    valueElement.textContent = getDefaultValueForDataType(dataField.dataType, layoutConfig.unitSelection);
+    valueElement.dataset.dataType = dataField.dataType;
+    valueElement.dataset.instance = dataField.instance;
+    DivElement.appendChild(valueElement);
+    
+    // Add label
+    const labelElement = document.createElement('p');
+    labelElement.id = `lbl_${idIndex}`;
+    labelElement.className = '${classPrefix}_label';
+    labelElement.textContent = getLabelForDataType(dataField.dataType);
+    DivElement.appendChild(labelElement);
 }
 
 function createEmptyCard(idIndex) {
