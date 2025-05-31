@@ -163,9 +163,6 @@ class vessel_data_manager:
 			source_address = address,
 			time_stamp = timestamp
 		)
-		#print(f"I: stored value: {self._data[parameter][instance]}")
-		print(f"After storing")
-		print(self._data)
 		
   
 	def get_data_point_comp(self, parameter: parameter_type, instance: int):
@@ -186,7 +183,7 @@ class vessel_data_manager:
 					return self._data[parameter][instance].value
 				else:
 					#del self._data[parameter][instance]	# currently value is not reset after timeout / if required, probably better to do in separate method
-					print("Value timed out")
+					#print("Value timed out")
 					return float('nan')
 					
 		return float('nan')
@@ -203,14 +200,11 @@ class vessel_data_manager:
 					age = datetime.now() - self._data[parameter][instance].time_stamp
 					if age.total_seconds() <= DEFAULT_TIMEOUT:
 						# Data is available
-						print(f"Took value from storage: {self._data[parameter][instance].value}")
 						rounded = round(self._data[parameter][instance].value, DEFAULT_PRECISION[parameter.value])
-						print(f"rounded: {rounded}")
 						data_array.append(rounded)
 					else:
 						# Data is timed out
 						data_array.append(float('nan'))
-						print("Data available but timed out - return NAN")
 				else:
 					# instance is not available in storage
 					data_array.append(float('nan'))
@@ -218,10 +212,6 @@ class vessel_data_manager:
 			else:
 				# parameter is not available in storage
 				data_array.append(float('nan'))
-				print(f"Data not in storage 2 - par:{parameter} / inst:{instance}")
-    
-		print("This data is returned on API-call:")
-		print(data_array)
 		return data_array
  
  

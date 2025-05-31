@@ -25,23 +25,23 @@ class n2k_handler:
 		#print(f"data: {msg_data}")
 		
 		match(pgn):
-			case 0x1f200:
+			case 0x1f200:	# Engine parameter - rapid update
 				self._parse_0x1f200(src_adr, pgn, msg_data)
-			case 0x1f201:
+			case 0x1f201:	# Engine parameter - dynamic
 				msg_complete, combined_msg = self._mf_handler.add_frame(src_adr, pgn, msg_data)
 				if msg_complete:
 					self._parse_0x1f201(src_adr, pgn, combined_msg)					
-			case 0x1f211:
+			case 0x1f211:	# Fluid Level
 				self._parse_0x1f211(src_adr, pgn, msg_data)	
-			case 0x1f212:
+			case 0x1f212:	# DC Detailed status
 				msg_complete, combined_msg = self._mf_handler.add_frame(src_adr, pgn, msg_data)
 				if msg_complete:
 					self._parse_0x1f212(src_adr, pgn, combined_msg)						
-			case 0x1f214:
+			case 0x1f214:	# Battery status
 				self._parse_0x1f214(src_adr, pgn, msg_data)				
-			case 0x1fd0c:
+			case 0x1fd0c:	# Temperture - extended range
 				self._parse_0x1fd0c(src_adr, pgn, msg_data)			
-			case 0x1f10d:
+			case 0x1f10d:	# Rudder
 				self._parse_0x1f10d(src_adr, pgn, msg_data)
 		
 
@@ -292,7 +292,7 @@ class n2k_handler:
 			if level > 32764:
 				level -= 65536
 			level /= 250
-			print(f"Level: {level}, instance:{instance}, parameter:{param_type}")
+			#print(f"Level: {level}, instance:{instance}, parameter:{param_type}")
 			self.data_storage.store_data_point(
 				parameter=param_type,
 				instance = instance,
@@ -360,7 +360,7 @@ class n2k_handler:
 			print(rudder)
 			rudder = rudder * 180 / (10000*np.pi)
 			
-			print(f"rudder: {rudder}")
+			#print(f"rudder: {rudder}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.RUDDER,
 				instance = instance,
@@ -379,7 +379,7 @@ class n2k_handler:
 				voltage -= 2**16
 			voltage /= 100
 			
-			print(f"voltage: {voltage}")
+			#print(f"voltage: {voltage}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.BATTERY_POT,
 				instance = instance,
@@ -394,7 +394,7 @@ class n2k_handler:
 				current -= 2**16
 			current /= 10
 			
-			print(f"current: {current}")
+			#print(f"current: {current}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.AMMETER,
 				instance = instance,
@@ -408,7 +408,7 @@ class n2k_handler:
 			temp /= 100
 			temp -= KELVIN_OFFSET
 			
-			print(f"temp: {temp}")
+			#print(f"temp: {temp}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.BATTERY_TEMP,
 				instance = instance,
@@ -430,7 +430,7 @@ class n2k_handler:
 		
 		if (self._is_not_NA([data[4]])):
 			soc = data[4]
-			print(f"soc: {soc}")
+			#print(f"soc: {soc}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.SOC,
 				instance = instance,
@@ -441,7 +441,7 @@ class n2k_handler:
 		
 		if (self._is_not_NA([data[5]])):
 			soh = data[5]
-			print(f"soh: {soh}")
+			#print(f"soh: {soh}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.SOH,
 				instance = instance,
@@ -452,7 +452,7 @@ class n2k_handler:
 				
 		if (self._is_not_NA([data[6], data[7]])):
 			autonomy = data[6] + data[7]*256
-			print(f"autonomy: {autonomy}")
+			#print(f"autonomy: {autonomy}")
 			self.data_storage.store_data_point(
 				parameter=parameter_type.BATTERY_AUTON,
 				instance = instance,

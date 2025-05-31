@@ -61,8 +61,6 @@ class engine_data_interface:
 
 	def get_current_engine_data(self):
 		eng_data = self.data_mngr.get_updated_web_values()
-		print(f"Engine Data to send: {eng_data}")
-		print(self.data_mngr._data)
 		#Conversion required as JSON can not send "NaN" -> ToDo: Null possible?
 		json_compliant_data = [-9999.99 if math.isnan(x) else x for x in eng_data]
 		return json_compliant_data

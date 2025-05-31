@@ -62,15 +62,14 @@ class analog_handler:
 				curves.append([])
 			
 		curves = self._reorder_user_settings(curves)
-		print("AIN0:")
+		"""print("AIN0:")
 		print(curves[0])
 		print("AIN1:")
 		print(curves[1])
 		print("AIN2:")
 		print(curves[2])
 		print("AIN3:")
-		print(curves[3])
-		  
+		print(curves[3])"""		  
 		return curves
 		
 		
@@ -148,8 +147,7 @@ class analog_handler:
 		ain2 = Resistive 1
 		ain3 = voltage 2
 		returns the Value measured by the MWS in, depending on the used input, V or Ohm
-		"""
-		
+		"""		
 		if (not self._actives[ain]):
 			return float('nan'), float('nan'), 0, 0
 		
@@ -238,5 +236,5 @@ class analog_handler:
 		if R_sens > 500:
 			R_sens = float('nan')
 		#print(f"adc voltage: {adc_voltage:.3f}")
-		print(f"Sensor Resistance: {R_sens:.3f}")		
+		#print(f"Sensor Resistance: {R_sens:.3f}")		
 		return R_sens
