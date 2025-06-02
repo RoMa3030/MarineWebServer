@@ -32,12 +32,12 @@ function updateEngineData() {
         .then(floatArray => {
             //console.log("Received data:", floatArray);
             //console.log("Type of data:", typeof floatArray);
-            floatArray.forEach((value, index) => {
+            floatArray.forEach((value, datafield_index) => {
                 if (!Number.isNaN(value) && value !== null && value !== -9999.99) {
                     //console.log(`Value at index ${index} is ${value}`);
-                    updateDataField(index, value);
+                    updateDataField(datafield_index, value);
                 }else{
-                    clearDataField(index, value);
+                    clearDataField(datafield_index, value);
                 }
             });
         })
@@ -49,51 +49,71 @@ function updateEngineData() {
         });
 }
 
-function updateDataField(numerator, value) {
-    // Not suitable yet for layouts with more than 1 data pages
-    appState.settings.layouts.forEach((layout, layoutIndex) => {
-        if(layoutIndex === 0) {
-            const sectionType = layout.sections[numerator].level2Type;
-            const containerID = `dtfld_${(numerator+1).toString().padStart(2, '0')}`;
-            switch(sectionType){
-                case 'Gauge':
-                    updateGauge(containerID, value);
-                    break;
-                case 'SingleValue':
-                    numberField = document.getElementById(containerID);
-                    numberField.textContent = value.toString() + getUnit(numberField.dataset.dataType);
-                    break;
-                default:
-                    console.log("This level2layout-type is not supported yet")
-            }
-        }else{
-            console.log("Layouts with more than one page are currently not supported yet.");
-        }
-    });
+function updateDataField(datafield_index, meas_value) {
+    const containerID = `dtfld_${(datafield_index+1).toString().padStart(2, '0')}`;
+    const dataField = document.getElementById(containerID);
+    
+    if(!dataField)
+    {
+        console.warn(`Datafield with ID ${containerID} not found`);
+        return;
+    }
+    
+    const sectionType = getSectionType(dataField);
+    switch(sectionType){
+        case 'Gauge':
+            updateGauge(containerID, meas_value);
+            break;
+        case 'SingleValue':
+            dataField.textContent = meas_value.toString() + getUnit(dataField.dataset.dataType);
+            break;
+        case 'TripleValue':
+            dataField.textContent = meas_value.toString() + getUnit(dataField.dataset.dataType);
+            break;
+        default:
+            console.log("This level2layout-type is not supported yet")
+    }
 }
 
 
-function clearDataField(numerator, value) {
-    // Not suitable yet for layouts with more than 1 data pages
-    appState.settings.layouts.forEach((layout, layoutIndex) => {
-        if(layoutIndex === 0) {
-            const sectionType = layout.sections[numerator].level2Type;
-            const containerID = `dtfld_${(numerator+1).toString().padStart(2, '0')}`;
-            switch(sectionType){
-                case 'Gauge':
-                    clearGauge(containerID, value);
-                    break;
-                case 'SingleValue':
-                    numberField = document.getElementById(containerID);
-                    numberField.textContent = "---";
-                    break;
-                default:
-                    console.log("This level2layout-type is not supported yet")
-            }
-        }else{
-            console.log("Layouts with more than one page are currently not supported yet.");
-        }
-    });
+function getSectionType(dataField) {
+    if (dataField.classList.contains('gauge-container')) {
+        return 'Gauge';
+    }
+    if (dataField.closest('.triple-value-line')) {
+        return 'TripleValue';
+    }
+    if (dataField.classList.contains('sv_number')) {
+        return 'SingleValue';
+    }
+    
+    return 'Unknown';
+}
+
+
+function clearDataField(datafield_index) {
+    const containerID = `dtfld_${(datafield_index+1).toString().padStart(2, '0')}`;
+    const dataField = document.getElementById(containerID);
+    
+    if(!dataField) {
+        console.warn(`Datafield with ID ${containerID} not found`);
+        return;
+    }
+    
+    const sectionType = getSectionType(dataField);
+    switch(sectionType){
+        case 'Gauge':
+            clearGauge(containerID);
+            break;
+        case 'SingleValue':
+            dataField.textContent = '---';
+            break;
+        case 'TripleValue':
+            dataField.textContent = '---';
+            break;
+        default:
+            console.log("This level2layout-type is not supported yet")
+    }
 }
 
 

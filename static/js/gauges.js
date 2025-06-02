@@ -90,7 +90,7 @@ function updateGauge(containerId, value) {
     drawGaugeArc(indicator, gaugeBaseHight, centerX, radius, percentage, "blue", 30);
 }
 
-function clearGauge(containerId, value) {
+function clearGauge(containerId) {
     // Update value text
     const valueText = document.getElementById(`${containerId}-value`);
     const container = document.getElementById(containerId);
