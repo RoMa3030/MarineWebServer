@@ -528,7 +528,6 @@ async function parsePageConfigurationForm(existingConfig = null) {
                         if (dataFieldEditor) {
                             // The number of parameters depends on the level2Type
                             let paramCount = 1; // Default for SingleValue and Gauge
-                            
                             if (level2Type === 'TripleValue') {
                                 paramCount = 3;
                             } else if (level2Type === 'Columns') {

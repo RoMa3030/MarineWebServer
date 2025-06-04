@@ -27,7 +27,7 @@ body {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 10px;
+    padding: 2px;
     text-align: center;
     transition: transform 0.3s ease;
     display: flex;
@@ -115,10 +115,17 @@ body {
     height: 250px;
 }*/
 
+.column-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: end;
+    height: 92%;
+    width: 92%;
+}
+
 .column-meter-item {
     display: flex;
-    align-items: end;
-    gap: 0.5rem;
+    /*align-items: end;*/
     height: 100%;
 }
 
@@ -130,13 +137,13 @@ body {
 }
 
 .grid-meter {
-    width: 16px;
-    height: 180px;
+    width: 30px;
+    flex-grow: 1;
     appearance: none;
     writing-mode: vertical-lr;
     direction: rtl;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     background: #e2e8f0;
 }
 
@@ -149,21 +156,34 @@ body {
     border-radius: 8px;
 }
 
+.grid-meter::-webkit-meter-optimum-value {
+    background: var(--meter-color, #0D6431);
+}
+.grid-meter::-webkit-meter-even-less-good-value {
+    background: var(--meter-color, #E43806);
+}
+.grid-meter::-moz-meter-bar {
+    background: var(--meter-color, #0D6431);
+    border-radius: 8px;
+}
+.grid-meter[data-state='alarm']::-moz-meter-bar {
+    background: var(--meter-alarm-color, #E43806);
+}
+
+
 .grid-column-label {
-    font-size: 0.9rem;
-    color: #4a5568;
-    font-weight: 500;
+    font-size: 1.6rem;
+    color: #7f8c8d;
     writing-mode: vertical-lr;
-    height: 180px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .grid-column-value {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #2d3748;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
     margin-bottom: 0.5rem;
 }
 

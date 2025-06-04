@@ -70,6 +70,9 @@ function updateDataField(datafield_index, meas_value) {
         case 'TripleValue':
             dataField.textContent = meas_value.toString() + getUnit(dataField.dataset.dataType);
             break;
+        case 'Column':
+            updateColumn(dataField, meas_value);
+            break;
         default:
             console.log("This level2layout-type is not supported yet")
     }
@@ -85,6 +88,9 @@ function getSectionType(dataField) {
     }
     if (dataField.classList.contains('sv_number')) {
         return 'SingleValue';
+    }
+    if (dataField.classList.contains('grid-column-content')) {
+        return 'Column';
     }
     
     return 'Unknown';
@@ -111,11 +117,30 @@ function clearDataField(datafield_index) {
         case 'TripleValue':
             dataField.textContent = '---';
             break;
+        case 'Column':
+            clearColumn(dataField);
+            break;
         default:
             console.log("This level2layout-type is not supported yet")
     }
 }
 
+function updateColumn(dataField, value) {
+    const valueDiv = dataField.querySelector('.grid-column-value');
+    const meter = dataField.querySelector('.grid-meter');
+    
+    valueDiv.textContent = value.toString()+'%';
+    meter.value = value; 
+    updateMeterState(meter);    // required only for alarm function to also work on mozilla browsers   
+}
+
+function clearColumn(dataField) {
+    const valueDiv = dataField.querySelector('.grid-column-value');
+    const meter = dataField.querySelector('.grid-meter');
+    
+    valueDiv.textContent = '---%';
+    meter.value = 0;
+}
 
 // Initialzation of Layout
 let appState = {
@@ -301,13 +326,16 @@ function createCard(section, index, layoutConfig) {
                 LineInTripleNumeric.appendChild(valueElement);
     
                 card.appendChild(LineInTripleNumeric);
+                
                 index +=1;
                 idIndex = index.toString().padStart(2, '0');
             }
             break;
             
         case 'Columns':
-            addIndex = 2;       // increase indexing for three data values rather than 1 only  
+            addIndex = 2;       // increase indexing for three data values rather than 1 only 
+            const columnFlexElement = document.createElement('div');
+            columnFlexElement.className = 'column-container';
             for(let i=0; i<3; i++) {
                 const columnElement = document.createElement('div');
                 columnElement.className = 'column-meter-item';
@@ -317,7 +345,7 @@ function createCard(section, index, layoutConfig) {
                 const columnLabel = document.createElement('div');
                 columnLabel.id = `lbl_${idIndex}`;
                 columnLabel.className = 'grid-column-label';
-                columnLabel.textContent = getTankLabelText(dataField.instance, dataField.dataType);                
+                columnLabel.textContent = getTankLabelText((dataField.instance+1), dataField.dataType);                
                 columnElement.appendChild(columnLabel);
                 
                 // Add Meter & Value
@@ -340,10 +368,15 @@ function createCard(section, index, layoutConfig) {
                 columnDfElement.appendChild(columnMeter);
                 columnElement.appendChild(columnDfElement);
                 
-                card.appendChild(columnElement);
+                columnFlexElement.appendChild(columnElement);           
+                
+                // Customize meter color
+                setMeterColor(columnMeter, dataField.dataType);
+                
                 index +=1;
                 idIndex = index.toString().padStart(2, '0');
             }
+            card.appendChild(columnFlexElement);
             break;
             
         default:
@@ -406,6 +439,46 @@ function getTankLabelText(instNr, dataType) {
     const instString = instNr.toString();
     label = `${label} ${instString}`;
     return label;
+}
+
+function setMeterColor(meter, dataType) {
+    let normalColor = '#0D6431';
+    switch (dataType){
+        case 24:
+            lnormalColor = '#0D6431';//"Fuel ";
+            break;
+        case 25:
+            normalColor = '#0B06E4';//"Fresh Water";
+            break;
+        case 26:
+            normalColor = '#9D4700';//Waste";
+            break;
+        case 27:
+            normalColor = '#088070';//"Live Well";
+            break;
+        case 28:
+            normalColor = '#6600B9';//"Oil Level";
+            break;
+        case 29:
+            normalColor = '#4B2A0B';//"Black Water";
+            break;
+        default:
+            console.log("This is not a tank-type parameter");
+    }
+    meter.style.setProperty('--meter-color', normalColor);
+    meter.style.setProperty('--meter-alarm-color', '#E43806');
+}
+
+function updateMeterState(meter) {
+    // This is required only on Mozilla browsers (different styling of meter elements)
+    const value = parseFloat(meter.value);
+    const low = parseFloat(meter.low) || 0;
+    
+    if(value <= low) {
+        meter.setAttribute('data-state','alarm');
+    }else{
+        meter.removeAttribute('data-state');
+    }
 }
 
 function getUnit(dataType) {

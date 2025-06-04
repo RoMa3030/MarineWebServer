@@ -24,6 +24,7 @@ AIN_V2 = 3
 class engine_data_interface:
 	
 	def __init__(self):
+		self.sim_data = 20
 		self._interface_running = False
 		
 		# data container
@@ -64,6 +65,15 @@ class engine_data_interface:
 		print(eng_data)
 		#Conversion required as JSON can not send "NaN" -> ToDo: Null possible?
 		json_compliant_data = [-9999.99 if math.isnan(x) else x for x in eng_data]
+		"""self.sim_data += 10
+		if self.sim_data > 90:
+			self.sim_data = 0
+		json_compliant_data[0] = self.sim_data
+		json_compliant_data[1] = self.sim_data + 3
+		json_compliant_data[2] = self.sim_data + 9
+		json_compliant_data[3] = self.sim_data
+		json_compliant_data[4] = self.sim_data + 3
+		json_compliant_data[5] = self.sim_data + 9"""
 		return json_compliant_data
 	
 	
