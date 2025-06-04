@@ -37,10 +37,6 @@ body {
     justify-content: space-evenly;
 }
 
-.card:has(.triple-value-line) {
-    padding: 8px 15px;
-}
-
 
 /*---- GRID - SINGLE VALUE - STYLES --------------------------*/
 .sv_instance_designator {
@@ -63,6 +59,10 @@ body {
 }
 
 /*---- GRID - TRIPLE VALUE - STYLES --------------------------*/
+.card:has(.triple-value-line) {
+    padding: 8px 15px;
+}
+
 .tv_descriptor_field {
     display: flex;
     flex-direction: column;
@@ -107,7 +107,65 @@ body {
 
 
 /*---- GRID - COLUMNS - STYLES --------------------------*/
+/*.meters-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: end;
+    gap: 2rem;
+    height: 250px;
+}*/
 
+.column-meter-item {
+    display: flex;
+    align-items: end;
+    gap: 0.5rem;
+    height: 100%;
+}
+
+.grid-column-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.grid-meter {
+    width: 16px;
+    height: 180px;
+    appearance: none;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    border: none;
+    border-radius: 8px;
+    background: #e2e8f0;
+}
+
+/* WebKit browsers (Chrome, Safari, Edge) */
+.grid-meter::-webkit-meter-bar {
+    background: #e2e8f0;
+    border-radius: 8px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    /*background: linear-gradient(to top, #4299e1, #63b3ed);*/
+    border-radius: 8px;
+}
+
+.grid-column-label {
+    font-size: 0.9rem;
+    color: #4a5568;
+    font-weight: 500;
+    writing-mode: vertical-lr;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grid-column-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
 
 /*---- GRID - GAUGE - STYLES --------------------------*/
 .gauge-container {

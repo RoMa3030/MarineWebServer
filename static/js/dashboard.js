@@ -310,7 +310,7 @@ function createCard(section, index, layoutConfig) {
             addIndex = 2;       // increase indexing for three data values rather than 1 only  
             for(let i=0; i<3; i++) {
                 const columnElement = document.createElement('div');
-                columnElement.className = 'grid-column';
+                columnElement.className = 'column-meter-item';
                 dataField = section.dataFields && section.dataFields.length > 0 ? section.dataFields[i] : null;
                 
                 // Add Label
