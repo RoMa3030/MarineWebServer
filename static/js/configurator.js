@@ -125,7 +125,7 @@ function RenderDataFieldEditorList(dataFieldEditor_id, layout) {
             numOfDatafields = 3;
             break;
         case "Columns":
-            numOfDatafields = 1;    // TBD ? Probably 3?
+            numOfDatafields = 3;
             break;
     }
     console.log("Editor ID:");
@@ -197,7 +197,11 @@ function RenderDataFieldEditorList(dataFieldEditor_id, layout) {
         dfDiv.append(rangeField, document.createElement('br'));
 
         //Define dropdown options only after appending the element to the layout
-        loadParameterOptions(paramSelect.id, [14,15]);
+        if(layout === "Columns") {
+            LoadTankParameterOptions(paramSelect.id);            
+        }else{
+            loadParameterOptions(paramSelect.id, ["14","15"]);
+        }
     }
 }
 
@@ -211,6 +215,13 @@ function showEditorDetails(OpenState, editorContainer) {
 
 function loadAdcParameterOptions(select_id) {    
     const parametersToIgnore = ["10","13","14","15","16","21","22","23","30","31","32","33","34","35"];
+    loadParameterOptions(select_id, parametersToIgnore);
+}
+
+function LoadTankParameterOptions(select_id) {    
+    const parametersToIgnore = ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15",
+                                "16","17","18","19","20","21","22","23","30","31","32","33","34","35",
+                                "36","37","38"];
     loadParameterOptions(select_id, parametersToIgnore);
 }
 
@@ -521,7 +532,7 @@ async function parsePageConfigurationForm(existingConfig = null) {
                             if (level2Type === 'TripleValue') {
                                 paramCount = 3;
                             } else if (level2Type === 'Columns') {
-                                paramCount = 1; // Adjust as needed based on your UI structure
+                                paramCount = 3;
                             }
                             
                             // For each parameter in this datafield

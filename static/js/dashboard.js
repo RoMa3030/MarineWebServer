@@ -306,12 +306,51 @@ function createCard(section, index, layoutConfig) {
             }
             break;
             
+        case 'Columns':
+            addIndex = 2;       // increase indexing for three data values rather than 1 only  
+            for(let i=0; i<3; i++) {
+                const columnElement = document.createElement('div');
+                columnElement.className = 'grid-column';
+                dataField = section.dataFields && section.dataFields.length > 0 ? section.dataFields[i] : null;
+                
+                // Add Label
+                const columnLabel = document.createElement('div');
+                columnLabel.id = `lbl_${idIndex}`;
+                columnLabel.className = 'grid-column-label';
+                columnLabel.textContent = getTankLabelText(dataField.instance, dataField.dataType);                
+                columnElement.appendChild(columnLabel);
+                
+                // Add Meter & Value
+                const columnDfElement = document.createElement('div');
+                columnDfElement.id = `dtfld_${idIndex}`;
+                columnDfElement.className = 'grid-column-content';
+                columnDfElement.dataset.dataType = dataField.dataType;
+                columnDfElement.dataset.instance = dataField.instance;
+                                
+                const columnValue = document.createElement('div');
+                columnValue.className = 'grid-column-value';
+                columnValue.textContent = "--- %";
+                const columnMeter = document.createElement('meter');
+                columnMeter.className = 'grid-meter';
+                columnMeter.min = 0;
+                columnMeter.max = 100;
+                columnMeter.value = 0;
+                columnMeter.low = 10;       // evtl. adapt to custom alarm range
+                columnDfElement.appendChild(columnValue);
+                columnDfElement.appendChild(columnMeter);
+                columnElement.appendChild(columnDfElement);
+                
+                card.appendChild(columnElement);
+                index +=1;
+                idIndex = index.toString().padStart(2, '0');
+            }
+            break;
+            
         default:
             console.log('level2layout-type not supported yet. Created empty card instead.')
             card = createEmptyCard(idIndex);
             return {card: card, additionalIndex: 0};
     }
-    
     return {card: card, additionalIndex: addIndex};
 }
 
@@ -338,6 +377,35 @@ function getLabelForDataType(dataType) {
         console.log('Data Type Labels can\'t be accessed!');
         return "...";
     }
+}
+
+function getTankLabelText(instNr, dataType) {
+    let label = "";
+    switch (dataType){
+        case 24:
+            label = "Fuel ";
+            break;
+        case 25:
+            label = "Fresh Water";
+            break;
+        case 26:
+            label = "Waste";
+            break;
+        case 27:
+            label = "Live Well";
+            break;
+        case 28:
+            label = "Oil Level";
+            break;
+        case 29:
+            label = "Black Water";
+            break;
+        default:
+            console.log("This is not a tank-type parameter");
+    }
+    const instString = instNr.toString();
+    label = `${label} ${instString}`;
+    return label;
 }
 
 function getUnit(dataType) {
