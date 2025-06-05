@@ -83,6 +83,12 @@ label {
     color: #333;
 }
 
+label.dash-dfeditor-label {
+    font-size: 1.2em;
+    text-transform: uppercase;
+}
+
+
 /* Form Element Styling */
 select, input[type="text"], input[type="number"], button {
     padding: 5px;
@@ -156,6 +162,8 @@ input[type="text"] {
     padding: 6px;
     box-sizing: border-box;
 }
+
+
 
 
 /* Responsive Design */

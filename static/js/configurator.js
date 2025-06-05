@@ -40,7 +40,11 @@ function InitLayoutEditors() {
         if (dropdown) {
             dropdown.addEventListener('change', function(event) {
                 const layout = event.target.value;
-                const editorId = `layout-editor-${i}`;  // Convert to 0-based index for layout-editor-0, layout-editor-1, etc.
+                const editorId = `layout-editor-${i}`;
+                const layoutEditor = document.getElementById(editorId);
+                if(layoutEditor) {
+                    layoutEditor.innerHTML = "";
+                }
                 renderLayoutEditor(layout, editorId, i);
             });
         }
@@ -93,6 +97,7 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
                 // add listener to automatically create the correct number of data-fields, when lvl2 layout is changed
                 lvl2TypeSelect.addEventListener('change', function(event) {
                     const layout = event.target.value;
+                    dataFieldEditor.innerHTML = "";
                     RenderDataFieldEditorList(dataFieldEditor.id, layout);
                 });
             }
@@ -102,6 +107,7 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
             //render the default datafield editors:
             const dataFieldEditors = Lvl2EditorField.querySelectorAll('.datafield-editor');
             dataFieldEditors.forEach((lvl2_editor, index) => {
+                lvl2_editor.innerHTML = "";
                 RenderDataFieldEditorList(lvl2_editor.id, "SingleValue");
             });
             showEditorDetails(true, editorContainer);       // Automatically "un-collaps" details
@@ -122,11 +128,14 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
             
             editorContainer.appendChild(dataFieldEditor);
             
+            // Add all the DF-Editors + a label for each field.
             const dfLabels = ["Column 1", "Column 2", "Column 3", "Big Gauge", "Under Gauge", "Balancing Gauge", "Numeric 1", "Numeric 2", "Numeric 3"];
             for(let dfIndex = 0; dfIndex < dfLabels.length; dfIndex++) {
                 const dfEditorLabel = document.createElement('label');
                 dfEditorLabel.textContent = dfLabels[dfIndex]; 
-                dataFieldEditor.appendChild(dfEditorLabel);              
+                dfEditorLabel.className = 'dash-dfeditor-label';
+                dataFieldEditor.appendChild(dfEditorLabel);   
+                dataFieldEditor.appendChild(document.createElement('br'));           
                 RenderDataFieldEditorList(dataFieldEditor.id, "Dash");  
             }
             showEditorDetails(true, editorContainer);
@@ -160,7 +169,7 @@ function RenderDataFieldEditorList(dataFieldEditor_id, layout) {
     console.log(dataFieldEditor_id);
     // Create a div to group each pair of selects
     const dfDiv = document.getElementById(dataFieldEditor_id);
-    dfDiv.innerHTML = "";
+    //dfDiv.innerHTML = "";
     dfDiv.style.paddingLeft = "20px";
     const level1_index = dfDiv.dataset.level1_index;
     const level2_index = dfDiv.dataset.level2_index;    
@@ -280,33 +289,6 @@ function InitLineButtons(addButtonId, removeButtonId, tableId) {
     addButton.addEventListener('click', () => addRow(table));
     removeButton.addEventListener('click', () => removeRow(table));
 }
-
-
-/*function addRow(table) {
-    // Get the current number of rows (excluding the header row)
-    const rowCount = table.querySelectorAll('tr').length - 1;
-
-    // Create a new row
-    const newRow = document.createElement('tr');
-
-    // Create first cell (Volt/Ohm input)
-    const cell1 = document.createElement('td');
-    const input1 = document.createElement('input');
-    input1.type = 'number';
-    input1.name = `cell-${rowCount}-1`;
-    cell1.appendChild(input1);
-
-    // Create second cell (Sensor input)
-    const cell2 = document.createElement('td');
-    const input2 = document.createElement('input');
-    input2.type = 'number';
-    input2.name = `cell-${rowCount}-2`;
-    cell2.appendChild(input2);
-
-    newRow.appendChild(cell1);
-    newRow.appendChild(cell2);
-    table.appendChild(newRow);
-}*/
 
 function addRow(table) {
     // Get the tbody element
@@ -561,6 +543,8 @@ async function parsePageConfigurationForm(existingConfig = null) {
                                 paramCount = 3;
                             } else if (level2Type === 'Columns') {
                                 paramCount = 3;
+                            } else if (level1Type === 'Dash') {
+                                paramCount = 9;
                             }
                             
                             // For each parameter in this datafield
