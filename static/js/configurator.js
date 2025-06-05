@@ -80,7 +80,7 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
                 Lvl2EditorField.appendChild(lvl2TypeSelect);
                 
 
-                // Create empty element to later add dynamically add different numbers of DataField selectors
+                // Create empty element to later dynamically add different numbers of DataField selectors
                 const dataFieldEditor = document.createElement('div');
                 dataFieldEditor.id = `datafield-editor-${lvl1_index}-${lvl2_index}`;
                 dataFieldEditor.className = "datafield-editor";
@@ -106,6 +106,31 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
             });
             showEditorDetails(true, editorContainer);       // Automatically "un-collaps" details
             break;
+            
+        case 'Dash':
+            /*const Lvl2EditorField = document.createElement('div');
+            Lvl2EditorField.className = 'Lvl2-Editor-Field';*/
+            
+            // Create empty element to later dynamically add different numbers of DataField selectors
+            const dataFieldEditor = document.createElement('div');
+            dataFieldEditor.id = `datafield-editor-${lvl1_index}-0`;
+            dataFieldEditor.className = "datafield-editor";
+            // Add dataset values - will probably allow to make for an easier parser (go through all datatypes and ignore the parent containers)
+            dataFieldEditor.dataset.level1_index = lvl1_index;
+            dataFieldEditor.dataset.level2_index = 0;
+            dataFieldEditor.append(document.createElement('br'));
+            
+            editorContainer.appendChild(dataFieldEditor);
+            
+            const dfLabels = ["Column 1", "Column 2", "Column 3", "Big Gauge", "Under Gauge", "Balancing Gauge", "Numeric 1", "Numeric 2", "Numeric 3"];
+            for(let dfIndex = 0; dfIndex < dfLabels.length; dfIndex++) {
+                const dfEditorLabel = document.createElement('label');
+                dfEditorLabel.textContent = dfLabels[dfIndex]; 
+                dataFieldEditor.appendChild(dfEditorLabel);              
+                RenderDataFieldEditorList(dataFieldEditor.id, "Dash");  
+            }
+            showEditorDetails(true, editorContainer);
+            break;
         default:
             console.log("not supported yet!");
             break;
@@ -126,6 +151,9 @@ function RenderDataFieldEditorList(dataFieldEditor_id, layout) {
             break;
         case "Columns":
             numOfDatafields = 3;
+            break;
+        case "Dash":
+            numOfDatafields = 1;
             break;
     }
     console.log("Editor ID:");
@@ -198,9 +226,10 @@ function RenderDataFieldEditorList(dataFieldEditor_id, layout) {
 
         //Define dropdown options only after appending the element to the layout
         if(layout === "Columns") {
+            // Special case columns: only available for tank levels
             LoadTankParameterOptions(paramSelect.id);            
         }else{
-            loadParameterOptions(paramSelect.id, ["14","15"]);
+            loadParameterOptions(paramSelect.id, ["13","14"]);
         }
     }
 }

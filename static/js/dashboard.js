@@ -378,7 +378,6 @@ function createCard(section, index, layoutConfig) {
             }
             card.appendChild(columnFlexElement);
             break;
-            
         default:
             console.log('level2layout-type not supported yet. Created empty card instead.')
             card = createEmptyCard(idIndex);
