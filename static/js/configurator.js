@@ -60,19 +60,20 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
             break;
 
         case("Numeric Grid 3x2"):
-            const Lvl2EditorField = document.createElement('div');
-            Lvl2EditorField.className = 'Lvl2-Editor-Field';
-
             for(let lvl2_index=0; lvl2_index<6; lvl2_index++) {
+                const Lvl2EditorField = document.createElement('div');
+                Lvl2EditorField.className = 'Lvl2-Editor-Field';
+            
                 // Create Dropdown to select Level-2-Layout
+                // Creates: "1. Card-Layout: "
                 const lvl2TypeLabel = document.createElement('label');
                 lvl2TypeLabel.textContent = `${lvl2_index+1}. Card-Layout: `;
                 lvl2TypeLabel.setAttribute('for', `lvl2Type-${lvl1_index}-${lvl2_index}`);
-
+                
+                // Creates: Drop-Down ["Single","Triple","Gauge",...]
                 const lvl2TypeSelect = document.createElement('select');
                 lvl2TypeSelect.id = `lvl2Type-${lvl1_index}-${lvl2_index}`;
                 lvl2TypeSelect.className = "lvl2_layout_select";
-
                 const options = ["SingleValue","Gauge","TripleValue","Columns"];
                 for(const opt of options)
                 {
@@ -85,31 +86,31 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
                 
 
                 // Create empty element to later dynamically add different numbers of DataField selectors
-                const dataFieldEditor = document.createElement('div');
-                dataFieldEditor.id = `datafield-editor-${lvl1_index}-${lvl2_index}`;
-                dataFieldEditor.className = "datafield-editor";
+                const dfEditorCollection = document.createElement('div');
+                dfEditorCollection.id = `dfEditorCollection-${lvl1_index}-${lvl2_index}`;
+                dfEditorCollection.className = "dfEditorCollection";
                 // Add dataset values - will probably allow to make for an easier parser (go through all datatypes and ignore the parent containers)
-                dataFieldEditor.dataset.level1_index = lvl1_index;
-                dataFieldEditor.dataset.level2_index = lvl2_index;
-                Lvl2EditorField.appendChild(dataFieldEditor);
-                Lvl2EditorField.append(dataFieldEditor, document.createElement('br'));
+                dfEditorCollection.dataset.level1_index = lvl1_index;
+                dfEditorCollection.dataset.level2_index = lvl2_index;
+                Lvl2EditorField.appendChild(dfEditorCollection);
+                Lvl2EditorField.append(dfEditorCollection, document.createElement('br'));
 
                 // add listener to automatically create the correct number of data-fields, when lvl2 layout is changed
                 lvl2TypeSelect.addEventListener('change', function(event) {
-                    const layout = event.target.value;
-                    dataFieldEditor.innerHTML = "";
-                    RenderDataFieldEditorList(dataFieldEditor.id, layout);
+                    const layout = event.target.value;      // "What layout (lvl2) has been selected in the dropdown"
+                    dfEditorCollection.innerHTML = "";         // Clear old content (in case it's not newly selected but the layout has changed)
+                    RenderDataFieldEditorList(dfEditorCollection.id, layout);
                 });
+                editorContainer.appendChild(Lvl2EditorField);
             }
-            editorContainer.appendChild(Lvl2EditorField);
-            console.log(editorContainer);
 
             //render the default datafield editors:
-            const dataFieldEditors = Lvl2EditorField.querySelectorAll('.datafield-editor');
-            dataFieldEditors.forEach((lvl2_editor, index) => {
+            const dfEditorCollections = editorContainer.querySelectorAll('.dfEditorCollection');
+            dfEditorCollections.forEach((lvl2_editor, index) => {
                 lvl2_editor.innerHTML = "";
                 RenderDataFieldEditorList(lvl2_editor.id, "SingleValue");
             });
+            
             showEditorDetails(true, editorContainer);       // Automatically "un-collaps" details
             break;
             
@@ -146,7 +147,9 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
     }
 }
 
-function RenderDataFieldEditorList(dataFieldEditor_id, layout) {    
+function RenderDataFieldEditorList(dfEditorCollection_id, layout) {   
+    // This function shall add the required number of dataFieldEditors (section to define ONE datafield[param, inst, range]) to the parent
+    // (The parent is an empty Div of class "dfEditorCollection")
     numOfDatafields = 1;
     switch(layout){
         case "SingleValue":
@@ -165,16 +168,25 @@ function RenderDataFieldEditorList(dataFieldEditor_id, layout) {
             numOfDatafields = 1;
             break;
     }
-    console.log("Editor ID:");
-    console.log(dataFieldEditor_id);
-    // Create a div to group each pair of selects
-    const dfDiv = document.getElementById(dataFieldEditor_id);
-    //dfDiv.innerHTML = "";
-    dfDiv.style.paddingLeft = "20px";
-    const level1_index = dfDiv.dataset.level1_index;
-    const level2_index = dfDiv.dataset.level2_index;    
+    console.log("DataFieldEditor-Collection ID:");
+    console.log(dfEditorCollection_id);
+    
+    const dfecDiv = document.getElementById(dfEditorCollection_id);
+    //dfecDiv.innerHTML = "";
+    dfecDiv.style.paddingLeft = "20px";
+    const level1_index = dfecDiv.dataset.level1_index;
+    const level2_index = dfecDiv.dataset.level2_index;    
 
     for(let dfIndex=0; dfIndex<numOfDatafields; dfIndex++) {
+        // create DataFieldEditor-Field
+        const dfEditor = document.createElement('div');
+        dfEditor.id = `dfEditor-${level1_index}-${level2_index}`;
+        dfEditor.className = "datafield-editor";
+        // Add dataset values - will probably allow to make for an easier parser (go through all datatypes and ignore the parent containers)
+        dfEditor.dataset.level1_index = level1_index;
+        dfEditor.dataset.level2_index = level2_index;
+        dfecDiv.appendChild(dfEditor);
+        
         // Create parameter label and select
         const paramLabel = document.createElement('label');
         paramLabel.textContent = 'Parameter:';
@@ -190,7 +202,6 @@ function RenderDataFieldEditorList(dataFieldEditor_id, layout) {
 
         const instanceSelect = document.createElement('select');
         instanceSelect.id = `instance-${level1_index}-${level2_index}-${dfIndex}`;
-
         // Add options to instance select
         for(let i=0; i<4; i++) {
             const optionElement = document.createElement('option');
@@ -224,14 +235,14 @@ function RenderDataFieldEditorList(dataFieldEditor_id, layout) {
         rangeField.appendChild(spacer);
         rangeField.appendChild(rangeMax);
 
-        // Add elements to the field div
-        dfDiv.appendChild(paramLabel);
-        dfDiv.appendChild(paramSelect);
-        dfDiv.appendChild(instanceLabel);
-        dfDiv.appendChild(instanceSelect);
-        dfDiv.append(instanceSelect, document.createElement('br'));
-        dfDiv.appendChild(rangeField);
-        dfDiv.append(rangeField, document.createElement('br'));
+        // Add these elements to the parent
+        dfEditor.appendChild(paramLabel);
+        dfEditor.appendChild(paramSelect);
+        dfEditor.appendChild(instanceLabel);
+        dfEditor.appendChild(instanceSelect);
+        dfEditor.append(instanceSelect, document.createElement('br'));
+        dfEditor.appendChild(rangeField);
+        dfEditor.append(rangeField, document.createElement('br'));
 
         //Define dropdown options only after appending the element to the layout
         if(layout === "Columns") {
@@ -521,9 +532,9 @@ async function parsePageConfigurationForm(existingConfig = null) {
                 if (layoutEditor) {
                     // Find all level 2 layout selectors
                     const level2Selectors = layoutEditor.querySelectorAll('.lvl2_layout_select');
-                    
-                    // For each level 2 layout
                     for (let sectionIndex = 0; sectionIndex < level2Selectors.length; sectionIndex++) {
+                        // (a "section" describes the next smaller region below "page" -> in the grid laout: one of the cards
+                        // Therefore: each section is represented by one lvl2-layout-entry)
                         const level2Selector = level2Selectors[sectionIndex];
                         const level2Type = level2Selector.value;
                         
@@ -533,21 +544,21 @@ async function parsePageConfigurationForm(existingConfig = null) {
                             dataFields: []
                         };
                         
-                        // Find the corresponding datafield editor
-                        const dataFieldEditor = document.getElementById(`datafield-editor-${pageIndex}-${sectionIndex}`);
+                        // Find the corresponding datafield-editor-collection
+                        const dfeCollection = document.getElementById(`dfEditorCollection-${pageIndex}-${sectionIndex}`);
                         
-                        if (dataFieldEditor) {
+                        if (dfeCollection) {
                             // The number of parameters depends on the level2Type
                             let paramCount = 1; // Default for SingleValue and Gauge
                             if (level2Type === 'TripleValue') {
                                 paramCount = 3;
                             } else if (level2Type === 'Columns') {
                                 paramCount = 3;
-                            } else if (level1Type === 'Dash') {
+                            }/* else if (level1Type === 'Dash') {
                                 paramCount = 9;
-                            }
+                            }*/
                             
-                            // For each parameter in this datafield
+                            // For each parameter in this datafield-editor-container
                             for (let dfIndex = 0; dfIndex < paramCount; dfIndex++) {
                                 const paramSelect = document.getElementById(`param-${pageIndex}-${sectionIndex}-${dfIndex}`);
                                 const instanceSelect = document.getElementById(`instance-${pageIndex}-${sectionIndex}-${dfIndex}`);

@@ -151,7 +151,8 @@ class vessel_data_manager:
 		if timestamp is None:
 			timestamp = datetime.now()
 		if not is_new_data_point:
-			if source_type.value > self._data[parameter][instance].source_type.value:	#value required because enum isn't handles as int in python!
+			#order of Enum "source_type" represents prioritisation -> lower enum representation = more important source
+			if source_type.value > self._data[parameter][instance].source_type.value:	#value required because enum isn't handled as int in python!
 				age = datetime.now() - self._data[parameter][instance].time_stamp
 				if age.total_seconds() <= DEFAULT_TIMEOUT:
 					"""
