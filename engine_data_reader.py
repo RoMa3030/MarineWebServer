@@ -20,6 +20,7 @@ AIN_R1 = 2
 AIN_R2 = 1
 AIN_V1 = 0
 AIN_V2 = 3
+IGN_INPUT_PIN = 26
 
 class engine_data_interface:
 	
@@ -34,8 +35,11 @@ class engine_data_interface:
 		self._can0 = None
 		self.initialize_can_interface()
 		
-		# setup ADC / I2C
+		# setup PI HW
 		self._pi = pigpio.pi()
+		# setup Ignition watcher
+		self._pi.set_mode(IGN_INPUT_PIN, pigpio.INPUT)
+		# setup ADC / I2C
 		if not self._pi.connected:
 			print("couldn't establish the PiGPIO object")
 		self._i2c_handle = self._pi.i2c_open(1, ADC_Handling.ADC_ADDRESS)
@@ -52,11 +56,13 @@ class engine_data_interface:
 			self._start_Timer(self._adc_interval)
 		print(f"ADC-Timer interval = {self._adc_interval}")	
    
+   
 	def read_engine_data(self):
 		#self.data_mngr.create_fake_data_for_testing()
 		while self._interface_running:
 			# ADC reading triggered in "timer-ISR"
 			self._read_can()
+			self._check_ignition_signal()
 
 
 	def get_current_engine_data(self):
@@ -116,9 +122,16 @@ class engine_data_interface:
 			timer = threading.Timer(duration, self._adc_timer_interrupt)
 			timer.deamon = True
 			timer.start()
+	
+	
+	def _check_ignition_signal(self):
+		ign_signal = self._pi.read(IGN_INPUT_PIN)
+		if(not ign_signal):
+			print("Ignition signal removed - shutdown")
+			self.shutdown(hard=True)
 			
 		
-	def shutdown(self):
+	def shutdown(self, hard=False):
 		# Executed from Main-Thread!
 		self._interface_running = False		 	# As timer runs in separate thread, flag must be cleared to stop.
 		time.sleep(RX_TIMEOUT * 1.2)			# Delay to finish CAN reading
@@ -127,5 +140,8 @@ class engine_data_interface:
 		self._can0.shutdown()
 		os.system('sudo ifconfig can1 down')
 		print("Engine Data Reader shutting down")
+		if(hard):
+			#Shut down Pi completely
+			os._exit(0)
 		
 		
