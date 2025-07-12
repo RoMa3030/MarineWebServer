@@ -89,7 +89,6 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
                 const dfEditorCollection = document.createElement('div');
                 dfEditorCollection.id = `dfEditorCollection-${lvl1_index}-${lvl2_index}`;
                 dfEditorCollection.className = "dfEditorCollection";
-                // Add dataset values - will probably allow to make for an easier parser (go through all datatypes and ignore the parent containers)
                 dfEditorCollection.dataset.level1_index = lvl1_index;
                 dfEditorCollection.dataset.level2_index = lvl2_index;
                 Lvl2EditorField.appendChild(dfEditorCollection);
@@ -98,15 +97,17 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
                 // add listener to automatically create the correct number of data-fields, when lvl2 layout is changed
                 lvl2TypeSelect.addEventListener('change', function(event) {
                     const layout = event.target.value;      // "What layout (lvl2) has been selected in the dropdown"
+                    lvl2_editor.dataset.selectedLayout = layout;
                     dfEditorCollection.innerHTML = "";         // Clear old content (in case it's not newly selected but the layout has changed)
                     RenderDataFieldEditorList(dfEditorCollection.id, layout);
                 });
                 editorContainer.appendChild(Lvl2EditorField);
             }
 
-            //render the default datafield editors:
+            //initial rendering of the default datafield editors:
             const dfEditorCollections = editorContainer.querySelectorAll('.dfEditorCollection');
             dfEditorCollections.forEach((lvl2_editor, index) => {
+                lvl2_editor.dataset.selectedLayout = "SingleValue";
                 lvl2_editor.innerHTML = "";
                 RenderDataFieldEditorList(lvl2_editor.id, "SingleValue");
             });
@@ -115,32 +116,47 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
             break;
             
         case 'Dash':
-            /*const Lvl2EditorField = document.createElement('div');
-            Lvl2EditorField.className = 'Lvl2-Editor-Field';*/
-            
-            // Create empty element to later dynamically add different numbers of DataField selectors
-            const dataFieldEditor = document.createElement('div');
-            dataFieldEditor.id = `datafield-editor-${lvl1_index}-0`;
-            dataFieldEditor.className = "datafield-editor";
-            // Add dataset values - will probably allow to make for an easier parser (go through all datatypes and ignore the parent containers)
-            dataFieldEditor.dataset.level1_index = lvl1_index;
-            dataFieldEditor.dataset.level2_index = 0;
-            dataFieldEditor.append(document.createElement('br'));
-            
-            editorContainer.appendChild(dataFieldEditor);
-            
             // Add all the DF-Editors + a label for each field.
-            const dfLabels = ["Column 1", "Column 2", "Column 3", "Big Gauge", "Under Gauge", "Balancing Gauge", "Numeric 1", "Numeric 2", "Numeric 3"];
-            for(let dfIndex = 0; dfIndex < dfLabels.length; dfIndex++) {
-                const dfEditorLabel = document.createElement('label');
-                dfEditorLabel.textContent = dfLabels[dfIndex]; 
-                dfEditorLabel.className = 'dash-dfeditor-label';
-                dataFieldEditor.appendChild(dfEditorLabel);   
-                dataFieldEditor.appendChild(document.createElement('br'));           
-                RenderDataFieldEditorList(dataFieldEditor.id, "Dash");  
+            const sectionLabels = ["Column 1", "Column 2", "Column 3", "Big Gauge", "Under Gauge", "Balancing Gauge", "Numeric 1", "Numeric 2", "Numeric 3"];
+            for(let lvl2_index = 0; lvl2_index < sectionLabels.length; lvl2_index++) {
+                // The level2-Editor has no purpose in the design but it's required for parsing the configuration
+                //      (Even if it doesn't make much sense from a design persepctive:
+                //      each datafield in the dash is considered an own lvl2-section (easier parsing/dfEditor-rendering))
+                const Lvl2EditorField = document.createElement('div');
+                Lvl2EditorField.className = 'Lvl2-Editor-Field';
+                Lvl2EditorField.dataset.selectedLayout = "dashField";
+                editorContainer.appendChild(Lvl2EditorField);
+                // Create Label
+                const dashDfeLabel = document.createElement('label');
+                dashDfeLabel.textContent = sectionLabels[lvl2_index]; 
+                dashDfeLabel.className = 'dash-dfeditor-label';
+                Lvl2EditorField.appendChild(dashDfeLabel);
+                Lvl2EditorField.appendChild(document.createElement('br'));
+                 
+                // Add dfeCollection (Even though each collectionwill contain only one -> easier use of rendering function)
+                // Create empty element to later dynamically add different numbers of DataField selectors
+                const dfEditorCollection = document.createElement('div');
+                dfEditorCollection.id = `dfEditorCollection-${lvl1_index}-${lvl2_index}`;
+                dfEditorCollection.className = "dfEditorCollection";
+                dfEditorCollection.dataset.level1_index = lvl1_index;
+                dfEditorCollection.dataset.level2_index = lvl2_index;
+                Lvl2EditorField.appendChild(dfEditorCollection);
+                Lvl2EditorField.append(dfEditorCollection, document.createElement('br'));
+                // append everything to parent
+                //editorContainer.appendChild(Lvl2EditorField);
+                RenderDataFieldEditorList(dfEditorCollection.id, "Dash");
             }
-            showEditorDetails(true, editorContainer);
+            /*
+            //initial rendering of the default datafield editors:
+            const dashDfeCollections = editorContainer.querySelectorAll('.dfEditorCollection');
+            dashDfeCollections.forEach((lvl2_editor, index) => {
+                lvl2_editor.innerHTML = "";
+                RenderDataFieldEditorList(lvl2_editor.id, "SingleValue");
+            });*/
+            
+            showEditorDetails(true, editorContainer);       // Automatically "un-collaps" details
             break;
+            
         default:
             console.log("not supported yet!");
             break;
@@ -247,9 +263,9 @@ function RenderDataFieldEditorList(dfEditorCollection_id, layout) {
         //Define dropdown options only after appending the element to the layout
         if(layout === "Columns") {
             // Special case columns: only available for tank levels
-            LoadTankParameterOptions(paramSelect.id);            
+            loadTankParameterOptions(paramSelect.id);            
         }else{
-            loadParameterOptions(paramSelect.id, ["13","14"]);
+            loadDfParameterOptions(paramSelect.id);
         }
     }
 }
@@ -260,18 +276,6 @@ function showEditorDetails(OpenState, editorContainer) {
     if (detailsElement.tagName.toLowerCase() === 'details') {
         detailsElement.open = OpenState;
     }
-}
-
-function loadAdcParameterOptions(select_id) {    
-    const parametersToIgnore = ["10","13","14","15","16","21","22","23","30","31","32","33","34","35"];
-    loadParameterOptions(select_id, parametersToIgnore);
-}
-
-function LoadTankParameterOptions(select_id) {    
-    const parametersToIgnore = ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15",
-                                "16","17","18","19","20","21","22","23","30","31","32","33","34","35",
-                                "36","37","38"];
-    loadParameterOptions(select_id, parametersToIgnore);
 }
 
 function loadParameterOptions(select_id, parameters_to_ignore =[]) {
@@ -291,6 +295,22 @@ function loadParameterOptions(select_id, parameters_to_ignore =[]) {
     }
 }
 
+// Wrappers for "loadParameterOptions" with pre-selected exception fields.
+function loadAdcParameterOptions(select_id) {    
+    const parametersToIgnore = ["10","13","14","15","16","21","22","23","30","31","32","33","34","35"];
+    loadParameterOptions(select_id, parametersToIgnore);
+}
+function loadDfParameterOptions(select_id) {    
+    const parametersToIgnore = ["13","14","30","31","32","33","34","35"];
+    loadParameterOptions(select_id, parametersToIgnore);
+}
+function loadTankParameterOptions(select_id) {    
+    const parametersToIgnore = ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15",
+                                "16","17","18","19","20","21","22","23","30","31","32","33","34","35",
+                                "36","37","38"];
+    loadParameterOptions(select_id, parametersToIgnore);
+}
+
 
 function InitLineButtons(addButtonId, removeButtonId, tableId) {
     const addButton = document.getElementById(addButtonId);
@@ -300,6 +320,7 @@ function InitLineButtons(addButtonId, removeButtonId, tableId) {
     addButton.addEventListener('click', () => addRow(table));
     removeButton.addEventListener('click', () => removeRow(table));
 }
+
 
 function addRow(table) {
     // Get the tbody element
@@ -530,13 +551,12 @@ async function parsePageConfigurationForm(existingConfig = null) {
                 const layoutEditor = document.getElementById(`layout-editor-${pageIndex}`);
                 
                 if (layoutEditor) {
-                    // Find all level 2 layout selectors
-                    const level2Selectors = layoutEditor.querySelectorAll('.lvl2_layout_select');
-                    for (let sectionIndex = 0; sectionIndex < level2Selectors.length; sectionIndex++) {
+                    // Find all level 2 layout selectors within layoutEditor (=within page)
+                    const level2Editors = layoutEditor.querySelectorAll('.Lvl2-Editor-Field');
+                    for (let sectionIndex = 0; sectionIndex < level2Editors.length; sectionIndex++) {
                         // (a "section" describes the next smaller region below "page" -> in the grid laout: one of the cards
                         // Therefore: each section is represented by one lvl2-layout-entry)
-                        const level2Selector = level2Selectors[sectionIndex];
-                        const level2Type = level2Selector.value;
+                        const level2Type = level2Editors[sectionIndex].dataset.slectedLayout;
                         
                         // Create the section object
                         const section = {
@@ -554,9 +574,7 @@ async function parsePageConfigurationForm(existingConfig = null) {
                                 paramCount = 3;
                             } else if (level2Type === 'Columns') {
                                 paramCount = 3;
-                            }/* else if (level1Type === 'Dash') {
-                                paramCount = 9;
-                            }*/
+                            }
                             
                             // For each parameter in this datafield-editor-container
                             for (let dfIndex = 0; dfIndex < paramCount; dfIndex++) {
