@@ -25,7 +25,7 @@ IGN_INPUT_PIN = 26
 class engine_data_interface:
 	
 	def __init__(self):
-		self._interface_running = False
+		self._interface_running = True
 		
 		# data container
 		self.data_mngr = vessel_data.vessel_data_manager()
@@ -51,7 +51,7 @@ class engine_data_interface:
 		self._current_ain_index = 0
 		self._adc_interval = 1.0
 		if self._active_ains:
-			self._interface_running = True
+			#self._interface_running = True
 			self._adc_interval = 1.0/(len(self._active_ains)) 
 			self._start_Timer(self._adc_interval)
 		print(f"ADC-Timer interval = {self._adc_interval}")	

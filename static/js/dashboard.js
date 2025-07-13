@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log(error)
     }
     console.log("initialiation completed")
-    //updateEngineData(); // make sure, the gauges are loaded from the init function first, before starting this loop
+    updateEngineData(); // make sure, the gauges are loaded from the init function first, before starting this loop
 });
 
 
@@ -73,6 +73,9 @@ function updateDataField(datafield_index, meas_value) {
         case 'Column':
             updateColumn(dataField, meas_value);
             break;
+        case 'Dash-Columns':
+            updateDashColumn(dataField, meas_value);
+            break;
         default:
             console.log("This level2layout-type is not supported yet")
     }
@@ -92,7 +95,9 @@ function getSectionType(dataField) {
     if (dataField.classList.contains('grid-column-content')) {
         return 'Column';
     }
-    
+    if (dataField.classList.contains('dash-column-content')) {
+        return 'Dash-Columns';
+    }    
     return 'Unknown';
 }
 
@@ -120,6 +125,9 @@ function clearDataField(datafield_index) {
         case 'Column':
             clearColumn(dataField);
             break;
+        case 'Dash-Columns':
+            clearDashColumn(dataField);
+            break;
         default:
             console.log("This level2layout-type is not supported yet")
     }
@@ -139,6 +147,23 @@ function clearColumn(dataField) {
     const meter = dataField.querySelector('.grid-meter');
     
     valueDiv.textContent = '---%';
+    meter.value = 0;
+}
+
+function updateDashColumn(dataField, value) {
+    const valueDiv = dataField.querySelector('.dash-column-number');
+    const meter = dataField.querySelector('.dash-meter');
+    
+    valueDiv.textContent = value.toString();
+    meter.value = value; 
+    //updateMeterState(meter);    // required only for alarm function to also work on mozilla browsers   
+}
+
+function clearDashColumn(dataField) {
+    const valueDiv = dataField.querySelector('.dash-column-number');
+    const meter = dataField.querySelector('.dash-meter');
+    
+    valueDiv.textContent = '---';
     meter.value = 0;
 }
 
@@ -286,13 +311,11 @@ function createDashCard_Columns(columnSections) {
         const dashColumnHeader = document.createElement('div');
         dashColumnHeader.className = 'dash-column-header';
         columnDfElement.appendChild(dashColumnHeader);
+        columnDfElement.id = `dtfld_${(i+1).toString().padStart(2, '0')}`;
         // Add Icon      
         const iconDiv = document.createElement('div');
         iconDiv.className = "dash-column-icon";
-        dashColumnHeader.appendChild(iconDiv);        
-        let iconNr = 1;
-        console.log("DataField");
-        console.log(dataField);
+        dashColumnHeader.appendChild(iconDiv);   
         insertDataIcon(dataField.dataType, iconDiv);
         // Add instance description
         const columnInstance = document.createElement('div');
@@ -300,13 +323,12 @@ function createDashCard_Columns(columnSections) {
         columnInstance.textContent = dataField.instance;
         dashColumnHeader.appendChild(columnInstance);
         
-                        
         // Insert Meter element
         const columnMeter = document.createElement('meter');
         columnMeter.className = 'dash-meter';
         columnMeter.min = 0;
         columnMeter.max = 100;
-        columnMeter.value = 50;
+        columnMeter.value = 0;
         columnMeter.low = 10;       // evtl. adapt to custom alarm range
         columnDfElement.appendChild(columnMeter);
         
