@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log(error)
     }
     console.log("initialiation completed")
-    updateEngineData(); // make sure, the gauges are loaded from the init function first, before starting this loop
+    //updateEngineData(); // make sure, the gauges are loaded from the init function first, before starting this loop
 });
 
 
@@ -201,33 +201,146 @@ function renderLayout(layoutConfig) {
     layoutConfig.layouts.forEach((Lvl1Layout, layoutIndex) => {
         // code is currently not suitable for web-app that displays several pages -> layouts after page1 are ignored
         if(layoutIndex === 0) {
-            if (Lvl1Layout.level1Type == 'Grid_3_2') {
-                const sections = Lvl1Layout.sections || [];
-                
-                // Create the fixed 3x2 grid
-                const grid = document.createElement('div');
-                grid.className = 'grid';
-                console.log('Grid element created');
+            const sections = Lvl1Layout.sections || [];
+            switch (Lvl1Layout.level1Type) {
+                case 'Grid_3_2':                    
+                    // Create the fixed 3x2 grid
+                    const grid = document.createElement('div');
+                    grid.className = 'grid';
+                    console.log('Grid element created');
 
-                //console.log('sections: ',sections)
-                // Create exactly 6 cards (3x2 grid)
-                let indexOffset = 0;
-                for (let index = 0; index < 6; index++) {
-                    //console.log('Added Card nr. ', index);
-                    const section = sections[index] || {}; // Use empty object if section doesn't exist
-                    const {card: card, additionalIndex: additionalOffset} = createCard(section, (index+1+indexOffset), layoutConfig);
-                    indexOffset += additionalOffset;
-                    grid.appendChild(card);
-                }
-                
-                container.appendChild(grid);
-            }else{
-                console.error('The defined Level-1-Layout type is not supported yet.');
+                    //console.log('sections: ',sections)
+                    // Create exactly 6 cards (3x2 grid)
+                    let indexOffset = 0;    // offset to keep track about dataField-count relative to section-count
+                                            // (if 1st section is triple: section2 doesnt start with 2nd df - instead: 2+offset(2) = 4th)
+                    for (let index = 0; index < 6; index++) {
+                        //console.log('Added Card nr. ', index);
+                        const section = sections[index] || {}; // Use empty object if section doesn't exist
+                        const {card: card, additionalIndex: additionalOffset} = createCard(section, (index+1+indexOffset), layoutConfig);
+                        indexOffset += additionalOffset;
+                        grid.appendChild(card);
+                    }
+                    
+                    container.appendChild(grid);
+                    break;
+                case 'Dash':                    
+                    // Adding a grid (3 cells horizontally) 
+                    const dashGrid = document.createElement('Div');
+                    dashGrid.className = 'dash-grid';
+                    container.appendChild(dashGrid);
+                    // Adding three cards.
+                    // 1st-card: ColumnCard
+                    const columnSections = [sections[0],sections[1],sections[2]];
+                    dashGrid.appendChild(createDashCard_Columns(columnSections)); 
+                    
+                    const gaugeCard = document.createElement('Div');
+                    gaugeCard.className = 'dash-card';
+                    dashGrid.appendChild(gaugeCard);   
+                    const cardsCard = document.createElement('Div');
+                    cardsCard.className = 'dash-card';
+                    dashGrid.appendChild(cardsCard);
+                    
+                    
+                                      
+                    break;
+                    
+                default:
+                    console.error('The defined Level-1-Layout type is not supported yet.');
+                    break;
             }
         }else{
             console.log("Layouts with several pages are not supported yet");
         }
     });
+}
+
+function createDashCard_Columns(columnSections) {
+    const card = document.createElement('Div');
+    card.className = 'dash-card';
+    console.log("Function got passed:");
+    console.log(columnSections);
+    
+    const columnFlexElement = document.createElement('div');
+    columnFlexElement.className = 'column-container';
+    card.appendChild(columnFlexElement);
+    for(let i=0; i<3; i++) {
+        const section = columnSections[i];
+        console.log("Section");
+        console.log(section);
+        let idIndex = i.toString().padStart(2, '0');
+        
+        const columnElement = document.createElement('div');
+        columnElement.className = 'column-meter-item';
+        columnFlexElement.appendChild(columnElement);
+        dataField = section.dataFields;//&& section.dataFields.length > 0 ? section.dataFields[i] : null;
+        console.log("Datafield:");
+        console.log(dataField);
+        
+        
+        const iconDiv = document.createElement('div');
+        iconDiv.className = "dash-column-icon";
+        columnElement.appendChild(iconDiv);
+        
+        let iconNr = 1;
+        
+        insertDataIcon(iconNr, iconDiv.id);
+        
+        
+        
+        /*
+        // Add Label / icon
+        const columnLabel = document.createElement('div');
+        columnLabel.id = `lbl_${idIndex}`;
+        columnLabel.className = 'grid-column-label';
+        columnLabel.textContent = "hello";                
+        columnElement.appendChild(columnLabel);
+        */
+        
+        // Add Meter & Value
+        const columnDfElement = document.createElement('div');
+        columnDfElement.id = `dtfld_${idIndex}`;
+        columnDfElement.className = 'grid-column-content';
+        columnDfElement.dataset.dataType = dataField.dataType;
+        columnDfElement.dataset.instance = dataField.instance;
+                        
+        const columnValue = document.createElement('div');
+        columnValue.className = 'grid-column-value';
+        columnValue.textContent = "--- %";
+        const columnMeter = document.createElement('meter');
+        columnMeter.className = 'grid-meter';
+        columnMeter.min = 0;
+        columnMeter.max = 100;
+        columnMeter.value = 0;
+        columnMeter.low = 10;       // evtl. adapt to custom alarm range
+        columnDfElement.appendChild(columnValue);
+        columnDfElement.appendChild(columnMeter);
+        columnElement.appendChild(columnDfElement);
+                
+        
+          
+    }
+
+    return card;
+}
+
+async function insertDataIcon(iconNr, iconContainerId) {
+    const iconDiv = document.getElementById(iconContainerId);
+    try {
+        const response = await fetch(`/api/engine-icon/${iconNr}`);
+        const data = await response.json();
+        
+        if(data.icon_url) {
+            const img = document.createElement('img');
+            img.src = data.icon_url;
+            img.width = 64;
+            img.height = 64;
+            
+            iconDiv.innerHTML = '';
+            iconDiv.appendChild(img);
+        }
+    }catch (error) {
+        console.error("Error while loading dash-column-icon", error);
+    }
 }
 
 function createCard(section, index, layoutConfig) {

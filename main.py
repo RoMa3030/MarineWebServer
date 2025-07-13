@@ -70,6 +70,20 @@ async def get_DataTypeMappings():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error loading data type mapping: {str(e)}")
 
+@app.get("/api/engine-icon/{index}")
+async def get_engine_icon(index: int):
+    match index:
+        case 1:
+            icon_path = "/static/data_icons/coolant_temp.png"
+        case 3:
+            icon_path = "/static/data_icons/engine_oil_temp.png"
+        case 24:
+            icon_path = "/static/data_icons/fuel.png"
+        case _:  # Default case
+            icon_path = "/static/data_icons/default.png"
+    
+    return {"icon_url": icon_path}
+
 
 @app.get("/api/engine-data")
 def get_engine_data():
