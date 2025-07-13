@@ -145,15 +145,7 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
                 // append everything to parent
                 //editorContainer.appendChild(Lvl2EditorField);
                 RenderDataFieldEditorList(dfEditorCollection.id, "Dash");
-            }
-            /*
-            //initial rendering of the default datafield editors:
-            const dashDfeCollections = editorContainer.querySelectorAll('.dfEditorCollection');
-            dashDfeCollections.forEach((lvl2_editor, index) => {
-                lvl2_editor.innerHTML = "";
-                RenderDataFieldEditorList(lvl2_editor.id, "SingleValue");
-            });*/
-            
+            }            
             showEditorDetails(true, editorContainer);       // Automatically "un-collaps" details
             break;
             
@@ -261,9 +253,14 @@ function RenderDataFieldEditorList(dfEditorCollection_id, layout) {
         dfEditor.append(rangeField, document.createElement('br'));
 
         //Define dropdown options only after appending the element to the layout
+        // First handles special cases for fields with limited parameter options.
         if(layout === "Columns") {
             // Special case columns: only available for tank levels
-            loadTankParameterOptions(paramSelect.id);            
+            loadTankParameterOptions(paramSelect.id);
+        }else if(layout === "Dash" && level2_index == 3) {
+            loadSingleParameterOption(paramSelect.id, 0);          // for central gauge in dash: RPM only     
+        }else if(layout === "Dash" && level2_index == 4) {
+            loadFewParameterOptions(paramSelect.id, [39,40]);          // for central gauge in dash: RPM only     
         }else{
             loadDfParameterOptions(paramSelect.id);
         }
@@ -293,6 +290,35 @@ function loadParameterOptions(select_id, parameters_to_ignore =[]) {
             selectElement.appendChild(option);
         }
     }
+}
+
+function loadSingleParameterOption(select_id, param) {
+    const selectElement = document.getElementById(select_id);
+    if (mappings.dataTypes.hasOwnProperty(param)) {
+        const label = mappings.dataTypes[param].label;
+        const option = document.createElement("option");
+        option.value = param;             // value = key: for easier parsing
+        option.textContent = label;     // only "textContent" human readable -> not functional
+        selectElement.appendChild(option);
+        selectElement.selectedIndex =0;
+    }
+    
+}
+
+function loadFewParameterOptions(select_id, params) {
+    const selectElement = document.getElementById(select_id);
+
+    for (const param in params) {
+        if (
+            mappings.dataTypes.hasOwnProperty(param)
+        ) {
+            const label = mappings.dataTypes[param].label;
+            const option = document.createElement("option");
+            option.value = param;             // value = key: for easier parsing
+            option.textContent = label;     // only "textContent" human readable -> not functional
+            selectElement.appendChild(option);
+        }
+    }    
 }
 
 // Wrappers for "loadParameterOptions" with pre-selected exception fields.
@@ -436,7 +462,8 @@ async function parsePageConfigurationForm(existingConfig = null) {
             length: "m",
             temperature: "C",
             pressure: "bar",
-            volume: "L"
+            volume: "L",
+            Speed: "km/h"
         },
         engineDesignations: ["Engine 1", "Engine 2", "Engine 3", "Engine 4"],
         layouts: []
@@ -497,6 +524,23 @@ async function parsePageConfigurationForm(existingConfig = null) {
         const volumeValue = unitVolumeSelect.value;
         config.unitSelection.volume = volumeValue === 'Liter' ? 'L' : 'gal';
     }
+    
+    const unitSpeedSelect = document.getElementById('sel-unitSpeed');
+    if (unitSpeedSelect) {
+        const speedValue = unitSpeedSelect.value;
+        switch (speedValue) {
+            case 'Metric':
+                config.unitSelection.speed = 'km/h';
+                break;
+            case 'Imperial':
+                config.unitSelection.speed = 'mph';
+                break;
+            case 'Nautic':
+                config.unitSelection.speed = 'kn';
+                break;
+        }
+    } 
+  
   
     // Parse engine designations
     for (let i = 0; i < 4; i++) {
@@ -556,8 +600,8 @@ async function parsePageConfigurationForm(existingConfig = null) {
                     for (let sectionIndex = 0; sectionIndex < level2Editors.length; sectionIndex++) {
                         // (a "section" describes the next smaller region below "page" -> in the grid laout: one of the cards
                         // Therefore: each section is represented by one lvl2-layout-entry)
-                        const level2Type = level2Editors[sectionIndex].dataset.slectedLayout;
-                        
+                        const level2TypeDropDowns = level2Editors[sectionIndex].querySelectorAll('.lvl2_layout_select');
+                        const level2Type = level2TypeDropDowns[0].value;    // should in theory only ever find one. If not: default = take first
                         // Create the section object
                         const section = {
                             level2Type: level2Type,

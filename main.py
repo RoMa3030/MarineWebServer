@@ -68,7 +68,7 @@ async def get_DataTypeMappings():
     except FileNotFoundError:
         print("Data type mapping file not found!")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error loading data type mapping: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"TEST: Error loading data type mapping: {str(e)}")
 
 @app.get("/api/engine-icon/{index}")
 async def get_engine_icon(index: int):

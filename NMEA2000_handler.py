@@ -41,6 +41,10 @@ class n2k_handler:
 				self._parse_0x1fd0c(src_adr, pgn, msg_data)			
 			case 0x1f10d:	# Rudder
 				self._parse_0x1f10d(src_adr, pgn, msg_data)
+			case 0x1f503:	#SOG & COG
+				self._parse_0x1f503(src_adr, pgn, msg_data)
+			case 0x1f802:	#SOG & COG
+				self._parse_0x1f802(src_adr, pgn, msg_data)
 		
 
 	def _parse_0x1f200(self, src, pgn, data):
@@ -457,6 +461,31 @@ class n2k_handler:
 				address = src,
 				timestamp = None)	
 	
+	def _parse_0x1f802(self, src, pgn, data):
+		if (self._is_not_NA([data[4], data[5]])):
+			sog = data[4] + data[5]*256
+			sog = sog *3.6/100
+			
+			self.data_storage.store_data_point(
+				parameter=parameter_type.SOG,
+				instance = 0,
+				value = sog,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)	
+				
+	def _parse_0x1f503(self, src, pgn, data):
+		if (self._is_not_NA([data[1], data[2]])):
+			stw = data[1] + data[2]*256
+			stw = stw *3.6/100
+			
+			self.data_storage.store_data_point(
+				parameter=parameter_type.STW,
+				instance = 0,
+				value = stw,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)	
 	
 	def _is_not_NA(self, data_array):
 		return not all(byte == 0xFF or byte == 0x7F for byte in data_array)

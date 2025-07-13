@@ -390,7 +390,7 @@ async function insertDataIcon(paramNr, iconDiv) {
 }
 
 function createCard(section, index, layoutConfig) {
-    const card = document.createElement('div');
+    let card = document.createElement('div');
     card.className = 'card';
     
     // Format index for IDs (01, 02, etc.)
@@ -679,6 +679,9 @@ function getUnit(dataType) {
                     case 'flow':
                         unit = " " + appState.settings.unitSelection.volume +'/h';
                         break;
+                    case 'speed':
+                        unit = " " + appState.settings.unitSelection.speed;
+                        break;
                 }
             }else{
                 console.log("Settings not available to read units preference");
@@ -692,7 +695,7 @@ function getUnit(dataType) {
 
 function getDefaultValueForDataType(dataType, unitSelection) {
     if (!unitSelection) {
-        unitSelection = { length: 'm', temperature: 'C', pressure: 'bar', volume: 'L' };
+        unitSelection = { length: 'm', temperature: 'C', pressure: 'bar', volume: 'L', speed: 'km/h' };
     }
     
     // Check if we have the data type mappings loaded
@@ -723,6 +726,8 @@ function getDefaultValueForDataType(dataType, unitSelection) {
                     unit = unit.replace('L', unitSelection.volume) + '/h';
                 }
                 break;
+            case 'speed':
+                unit = unitSelection.speed;
         }
         
         return `--- ${unit}`.trim();

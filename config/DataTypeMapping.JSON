@@ -194,6 +194,16 @@
         "label": "Exhaust Gas Temperature",
         "unit": "none",
         "unitType": "temperature"
+      },
+      "39": {
+        "label": "GPS Speed",
+        "unit": "none",
+        "unitType": "speed"
+      },
+      "40": {
+        "label": "Speed to Water",
+        "unit": "none",
+        "unitType": "speed"
       }
     }
   }

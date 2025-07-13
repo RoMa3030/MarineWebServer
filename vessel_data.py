@@ -56,6 +56,10 @@ class parameter_type(Enum):
 	SEA_TEMP = 36
 	OUTSIDE_TEMP = 37
 	EXHAUST_GAS_TEMP = 38
+	
+	# Vessel
+	SOG = 39
+	STW = 40
 
 """ DEFAULT_PRECISION:
 		Defines globally what precisions should be applied to each datatype in number of decimals
@@ -103,7 +107,9 @@ DEFAULT_PRECISION = [
 	0,# BLACK_WATER_LEVEL_CAP = 35 
 	1,# SEA_TEMP = 36
 	0,# OUTSIDE_TEMP = 37
-	0# EXHAUST_GAS_TEMP = 38
+	0,# EXHAUST_GAS_TEMP = 38
+	0,# SOG = 38
+	0# STW = 38
 ]
 
 DEFAULT_TIMEOUT = 5.0		#[s] timeout for data values
