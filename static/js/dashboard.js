@@ -253,20 +253,21 @@ function renderLayout(layoutConfig) {
                     const dashGrid = document.createElement('Div');
                     dashGrid.className = 'dash-grid';
                     container.appendChild(dashGrid);
+                    
                     // Adding three cards.
                     // 1st-card: ColumnCard
                     const columnSections = [sections[0],sections[1],sections[2]];
                     dashGrid.appendChild(createDashCard_Columns(columnSections)); 
                     
-                    const gaugeCard = document.createElement('Div');
-                    gaugeCard.className = 'dash-card';
-                    dashGrid.appendChild(gaugeCard);   
+                    // 2nd-Card: MiddleCard
+                    const MiddleSections = [sections[3],sections[4],sections[5]];
+                    dashGrid.appendChild(createDashCard_MiddleCard(MiddleSections));  
+                    
+                    // 3rd-Card: Numerics 
                     const cardsCard = document.createElement('Div');
                     cardsCard.className = 'dash-card';
                     dashGrid.appendChild(cardsCard);
                     
-                    
-                                      
                     break;
                     
                 default:
@@ -279,8 +280,29 @@ function renderLayout(layoutConfig) {
     });
 }
 
+
+function createDashCard_MiddleCard(sections) {
+    const card = document.createElement('div');
+    card.className = 'dash-card';
+    
+    gaugeDataField = sections[0].dataFields[0];  
+    subGaugeDataField = sections[1].dataFields[0];  
+    barDataField = sections[2].dataFields[0];    
+    
+    const gaugeContainer = document.createElement('div');
+    gaugeContainer.id = "dtfld_04";
+    gaugeContainer.className = 'gauge-container';  
+    gaugeContainer.dataset.dataType = gaugeDataField.dataType;
+    gaugeContainer.dataset.instance = getInstanceAlias(gaugeDataField.instance);
+    gaugeContainer.dataset.min = gaugeDataField.range_min;
+    gaugeContainer.dataset.max = gaugeDataField.range_max;
+    card.appendChild(gaugeContainer);
+    return card;
+}
+
+
 function createDashCard_Columns(columnSections) {
-    const card = document.createElement('Div');
+    const card = document.createElement('div');
     card.className = 'dash-card';
     
     // not sure, whether this element is required - check design and eventually insert directly in "card"
@@ -300,7 +322,8 @@ function createDashCard_Columns(columnSections) {
         columnFlexElement.appendChild(columnElement);
             // nest in df-element for automated data insertion
         const columnDfElement = document.createElement('div');
-        columnDfElement.id = `dtfld_${i}`;
+        columnDfElement.id = `dtfld_${i}`;                      // Here something is not right: datafield description without leading zero!
+                                                                // ToDo: can probably be removed / or better adapted cause currently it prbly works with the dtfl below
         columnDfElement.className = 'dash-column-content';
         columnDfElement.dataset.dataType = dataField.dataType;
         columnDfElement.dataset.instance = dataField.instance;
@@ -366,7 +389,6 @@ async function insertDataIcon(paramNr, iconDiv) {
     }
 }
 
-
 function createCard(section, index, layoutConfig) {
     const card = document.createElement('div');
     card.className = 'card';
@@ -383,11 +405,7 @@ function createCard(section, index, layoutConfig) {
     }
     
     // Get engine designation based on instance if available
-    let engineDesignation = dataField.instance !== undefined && 
-                              layoutConfig.engineDesignations && 
-                              layoutConfig.engineDesignations[dataField.instance] 
-                              ? layoutConfig.engineDesignations[dataField.instance] 
-                              : '';
+    let engineDesignation = getInstanceAlias(dataField.instance);
     
     // Handle different section types
     let addIndex=0;
@@ -617,6 +635,21 @@ function updateMeterState(meter) {
     }
 }
 
+
+function getInstanceAlias(instanceNr) {
+    if (appState.settings && 
+        appState.settings.engineDesignations) 
+    {
+        const designations = appState.settings.engineDesignations
+        if(instanceNr < designations.length) {
+            return designations[instanceNr];
+        }
+    }
+    return instanceNr.toString();
+}
+
+
+
 function getUnit(dataType) {
     let unit = "";
     if (appState.dataTypeMappings && 
@@ -713,7 +746,8 @@ function initializeGauges() {
 
         console.log(`Initializing gauge: ${container.id}, dataType: ${dataType}, instance: ${instance}, range: ${min}-${max}`);
         const dataTypeTitle = getLabelForDataType(dataType);
-        createGauge(container.id, 66, min, max, unit, instance, dataTypeTitle);
+        const initVal = min;
+        createGauge(container.id, initVal, min, max, unit, instance, dataTypeTitle);
 
     });
 }
