@@ -73,10 +73,24 @@ async def get_DataTypeMappings():
 @app.get("/api/engine-icon/{index}")
 async def get_engine_icon(index: int):
     match index:
+        case 0:
+            icon_path = "/static/data_icons/engine_speed.png"
         case 1:
-            icon_path = "/static/data_icons/coolant_temp.png"
-        case 3:
             icon_path = "/static/data_icons/engine_oil_temp.png"
+        case 2:
+            icon_path = "/static/data_icons/engine_oil_press.png"
+        case 3:
+            icon_path = "/static/data_icons/coolant_temp.png"
+        case 4:
+            icon_path = "/static/data_icons/coolant_press.png"
+        case 5:
+            icon_path = "/static/data_icons/gear_oil_temp.png"
+        case 6:
+            icon_path = "/static/data_icons/gear_oil_press.png"
+        case 7:
+            icon_path = "/static/data_icons/boost_press.png"
+        case 8:
+            icon_path = "/static/data_icons/trim.png"
         case 24:
             icon_path = "/static/data_icons/fuel.png"
         case _:  # Default case
