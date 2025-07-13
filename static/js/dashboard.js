@@ -257,76 +257,77 @@ function renderLayout(layoutConfig) {
 function createDashCard_Columns(columnSections) {
     const card = document.createElement('Div');
     card.className = 'dash-card';
-    console.log("Function got passed:");
-    console.log(columnSections);
     
+    // not sure, whether this element is required - check design and eventually insert directly in "card"
     const columnFlexElement = document.createElement('div');
     columnFlexElement.className = 'column-container';
     card.appendChild(columnFlexElement);
+    
     for(let i=0; i<3; i++) {
         const section = columnSections[i];
-        console.log("Section");
-        console.log(section);
+        dataField = section.dataFields[0];// && section.dataFields.length > 0 ? section.dataFields[i] : null;
         let idIndex = i.toString().padStart(2, '0');
         
+        // create containers for one column-diagram
+            //element for entire data
         const columnElement = document.createElement('div');
-        columnElement.className = 'column-meter-item';
+        columnElement.className = 'dash-column-item';
         columnFlexElement.appendChild(columnElement);
-        dataField = section.dataFields;//&& section.dataFields.length > 0 ? section.dataFields[i] : null;
-        console.log("Datafield:");
-        console.log(dataField);
-        
-        
-        const iconDiv = document.createElement('div');
-        iconDiv.className = "dash-column-icon";
-        columnElement.appendChild(iconDiv);
-        
-        let iconNr = 1;
-        
-        insertDataIcon(iconNr, iconDiv.id);
-        
-        
-        
-        /*
-        // Add Label / icon
-        const columnLabel = document.createElement('div');
-        columnLabel.id = `lbl_${idIndex}`;
-        columnLabel.className = 'grid-column-label';
-        columnLabel.textContent = "hello";                
-        columnElement.appendChild(columnLabel);
-        */
-        
-        // Add Meter & Value
+            // nest in df-element for automated data insertion
         const columnDfElement = document.createElement('div');
-        columnDfElement.id = `dtfld_${idIndex}`;
-        columnDfElement.className = 'grid-column-content';
+        columnDfElement.id = `dtfld_${i}`;
+        columnDfElement.className = 'dash-column-content';
         columnDfElement.dataset.dataType = dataField.dataType;
         columnDfElement.dataset.instance = dataField.instance;
+        columnElement.appendChild(columnDfElement);
+    
+    
+        // create header container (to add icon and instance-description) 
+        const dashColumnHeader = document.createElement('div');
+        dashColumnHeader.className = 'dash-column-header';
+        columnDfElement.appendChild(dashColumnHeader);
+        // Add Icon      
+        const iconDiv = document.createElement('div');
+        iconDiv.className = "dash-column-icon";
+        dashColumnHeader.appendChild(iconDiv);        
+        let iconNr = 1;
+        console.log("DataField");
+        console.log(dataField);
+        insertDataIcon(dataField.dataType, iconDiv);
+        // Add instance description
+        const columnInstance = document.createElement('div');
+        columnInstance.className = 'dash-column-instance';
+        columnInstance.textContent = dataField.instance;
+        dashColumnHeader.appendChild(columnInstance);
+        
                         
-        const columnValue = document.createElement('div');
-        columnValue.className = 'grid-column-value';
-        columnValue.textContent = "--- %";
+        // Insert Meter element
         const columnMeter = document.createElement('meter');
-        columnMeter.className = 'grid-meter';
+        columnMeter.className = 'dash-meter';
         columnMeter.min = 0;
         columnMeter.max = 100;
-        columnMeter.value = 0;
+        columnMeter.value = 50;
         columnMeter.low = 10;       // evtl. adapt to custom alarm range
-        columnDfElement.appendChild(columnValue);
         columnDfElement.appendChild(columnMeter);
-        columnElement.appendChild(columnDfElement);
-                
         
-          
+        // Insert numeric description
+        const numericVal = document.createElement('p');
+        numericVal.textContent = "- - -";
+        numericVal.className = "dash-column-number";
+        columnDfElement.appendChild(numericVal);
     }
-
     return card;
 }
 
-async function insertDataIcon(iconNr, iconContainerId) {
-    const iconDiv = document.getElementById(iconContainerId);
+async function insertDataIcon(paramNr, iconDiv) {
+    // inserts an img-element into the iconDiv-container
+    // paramNr shall represent the parameter identiefier as speciefied in DataTypeMapping.json
+    if(!iconDiv) {
+        console.error("Couldnt find container element to insert data icon into.");
+        return;
+    }
     try {
-        const response = await fetch(`/api/engine-icon/${iconNr}`);
+        const response = await fetch(`/api/engine-icon/${paramNr}`);
         const data = await response.json();
         
         if(data.icon_url) {
@@ -342,6 +343,7 @@ async function insertDataIcon(iconNr, iconContainerId) {
         console.error("Error while loading dash-column-icon", error);
     }
 }
+
 
 function createCard(section, index, layoutConfig) {
     const card = document.createElement('div');
