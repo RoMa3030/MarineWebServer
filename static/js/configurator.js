@@ -63,6 +63,8 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
             for(let lvl2_index=0; lvl2_index<6; lvl2_index++) {
                 const Lvl2EditorField = document.createElement('div');
                 Lvl2EditorField.className = 'Lvl2-Editor-Field';
+                Lvl2EditorField.dataset.selectedLayout = 'SingleValue'; // predefine layout for case when nothing is changed by user.
+                
             
                 // Create Dropdown to select Level-2-Layout
                 // Creates: "1. Card-Layout: "
@@ -97,7 +99,7 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
                 // add listener to automatically create the correct number of data-fields, when lvl2 layout is changed
                 lvl2TypeSelect.addEventListener('change', function(event) {
                     const layout = event.target.value;      // "What layout (lvl2) has been selected in the dropdown"
-                    lvl2_editor.dataset.selectedLayout = layout;
+                    Lvl2EditorField.dataset.selectedLayout = layout;
                     dfEditorCollection.innerHTML = "";         // Clear old content (in case it's not newly selected but the layout has changed)
                     RenderDataFieldEditorList(dfEditorCollection.id, layout);
                 });
@@ -132,6 +134,12 @@ function renderLayoutEditor(layout, editorId, lvl1_index) {
                 dashDfeLabel.className = 'dash-dfeditor-label';
                 Lvl2EditorField.appendChild(dashDfeLabel);
                 Lvl2EditorField.appendChild(document.createElement('br'));
+                /*
+                // as the lvl2-type is predefined for dash - an invisble - replacment-element is required for the parser to be applicable to that layout too.
+                const invisibleElement = document.createElement('p');
+                Lvl2EditorField.appendChild(invisibleElement);
+                invisibleElement.value = 'Dash_lvl2';
+                invisibleElement.className = 'lvl2_layout_select';*/
                  
                 // Add dfeCollection (Even though each collectionwill contain only one -> easier use of rendering function)
                 // Create empty element to later dynamically add different numbers of DataField selectors
@@ -600,9 +608,14 @@ async function parsePageConfigurationForm(existingConfig = null) {
                     for (let sectionIndex = 0; sectionIndex < level2Editors.length; sectionIndex++) {
                         // (a "section" describes the next smaller region below "page" -> in the grid laout: one of the cards
                         // Therefore: each section is represented by one lvl2-layout-entry)
-                        const level2TypeDropDowns = level2Editors[sectionIndex].querySelectorAll('.lvl2_layout_select');
-                        const level2Type = level2TypeDropDowns[0].value;    // should in theory only ever find one. If not: default = take first
+                        /*const level2TypeDropDowns = level2Editors[sectionIndex].querySelectorAll('.lvl2_layout_select');*/
+                        const level2Type = level2Editors[sectionIndex].dataset.selectedLayout;//level2TypeDropDowns[0].value;    // should in theory only ever find one. If not: default = take first
                         // Create the section object
+                        if(!level2Type) {
+                            console.error("Level-2-Layout not defined for a field - Configuration parsing aborted");
+                            return;
+                        }
+                        
                         const section = {
                             level2Type: level2Type,
                             dataFields: []
