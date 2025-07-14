@@ -91,8 +91,54 @@ async def get_engine_icon(index: int):
             icon_path = "/static/data_icons/boost_press.png"
         case 8:
             icon_path = "/static/data_icons/trim.png"
+        case 9:
+            icon_path = "/static/data_icons/rudder.png"
+        case 10:
+            icon_path = "/static/data_icons/fuel_rate.png"
+        case 11:
+            icon_path = "/static/data_icons/engine_hours.png"
+        case 12:
+            icon_path = "/static/data_icons/fuel_press.png"
+        case 15:
+            icon_path = "/static/data_icons/engine_load.png"
+        case 16:
+            icon_path = "/static/data_icons/engine_torque.png"
+        case 17:
+            icon_path = "/static/data_icons/battery_voltage.png"
+        case 18:
+            icon_path = "/static/data_icons/alternator_potential.png"
+        case 19:
+            icon_path = "/static/data_icons/battery_voltage.png"
+        case 20:
+            icon_path = "/static/data_icons/battery_temp.png"
+        case 21:
+            icon_path = "/static/data_icons/soc.png"
+        case 22:
+            icon_path = "/static/data_icons/soh.png"
+        case 23:
+            icon_path = "/static/data_icons/battery_autonomy.png"
         case 24:
             icon_path = "/static/data_icons/fuel.png"
+        case 25:
+            icon_path = "/static/data_icons/fresh.png"
+        case 26:
+            icon_path = "/static/data_icons/waste.png"
+        case 27:
+            icon_path = "/static/data_icons/live_well.png"
+        case 28:
+            icon_path = "/static/data_icons/oil_level.png"
+        case 29:
+            icon_path = "/static/data_icons/black.png"
+        case 36:
+            icon_path = "/static/data_icons/sea_temp.png"
+        case 37:
+            icon_path = "/static/data_icons/air_temp.png"
+        case 38:
+            icon_path = "/static/data_icons/exhaust_gas_temp.png"
+        case 39:
+            icon_path = "/static/data_icons/sog.png"
+        case 40:
+            icon_path = "/static/data_icons/stw.png"
         case _:  # Default case
             icon_path = "/static/data_icons/default.png"
     
