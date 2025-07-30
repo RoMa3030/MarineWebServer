@@ -69,7 +69,7 @@ class parameter_type(Enum):
     	prec. -1: 	123.456 =>  120   
      """
 DEFAULT_PRECISION = [
-	0,# ENG_SPEED = 0
+	-1,# ENG_SPEED = 0
 	0,# ENG_OIL_TEMP = 1
 	1,# ENG_OIL_PRESS = 2
 	0,# COOLANT_TEMP = 3

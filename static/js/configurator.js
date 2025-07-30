@@ -316,7 +316,7 @@ function loadSingleParameterOption(select_id, param) {
 function loadFewParameterOptions(select_id, params) {
     const selectElement = document.getElementById(select_id);
 
-    for (const param in params) {
+    for (const param of params) {
         if (
             mappings.dataTypes.hasOwnProperty(param)
         ) {
