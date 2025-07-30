@@ -152,3 +152,33 @@ function drawGaugeArc(arcElement, gaugeBaseHight, centerX, radius, percentage, c
     arcElement.setAttribute("fill", color);
     arcElement.setAttribute("stroke", "none");
 }
+
+function updateBalancerGauge(gaugeId, value) {
+    const gauge = document.getElementById(gaugeId);
+    const fill = gauge.querySelector('.dash-balancer-fill');
+    
+    const maxValue = gauge.dataset.range_max;
+    const percentage = Math.abs(value)/maxValue * 50;
+    const clampedPercentage = Math.min(percentage, 50);
+    
+    fill.style.width = clampedPercentage + '%';
+    fill.className = 'dash-balancer-fill';
+    if(value > 0) {
+        fill.classList.add('positive');
+        fill.style.left = '50%';
+        fill.style.right = 'auto';
+    }else if(value < 0) {
+        fill.classList.add('negative');
+        fill.style.left = 'auto';
+        fill.style.right = '50%';
+    }else{
+        fill.style.width = '0%';
+    }    
+}
+
+
+
+
+
+
+

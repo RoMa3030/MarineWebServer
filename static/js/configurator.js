@@ -268,7 +268,9 @@ function RenderDataFieldEditorList(dfEditorCollection_id, layout) {
         }else if(layout === "Dash" && level2_index == 3) {
             loadSingleParameterOption(paramSelect.id, 0);          // for central gauge in dash: RPM only     
         }else if(layout === "Dash" && level2_index == 4) {
-            loadFewParameterOptions(paramSelect.id, [39,40]);          // for central gauge in dash: RPM only     
+            loadFewParameterOptions(paramSelect.id, [39,40]);      // for central gauge in dash: RPM only     
+        }else if(layout === "Dash" && level2_index == 5) {
+            loadSingleParameterOption(paramSelect.id, 9);          // for the balancing gauge (aka "rudder instrument")     
         }else{
             loadDfParameterOptions(paramSelect.id);
         }

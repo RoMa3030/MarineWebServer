@@ -79,33 +79,15 @@ function updateDataField(datafield_index, meas_value) {
         case 'Dash-Subgauge':
             //updateDashColumn(dataField, meas_value);
             dataField.textContent = meas_value.toString() + getUnit(dataField.dataset.dataType);
+            break;            
+        case 'Dash-Balancer':
+            const gaugeContainer = document.getElementById(containerID);
+            const gaugeElement = gaugeContainer.querySelector('.dash-balancer');
+            updateBalancerGauge(gaugeElement.id, meas_value);
             break;
         default:
             console.log("This level2layout-type is not supported yet")
     }
-}
-
-
-function getSectionType(dataField) {
-    if (dataField.classList.contains('gauge-container')) {
-        return 'Gauge';
-    }
-    if (dataField.closest('.triple-value-line')) {
-        return 'TripleValue';
-    }
-    if (dataField.classList.contains('sv_number')) {
-        return 'SingleValue';
-    }
-    if (dataField.classList.contains('grid-column-content')) {
-        return 'Column';
-    }
-    if (dataField.classList.contains('dash-column-content')) {
-        return 'Dash-Columns';
-    } 
-    if (dataField.classList.contains('dash-subgauge')) {
-        return 'Dash-Subgauge';
-    }    
-    return 'Unknown';
 }
 
 
@@ -138,10 +120,43 @@ function clearDataField(datafield_index) {
         case 'Dash-Subgauge':
             dataField.textContent = "---";
             break;
+        case 'Dash-Balancer':
+            const gaugeContainer = document.getElementById(containerID);
+            const gaugeElement = gaugeContainer.querySelector('.dash-balancer');
+            updateBalancerGauge(gaugeElement.id, 0);
+            break;
         default:
             console.log("This level2layout-type is not supported yet")
     }
 }
+
+
+function getSectionType(dataField) {
+    if (dataField.classList.contains('gauge-container')) {
+        return 'Gauge';
+    }
+    if (dataField.closest('.triple-value-line')) {
+        return 'TripleValue';
+    }
+    if (dataField.classList.contains('sv_number')) {
+        return 'SingleValue';
+    }
+    if (dataField.classList.contains('grid-column-content')) {
+        return 'Column';
+    }
+    if (dataField.classList.contains('dash-column-content')) {
+        return 'Dash-Columns';
+    } 
+    if (dataField.classList.contains('dash-subgauge')) {
+        return 'Dash-Subgauge';
+    }  
+    if (dataField.classList.contains('dash-balancer')) {
+        return 'Dash-Balancer';
+    }    
+    console.log("Could not recognize any SectionType");
+    return 'Unknown';
+}
+
 
 function updateColumn(dataField, value) {
     const valueDiv = dataField.querySelector('.grid-column-value');
@@ -297,7 +312,7 @@ function createDashCard_MiddleCard(sections) {
     
     gaugeDataField = sections[0].dataFields[0];     
     subGaugeDataField = sections[1].dataFields[0];  
-    barDataField = sections[2].dataFields[0];    
+    balancerDataField = sections[2].dataFields[0];    
     
     // Create Gauge (classical half-round gauge)
     const gaugeContainer = document.createElement('div');
@@ -310,24 +325,37 @@ function createDashCard_MiddleCard(sections) {
     card.appendChild(gaugeContainer);
     
     // Create sub-gauge data Field (standard numeric data field)
-    const subGaugeContainer = document.createElement('div');
-    subGaugeContainer.id = "dtfld_05";
-    subGaugeContainer.className = 'dash-subgauge'; 
-    subGaugeContainer.dataset.dataType = subGaugeDataField.dataType;
-    subGaugeContainer.dataset.instance = getInstanceAlias(subGaugeDataField.instance);
-    subGaugeContainer.dataset.min = subGaugeDataField.range_min;
-    subGaugeContainer.dataset.max = subGaugeDataField.range_max;
-    subGaugeContainer.textContent = "---";
-    card.appendChild(subGaugeContainer);      
-    /*const numVal = document.createElement('div');
-    numVal.textContent = "---";
-    numVal.className = 'dash-subgauge-number';
-    subGaugeContainer.appendChild(numVal);*/
+    const subGauge = document.createElement('div');
+    subGauge.id = "dtfld_05";
+    subGauge.className = 'dash-subgauge'; 
+    subGauge.dataset.dataType = subGaugeDataField.dataType;
+    subGauge.dataset.instance = getInstanceAlias(subGaugeDataField.instance);
+    subGauge.dataset.min = subGaugeDataField.range_min;
+    subGauge.dataset.max = subGaugeDataField.range_max;
+    subGauge.textContent = "---";
+    card.appendChild(subGauge);         
     
+    // Create balancing gauge (typically for rudder position) (alias: "balancer")
+    const balancerContainer = document.createElement('div');
+    balancerContainer.id = "dtfld_06";    
+    balancerContainer.className = 'gauge-container';  
+    balancerContainer.dataset.dataType = balancerDataField.dataType;
+    balancerContainer.dataset.instance = getInstanceAlias(balancerDataField.instance);
+    balancerContainer.dataset.min = balancerDataField.range_min;
+    balancerContainer.dataset.max = balancerDataField.range_max;
+    card.appendChild(balancerContainer);
     
-    
-    // Create balancing gauge (typically for rudder position)
-        
+    const balancer = document.createElement('div');
+    balancer.className = 'dash-balancer';
+    balancerContainer.appendChild(balancer);
+    balancer.dataset.min = balancerDataField.range_min;
+    balancer.dataset.max = balancerDataField.range_max;
+    const balancerFill = document.createElement('div');
+    balancerFill.className = 'dash-balancer-fill';
+    balancer.appendChild(balancerFill);
+    const balancerCenterLine = document.createElement('div');
+    balancerCenterLine.className = 'dash-balancer-centerline';
+    balancer.appendChild(balancerCenterLine);        
     return card;
 }
 
