@@ -1,3 +1,13 @@
+// Global storage of extracted JSON information
+let appState = {
+    settings: null,
+    dataTypeMappings: null
+};
+
+
+//----------------------------------------------------------------------
+//  Webpage Startup-Process
+//----------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Load both configuration files in parallel
@@ -20,7 +30,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateEngineData(); // make sure, the gauges are loaded from the init function first, before starting this loop
 });
 
+async function fetchSettings() {
+    try {
+        const response = await fetch('/api/LayoutConfiguration');
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const layoutConfig = await response.json();
+        console.log('Settings loaded:', layoutConfig);
+        return layoutConfig;
+    } catch (error) {
+        console.error('Error fetching layout configuration:', error);
+        throw error;
+    }
+}
 
+async function fetchDataTypeMappings() {
+    try {
+        const response = await fetch('/api/DataTypeMappings');
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const mappings = await response.json();
+        console.log('Data type mappings loaded:', mappings);
+        return mappings;
+    } catch (error) {
+        console.error('Error fetching data type mappings:', error);
+        throw error;
+    }
+}
+
+
+//----------------------------------------------------------------------
+//  Function for keeping page updated
+//----------------------------------------------------------------------
 function updateEngineData() {
     fetch('/api/engine-data')
         .then(response => {
@@ -130,6 +173,53 @@ function clearDataField(datafield_index) {
 }
 
 
+function updateDashColumn(dataField, value) {
+    const valueDiv = dataField.querySelector('.dash-column-number');
+    const meter = dataField.querySelector('.dash-meter');
+    
+    valueDiv.textContent = value.toString();
+    meter.value = value; 
+    //updateMeterState(meter);    // required only for alarm function to also work on mozilla browsers   
+}
+
+function clearDashColumn(dataField) {
+    const valueDiv = dataField.querySelector('.dash-column-number');
+    const meter = dataField.querySelector('.dash-meter');
+    
+    valueDiv.textContent = '---';
+    meter.value = 0;
+}
+
+function updateColumn(dataField, value) {
+    const valueDiv = dataField.querySelector('.grid-column-value');
+    const meter = dataField.querySelector('.grid-meter');
+    
+    valueDiv.textContent = value.toString()+'%';
+    meter.value = value; 
+    updateMeterState(meter);    // required only for alarm function on mozilla browsers   
+}
+
+function clearColumn(dataField) {
+    const valueDiv = dataField.querySelector('.grid-column-value');
+    const meter = dataField.querySelector('.grid-meter');
+    
+    valueDiv.textContent = '---%';
+    meter.value = 0;
+}
+
+function updateMeterState(meter) {
+    // This is required only on Mozilla browsers (different styling of meter elements)
+    const value = parseFloat(meter.value);
+    const low = parseFloat(meter.low) || 0;
+    
+    if(value <= low) {
+        meter.setAttribute('data-state','alarm');
+    }else{
+        meter.removeAttribute('data-state');
+    }
+}
+
+
 function getSectionType(dataField) {
     if (dataField.classList.contains('gauge-container')) {
         return 'Gauge';
@@ -157,78 +247,10 @@ function getSectionType(dataField) {
 }
 
 
-function updateColumn(dataField, value) {
-    const valueDiv = dataField.querySelector('.grid-column-value');
-    const meter = dataField.querySelector('.grid-meter');
-    
-    valueDiv.textContent = value.toString()+'%';
-    meter.value = value; 
-    updateMeterState(meter);    // required only for alarm function to also work on mozilla browsers   
-}
-
-function clearColumn(dataField) {
-    const valueDiv = dataField.querySelector('.grid-column-value');
-    const meter = dataField.querySelector('.grid-meter');
-    
-    valueDiv.textContent = '---%';
-    meter.value = 0;
-}
-
-function updateDashColumn(dataField, value) {
-    const valueDiv = dataField.querySelector('.dash-column-number');
-    const meter = dataField.querySelector('.dash-meter');
-    
-    valueDiv.textContent = value.toString();
-    meter.value = value; 
-    //updateMeterState(meter);    // required only for alarm function to also work on mozilla browsers   
-}
-
-function clearDashColumn(dataField) {
-    const valueDiv = dataField.querySelector('.dash-column-number');
-    const meter = dataField.querySelector('.dash-meter');
-    
-    valueDiv.textContent = '---';
-    meter.value = 0;
-}
-
-// Initialzation of Layout
-let appState = {
-    settings: null,
-    dataTypeMappings: null
-};
 
 // ------------------------------------------------------------------------------------
 //     Rendering website layout on startup
 // ------------------------------------------------------------------------------------
-async function fetchSettings() {
-    try {
-        const response = await fetch('/api/LayoutConfiguration');
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const layoutConfig = await response.json();
-        console.log('Settings loaded:', layoutConfig);
-        return layoutConfig;
-    } catch (error) {
-        console.error('Error fetching layout configuration:', error);
-        throw error;
-    }
-}
-
-async function fetchDataTypeMappings() {
-    try {
-        const response = await fetch('/api/DataTypeMappings');
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const mappings = await response.json();
-        console.log('Data type mappings loaded:', mappings);
-        return mappings;
-    } catch (error) {
-        console.error('Error fetching data type mappings:', error);
-        throw error;
-    }
-}
 
 function renderLayout(layoutConfig) {
     const container = document.querySelector('.container');
@@ -303,191 +325,6 @@ function renderLayout(layoutConfig) {
     });
 }
 
-
-function createDashCard_svCardsType(sections) {
-    const dashCard = document.createElement('div');
-    dashCard.className = 'dash-card';
-    
-    for(let i=0; i<3; i++) {
-        const svCard = document.createElement('div');
-        svCard.className = 'card';  // same as cards in Grid3x2-layout
-        dashCard.appendChild(svCard);
-        
-        const idIndex = (i+7).toString().padStart(2, '0');
-        const dataField = sections[i].dataFields[0];
-        const engineDesignation = getInstanceAlias(dataField.instance);
-        
-        const instanceElement = document.createElement('p');
-        instanceElement.id = `instdes_${idIndex}`;
-        instanceElement.className = 'sv_instance_designator';
-        instanceElement.textContent = engineDesignation;
-        svCard.appendChild(instanceElement);
-        // Add value element
-        const valueElement = document.createElement('p');
-        valueElement.id = `dtfld_${idIndex}`;
-        valueElement.className = 'sv_number';
-        valueElement.textContent = getDefaultValueForDataType(dataField.dataType, appState.settings.unitSelection);
-        valueElement.dataset.dataType = dataField.dataType;
-        valueElement.dataset.instance = dataField.instance;
-        svCard.appendChild(valueElement);
-        // Add label
-        const labelElement = document.createElement('p');
-        labelElement.id = `lbl_${idIndex}`;
-        labelElement.className = 'sv_label';
-        labelElement.textContent = getLabelForDataType(dataField.dataType);
-        svCard.appendChild(labelElement);
-    }    
-    return dashCard;
-}
-
-
-function createDashCard_MiddleCard(sections) {
-    const card = document.createElement('div');
-    card.className = 'dash-card';
-    
-    gaugeDataField = sections[0].dataFields[0];     
-    subGaugeDataField = sections[1].dataFields[0];  
-    balancerDataField = sections[2].dataFields[0];    
-    
-    // Create Gauge (classical half-round gauge)
-    const gaugeContainer = document.createElement('div');
-    gaugeContainer.id = "dtfld_04";
-    gaugeContainer.className = 'gauge-container';  
-    gaugeContainer.dataset.dataType = gaugeDataField.dataType;
-    gaugeContainer.dataset.instance = getInstanceAlias(gaugeDataField.instance);
-    gaugeContainer.dataset.min = gaugeDataField.range_min;
-    gaugeContainer.dataset.max = gaugeDataField.range_max;
-    card.appendChild(gaugeContainer);
-    
-    // Create sub-gauge data Field (standard numeric data field)
-    const subGauge = document.createElement('div');
-    subGauge.id = "dtfld_05";
-    subGauge.className = 'dash-subgauge'; 
-    subGauge.dataset.dataType = subGaugeDataField.dataType;
-    subGauge.dataset.instance = getInstanceAlias(subGaugeDataField.instance);
-    subGauge.dataset.min = subGaugeDataField.range_min;
-    subGauge.dataset.max = subGaugeDataField.range_max;
-    subGauge.textContent = "---";
-    card.appendChild(subGauge);         
-    
-    // Create balancing gauge (typically for rudder position) (alias: "balancer")
-    const balancerContainer = document.createElement('div');
-    balancerContainer.id = "dtfld_06";    
-    balancerContainer.className = 'dash-balancer-container';  
-    balancerContainer.dataset.dataType = balancerDataField.dataType;
-    balancerContainer.dataset.instance = getInstanceAlias(balancerDataField.instance);
-    balancerContainer.dataset.min = balancerDataField.range_min;
-    balancerContainer.dataset.max = balancerDataField.range_max;
-    card.appendChild(balancerContainer);
-    
-    const balancer = document.createElement('div');
-    balancer.className = 'dash-balancer';
-    balancerContainer.appendChild(balancer);
-    balancer.dataset.min = balancerDataField.range_min;
-    balancer.dataset.max = balancerDataField.range_max;
-    const balancerFill = document.createElement('div');
-    balancerFill.className = 'dash-balancer-fill';
-    balancer.appendChild(balancerFill);
-    const balancerCenterLine = document.createElement('div');
-    balancerCenterLine.className = 'dash-balancer-centerline';
-    balancer.appendChild(balancerCenterLine); 
-    
-    const balancerDescriptor = document.createElement('p');
-    balancerDescriptor.className = 'dash-balancer-descriptor';
-    balancerDescriptor.textContent = getLabelForDataType(balancerDataField.dataType);
-    balancerContainer.appendChild(balancerDescriptor);
-              
-    return card;
-}
-
-
-function createDashCard_Columns(columnSections) {
-    const card = document.createElement('div');
-    card.className = 'dash-card';
-    
-    // not sure, whether this element is required - check design and eventually insert directly in "card"
-    const columnFlexElement = document.createElement('div');
-    columnFlexElement.className = 'column-container';
-    card.appendChild(columnFlexElement);
-    
-    for(let i=0; i<3; i++) {
-        const section = columnSections[i];
-        dataField = section.dataFields[0];// && section.dataFields.length > 0 ? section.dataFields[i] : null;
-        let idIndex = i.toString().padStart(2, '0');
-        
-        // create containers for one column-diagram
-            //element for entire data
-        const columnElement = document.createElement('div');
-        columnElement.className = 'dash-column-item';
-        columnFlexElement.appendChild(columnElement);
-            // nest in df-element for automated data insertion
-        const columnDfElement = document.createElement('div');
-        columnDfElement.id = `dtfld_${i}`;                      // Here something is not right: datafield description without leading zero!
-                                                                // ToDo: can probably be removed / or better adapted cause currently it prbly works with the dtfl below
-        columnDfElement.className = 'dash-column-content';
-        columnDfElement.dataset.dataType = dataField.dataType;
-        columnDfElement.dataset.instance = dataField.instance;
-        columnElement.appendChild(columnDfElement);
-    
-    
-        // create header container (to add icon and instance-description) 
-        const dashColumnHeader = document.createElement('div');
-        dashColumnHeader.className = 'dash-column-header';
-        columnDfElement.appendChild(dashColumnHeader);
-        columnDfElement.id = `dtfld_${(i+1).toString().padStart(2, '0')}`;
-        // Add Icon      
-        const iconDiv = document.createElement('div');
-        iconDiv.className = "dash-column-icon";
-        dashColumnHeader.appendChild(iconDiv);   
-        insertDataIcon(dataField.dataType, iconDiv);
-        // Add instance description
-        const columnInstance = document.createElement('div');
-        columnInstance.className = 'dash-column-instance';
-        columnInstance.textContent = dataField.instance;
-        dashColumnHeader.appendChild(columnInstance);
-        
-        // Insert Meter element
-        const columnMeter = document.createElement('meter');
-        columnMeter.className = 'dash-meter';
-        columnMeter.min = 0;
-        columnMeter.max = 100;
-        columnMeter.value = 0;
-        columnMeter.low = 10;       // evtl. adapt to custom alarm range
-        columnDfElement.appendChild(columnMeter);
-        
-        // Insert numeric description
-        const numericVal = document.createElement('p');
-        numericVal.textContent = "- - -";
-        numericVal.className = "dash-column-number";
-        columnDfElement.appendChild(numericVal);
-    }
-    return card;
-}
-
-async function insertDataIcon(paramNr, iconDiv) {
-    // inserts an img-element into the iconDiv-container
-    // paramNr shall represent the parameter identiefier as speciefied in DataTypeMapping.json
-    if(!iconDiv) {
-        console.error("Couldnt find container element to insert data icon into.");
-        return;
-    }
-    try {
-        const response = await fetch(`/api/engine-icon/${paramNr}`);
-        const data = await response.json();
-        
-        if(data.icon_url) {
-            const img = document.createElement('img');
-            img.src = data.icon_url;
-            img.width = 64;
-            img.height = 64;
-            
-            iconDiv.innerHTML = '';
-            iconDiv.appendChild(img);
-        }
-    }catch (error) {
-        console.error("Error while loading dash-column-icon", error);
-    }
-}
 
 function createCard(section, index, layoutConfig) {
     let card = document.createElement('div');
@@ -641,7 +478,6 @@ function createCard(section, index, layoutConfig) {
     return {card: card, additionalIndex: addIndex};
 }
 
-
 function createEmptyCard(idIndex) {
     const card = document.createElement('div');
     card.className = 'card empty-card';
@@ -654,6 +490,247 @@ function createEmptyCard(idIndex) {
     
     return card;
 }
+
+function setMeterColor(meter, dataType) {
+    let normalColor = '#0D6431';
+    switch (dataType){
+        case 24:
+            lnormalColor = '#0D6431';//"Fuel ";
+            break;
+        case 25:
+            normalColor = '#0B06E4';//"Fresh Water";
+            break;
+        case 26:
+            normalColor = '#9D4700';//Waste";
+            break;
+        case 27:
+            normalColor = '#088070';//"Live Well";
+            break;
+        case 28:
+            normalColor = '#6600B9';//"Oil Level";
+            break;
+        case 29:
+            normalColor = '#4B2A0B';//"Black Water";
+            break;
+        default:
+            console.log("This is not a tank-type parameter");
+    }
+    meter.style.setProperty('--meter-color', normalColor);
+    meter.style.setProperty('--meter-alarm-color', '#E43806');
+}
+
+function initializeGauges() {
+    // Find all gauge containers
+    const gaugeContainers = document.querySelectorAll('.gauge-container');
+    
+    // Initialize each gauge
+    gaugeContainers.forEach((container) => {
+        const dataType = parseInt(container.dataset.dataType);
+        const instance = container.dataset.instance;
+        const min = parseFloat(container.dataset.min);
+        const max = parseFloat(container.dataset.max);
+        const unit = getUnit(dataType);
+
+        console.log(`Initializing gauge: ${container.id}, dataType: ${dataType}, instance: ${instance}, range: ${min}-${max}`);
+        const dataTypeTitle = getLabelForDataType(dataType);
+        const initVal = min;
+        createGauge(container.id, initVal, min, max, unit, instance, dataTypeTitle);
+
+    });
+}
+
+
+function createDashCard_Columns(columnSections) {
+    const card = document.createElement('div');
+    card.className = 'dash-card';
+    
+    // not sure, whether this element is required - check design and eventually insert directly in "card"
+    const columnFlexElement = document.createElement('div');
+    columnFlexElement.className = 'column-container';
+    card.appendChild(columnFlexElement);
+    
+    for(let i=0; i<3; i++) {
+        const section = columnSections[i];
+        dataField = section.dataFields[0];// && section.dataFields.length > 0 ? section.dataFields[i] : null;
+        let idIndex = i.toString().padStart(2, '0');
+        
+        // create containers for one column-diagram
+            //element for entire data
+        const columnElement = document.createElement('div');
+        columnElement.className = 'dash-column-item';
+        columnFlexElement.appendChild(columnElement);
+            // nest in df-element for automated data insertion
+        const columnDfElement = document.createElement('div');
+        columnDfElement.id = `dtfld_${i}`;                      // Here something is not right: datafield description without leading zero!
+                                                                // ToDo: can probably be removed / or better adapted cause currently it prbly works with the dtfl below
+        columnDfElement.className = 'dash-column-content';
+        columnDfElement.dataset.dataType = dataField.dataType;
+        columnDfElement.dataset.instance = dataField.instance;
+        columnElement.appendChild(columnDfElement);
+    
+    
+        // create header container (to add icon and instance-description) 
+        const dashColumnHeader = document.createElement('div');
+        dashColumnHeader.className = 'dash-column-header';
+        columnDfElement.appendChild(dashColumnHeader);
+        columnDfElement.id = `dtfld_${(i+1).toString().padStart(2, '0')}`;
+        // Add Icon      
+        const iconDiv = document.createElement('div');
+        iconDiv.className = "dash-column-icon";
+        dashColumnHeader.appendChild(iconDiv);   
+        insertDataIcon(dataField.dataType, iconDiv);
+        // Add instance description
+        const columnInstance = document.createElement('div');
+        columnInstance.className = 'dash-column-instance';
+        columnInstance.textContent = dataField.instance+1;
+        dashColumnHeader.appendChild(columnInstance); // use 1-based description: 0 -> "1st engine"
+        
+        // Insert Meter element
+        const columnMeter = document.createElement('meter');
+        columnMeter.className = 'dash-meter';
+        columnMeter.min = dataField.range_min;
+        columnMeter.max = dataField.range_max;
+        columnMeter.value = dataField.range_min;
+        //columnMeter.low = 10;       // evtl. adapt to custom alarm range
+        columnDfElement.appendChild(columnMeter);
+        
+        // Insert numeric description
+        const numericVal = document.createElement('p');
+        numericVal.textContent = "- - -";
+        numericVal.className = "dash-column-number";
+        columnDfElement.appendChild(numericVal);
+    }
+    return card;
+}
+
+
+function createDashCard_MiddleCard(sections) {
+    const card = document.createElement('div');
+    card.className = 'dash-card';
+    
+    gaugeDataField = sections[0].dataFields[0];     
+    subGaugeDataField = sections[1].dataFields[0];  
+    balancerDataField = sections[2].dataFields[0];    
+    
+    // Create Gauge (classical half-round gauge)
+    const gaugeContainer = document.createElement('div');
+    gaugeContainer.id = "dtfld_04";
+    gaugeContainer.className = 'gauge-container';  
+    gaugeContainer.dataset.dataType = gaugeDataField.dataType;
+    gaugeContainer.dataset.instance = getInstanceAlias(gaugeDataField.instance);
+    gaugeContainer.dataset.min = gaugeDataField.range_min;
+    gaugeContainer.dataset.max = gaugeDataField.range_max;
+    card.appendChild(gaugeContainer);
+    
+    // Create sub-gauge data Field (standard numeric data field)
+    const subGauge = document.createElement('div');
+    subGauge.id = "dtfld_05";
+    subGauge.className = 'dash-subgauge'; 
+    subGauge.dataset.dataType = subGaugeDataField.dataType;
+    subGauge.dataset.instance = getInstanceAlias(subGaugeDataField.instance);
+    subGauge.dataset.min = subGaugeDataField.range_min;
+    subGauge.dataset.max = subGaugeDataField.range_max;
+    subGauge.textContent = "---";
+    card.appendChild(subGauge);         
+    
+    // Create balancing gauge (typically for rudder position) (alias: "balancer")
+    const balancerContainer = document.createElement('div');
+    balancerContainer.id = "dtfld_06";    
+    balancerContainer.className = 'dash-balancer-container';  
+    balancerContainer.dataset.dataType = balancerDataField.dataType;
+    balancerContainer.dataset.instance = getInstanceAlias(balancerDataField.instance);
+    balancerContainer.dataset.min = balancerDataField.range_min;
+    balancerContainer.dataset.max = balancerDataField.range_max;
+    card.appendChild(balancerContainer);
+    
+    const balancer = document.createElement('div');
+    balancer.className = 'dash-balancer';
+    balancerContainer.appendChild(balancer);
+    balancer.dataset.min = balancerDataField.range_min;
+    balancer.dataset.max = balancerDataField.range_max;
+    const balancerFill = document.createElement('div');
+    balancerFill.className = 'dash-balancer-fill';
+    balancer.appendChild(balancerFill);
+    const balancerCenterLine = document.createElement('div');
+    balancerCenterLine.className = 'dash-balancer-centerline';
+    balancer.appendChild(balancerCenterLine); 
+    
+    const balancerDescriptor = document.createElement('p');
+    balancerDescriptor.className = 'dash-balancer-descriptor';
+    balancerDescriptor.textContent = getLabelForDataType(balancerDataField.dataType);
+    balancerContainer.appendChild(balancerDescriptor);
+              
+    return card;
+}
+
+
+function createDashCard_svCardsType(sections) {
+    const dashCard = document.createElement('div');
+    dashCard.className = 'dash-card';
+    
+    for(let i=0; i<3; i++) {
+        const svCard = document.createElement('div');
+        svCard.className = 'card';  // same as cards in Grid3x2-layout
+        dashCard.appendChild(svCard);
+        
+        const idIndex = (i+7).toString().padStart(2, '0');
+        const dataField = sections[i].dataFields[0];
+        const engineDesignation = getInstanceAlias(dataField.instance);
+        
+        const instanceElement = document.createElement('p');
+        instanceElement.id = `instdes_${idIndex}`;
+        instanceElement.className = 'sv_instance_designator';
+        instanceElement.textContent = engineDesignation;
+        svCard.appendChild(instanceElement);
+        // Add value element
+        const valueElement = document.createElement('p');
+        valueElement.id = `dtfld_${idIndex}`;
+        valueElement.className = 'sv_number';
+        valueElement.textContent = getDefaultValueForDataType(dataField.dataType, appState.settings.unitSelection);
+        valueElement.dataset.dataType = dataField.dataType;
+        valueElement.dataset.instance = dataField.instance;
+        svCard.appendChild(valueElement);
+        // Add label
+        const labelElement = document.createElement('p');
+        labelElement.id = `lbl_${idIndex}`;
+        labelElement.className = 'sv_label';
+        labelElement.textContent = getLabelForDataType(dataField.dataType);
+        svCard.appendChild(labelElement);
+    }    
+    return dashCard;
+}
+
+async function insertDataIcon(paramNr, iconDiv) {
+    // inserts an img-element into the iconDiv-container
+    // paramNr shall represent the parameter identiefier as speciefied in DataTypeMapping.json
+    if(!iconDiv) {
+        console.error("Couldnt find container element to insert data icon into.");
+        return;
+    }
+    try {
+        const response = await fetch(`/api/engine-icon/${paramNr}`);
+        const data = await response.json();
+        
+        if(data.icon_url) {
+            const img = document.createElement('img');
+            img.src = data.icon_url;
+            img.width = 64;
+            img.height = 64;
+            
+            iconDiv.innerHTML = '';
+            iconDiv.appendChild(img);
+        }
+    }catch (error) {
+        console.error("Error while loading dash-column-icon", error);
+    }
+}
+
+
+
+
+//----------------------------------------------------------------------------------
+//      Helper functions for conversions
+//----------------------------------------------------------------------------------
 
 function getLabelForDataType(dataType) {
     if (appState.dataTypeMappings && 
@@ -695,46 +772,6 @@ function getTankLabelText(instNr, dataType) {
     return label;
 }
 
-function setMeterColor(meter, dataType) {
-    let normalColor = '#0D6431';
-    switch (dataType){
-        case 24:
-            lnormalColor = '#0D6431';//"Fuel ";
-            break;
-        case 25:
-            normalColor = '#0B06E4';//"Fresh Water";
-            break;
-        case 26:
-            normalColor = '#9D4700';//Waste";
-            break;
-        case 27:
-            normalColor = '#088070';//"Live Well";
-            break;
-        case 28:
-            normalColor = '#6600B9';//"Oil Level";
-            break;
-        case 29:
-            normalColor = '#4B2A0B';//"Black Water";
-            break;
-        default:
-            console.log("This is not a tank-type parameter");
-    }
-    meter.style.setProperty('--meter-color', normalColor);
-    meter.style.setProperty('--meter-alarm-color', '#E43806');
-}
-
-function updateMeterState(meter) {
-    // This is required only on Mozilla browsers (different styling of meter elements)
-    const value = parseFloat(meter.value);
-    const low = parseFloat(meter.low) || 0;
-    
-    if(value <= low) {
-        meter.setAttribute('data-state','alarm');
-    }else{
-        meter.removeAttribute('data-state');
-    }
-}
-
 
 function getInstanceAlias(instanceNr) {
     if (appState.settings && 
@@ -747,7 +784,6 @@ function getInstanceAlias(instanceNr) {
     }
     return instanceNr.toString();
 }
-
 
 
 function getUnit(dataType) {
@@ -834,26 +870,5 @@ function getDefaultValueForDataType(dataType, unitSelection) {
     }else{
         return "?"
     }
-}
-
-
-function initializeGauges() {
-    // Find all gauge containers
-    const gaugeContainers = document.querySelectorAll('.gauge-container');
-    
-    // Initialize each gauge
-    gaugeContainers.forEach((container) => {
-        const dataType = parseInt(container.dataset.dataType);
-        const instance = container.dataset.instance;
-        const min = parseFloat(container.dataset.min);
-        const max = parseFloat(container.dataset.max);
-        const unit = getUnit(dataType);
-
-        console.log(`Initializing gauge: ${container.id}, dataType: ${dataType}, instance: ${instance}, range: ${min}-${max}`);
-        const dataTypeTitle = getLabelForDataType(dataType);
-        const initVal = min;
-        createGauge(container.id, initVal, min, max, unit, instance, dataTypeTitle);
-
-    });
 }
   
