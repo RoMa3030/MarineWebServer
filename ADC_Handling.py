@@ -134,7 +134,15 @@ class analog_handler:
 		
 		print("ADC-Meas: Out of bounds")
 		return float('nan')
-          
+    
+    
+	def reconfigure_adc_settings(self):
+		with open('config/ADC_Config.JSON', 'r', encoding='utf-8') as f:
+			adc_desc = json.load(f)
+
+		self._actives = self._get_active_inputs(adc_desc)
+		self._curves = self._get_sensor_curves(adc_desc)
+		self._data_interface = self._get_data_description(adc_desc)	
     
 #------------------------------------------------------------------------------------------
 #	HW Reading
@@ -147,7 +155,7 @@ class analog_handler:
 		ain2 = Resistive 1
 		ain3 = voltage 2
 		returns the Value measured by the MWS in, depending on the used input, V or Ohm
-		"""		
+		"""				
 		if (not self._actives[ain]):
 			return float('nan'), float('nan'), 0, 0
 		

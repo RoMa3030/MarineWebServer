@@ -82,6 +82,8 @@ class engine_data_interface:
 		# can be called by primary thread if the user changed the ADC configuration during operation
 		if not self._interface_running:		# if re-init is called before init was ever running: method is being used wrong
 			return
+				
+		self._adc.reconfigure_adc_settings()
 		
 		adc_was_active_before = False
 		if self._active_ains:
