@@ -20,6 +20,7 @@ import json
 engine_interface = engine_data_interface()
 LAYOUT_CONFIG_FILE = "config/LayoutConfig.JSON"
 ADC_CONFIG_FILE = "config/ADC_Config.JSON"
+change_on_design = False;
 #----------------------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -147,8 +148,14 @@ async def get_engine_icon(index: int):
 
 @app.get("/api/engine-data")
 def get_engine_data():
-    return engine_interface.get_current_engine_data()
-
+    global change_on_design
+    
+    if change_on_design:
+        change_on_design = False;
+        return "UPDATING-PAGE-REQUIRED"
+    else:
+        return engine_interface.get_current_engine_data()
+    
 #--------------------------------------------------------------------------------------
 @app.get("/Config", response_class=HTMLResponse)
 def read_root(request: Request):
@@ -159,23 +166,25 @@ def read_root(request: Request):
 @app.post("/api/save-page-config")
 async def save_page_config(request: Request):
     try:
-        # Get the raw JSON data
         config_data = await request.json()
         
-        # Print received data for debugging
         print("This arrived at API:")
         print(config_data)
         
-        # Save the raw JSON to a file
         with open(LAYOUT_CONFIG_FILE, "w") as f:
             json.dump(config_data, f, indent=2)
+        
+        # In case output webpage is already running: Start re-rendering the layout on next "engine-data"-request
+        global change_on_design
+        change_on_design = True
+        engine_interface.reinit_data_interface()
         
         # Return a success response
         return {"status": "success", "message": "Configuration saved successfully"}
     except Exception as e:
-        # Handle any errors
         print(f"Error saving config: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error saving configuration: {str(e)}")
+    
     
 @app.post("/api/save-adc-config")
 async def save_adc_config(request: Request):
@@ -188,6 +197,7 @@ async def save_adc_config(request: Request):
         with open(ADC_CONFIG_FILE, "w") as f:
             json.dump(config_data, f, indent=2)
             
+        engine_interface.reinit_adc()
         return {"status": "success", "message": "Configuration saved successfully"}
     
     except Exception as e:

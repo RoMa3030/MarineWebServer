@@ -43,19 +43,17 @@ class engine_data_interface:
 		if not self._pi.connected:
 			print("couldn't establish the PiGPIO object")
 		self._i2c_handle = self._pi.i2c_open(1, ADC_Handling.ADC_ADDRESS)
-		self._adc = ADC_Handling.analog_handler(self._pi, self._i2c_handle)
 		
-		# setup timer
-		self._active_ains = self._adc.get_actives()
-		print(f"These are the activated inputs: {self._active_ains}")
-		self._current_ain_index = 0
-		self._adc_interval = 1.0
+		# create un-initialized variables (defined in following init-function)
+		self._adc = None
+		self._active_ains = None
+		self._current_ain_index = None
+		self._adc_interval = None		
+		self._init_adc()
+		# Start Analog-reading-automatism, if any A.-In. is activated
 		if self._active_ains:
-			#self._interface_running = True
 			self._adc_interval = 1.0/(len(self._active_ains)) 
 			self._start_Timer(self._adc_interval)
-		print(f"ADC-Timer interval = {self._adc_interval}")	
-   
    
 	def read_engine_data(self):
 		#self.data_mngr.create_fake_data_for_testing()
@@ -79,6 +77,27 @@ class engine_data_interface:
 		self._can0 = can.interface.Bus(channel = 'can1', interface = 'socketcan')
 		#print("CAN interface initialized")
 		
+	
+	def reinit_adc(self):
+		# can be called by primary thread if the user changed the ADC configuration during operation
+		if not self._interface_running:		# if re-init is called before init was ever running: method is being used wrong
+			return
+		
+		adc_was_active_before = False
+		if self._active_ains:
+			adc_was_active_before = True
+		
+		self._init_adc()
+		# Start Analog-reading-automatism, if any A.-In. is activated (and the timer-automatism is not already running)
+		if self._active_ains:
+			self._adc_interval = 1.0/(len(self._active_ains))
+			if not adc_was_active_before:
+				self._start_Timer(self._adc_interval)
+				
+		
+	def reinit_data_interface(self):
+		# can be called by primary thread if the user changed the Layout configuration
+		self.data_mngr.update_website_interface_description()
 		
 	def _read_can(self):
 		msg = self._can0.recv(RX_TIMEOUT)
@@ -115,6 +134,15 @@ class engine_data_interface:
 		
 		# reset timer
 		self._start_Timer(self._adc_interval)
+		
+	def _init_adc(self):
+		self._adc = ADC_Handling.analog_handler(self._pi, self._i2c_handle)
+		
+		# setup timer
+		self._active_ains = self._adc.get_actives()
+		print(f"These are the activated inputs: {self._active_ains}")
+		self._current_ain_index = 0
+		self._adc_interval = 1.0	
 		
 		
 	def _start_Timer(self, duration):

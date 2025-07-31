@@ -226,7 +226,7 @@ class vessel_data_manager:
  
  
 	def update_website_interface_description(self):
-		# Allwos for external trigering of updating interface. (Currently not used)
+		# Allwos for external trigering of updating interface
 		self.web_data_interface = self._load_website_interface_description()
  
  

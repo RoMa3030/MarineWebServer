@@ -9,6 +9,11 @@ let appState = {
 //  Webpage Startup-Process
 //----------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async () => {
+    initDashboardWebPage();
+    updateEngineData(); 
+});
+
+async function initDashboardWebPage() {
     try {
         // Load both configuration files in parallel
         const [settings, dataTypeMappings] = await Promise.all([
@@ -27,8 +32,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log(error)
     }
     console.log("initialiation completed")
-    updateEngineData(); // make sure, the gauges are loaded from the init function first, before starting this loop
-});
+}
+
+
 
 async function fetchSettings() {
     try {
@@ -72,23 +78,36 @@ function updateEngineData() {
             }
             return response.json();
         })
-        .then(floatArray => {
-            //console.log("Received data:", floatArray);
-            //console.log("Type of data:", typeof floatArray);
-            floatArray.forEach((value, datafield_index) => {
-                if (!Number.isNaN(value) && value !== null && value !== -9999.99) {
-                    //console.log(`Value at index ${index} is ${value}`);
-                    updateDataField(datafield_index, value);
-                }else{
-                    clearDataField(datafield_index, value);
+        .then(engDataResponse => {   // Syntax explanation: floatArray is "initialized" with wathever previous .then() returns.
+            if(Array.isArray(engDataResponse)) {
+                // Normal case: returns array of floats: fill in values in HTML design
+                engDataResponse.forEach((value, datafield_index) => 
+                {
+                    if (!Number.isNaN(value) && value !== null && value !== -9999.99) {
+                        //console.log(`Value at index ${index} is ${value}`);
+                        updateDataField(datafield_index, value);
+                    }else{
+                        clearDataField(datafield_index, value);
+                    }
+                });
+            }else if(typeof engDataResponse === 'string') {
+                // API can send strings for instructions in special cases:
+                console.log("Received string response from EngineData-API: ", engDataResponse);
+                if(engDataResponse === "UPDATING-PAGE-REQUIRED") {
+                    console.log("Server requested the webpage to be rendered freshly");
+                    initDashboardWebPage();
                 }
-            });
+            }else{
+                console.error("Unexpected data type received from EngineData-API", typeof engDataResponse, engDataResponse);
+            }
+            
         })
         .catch(error => {
             console.error('Error fetching engine data:', error);
         })
         .finally(() => {
-            setTimeout(updateEngineData, 1500);
+            setTimeout(updateEngineData, 2500);
+            
         });
 }
 
