@@ -310,51 +310,32 @@ body {
     background: linear-gradient(90deg, #f44336, #ef5350);
 }
 
-
 /* Only apply these styles when .card is inside .dash-card */
 .dash-card .card {
     background-color: white;
-    border-radius: 0; /* Remove rounded corners for cleaner separation */
-    box-shadow: none; /* Remove shadow */
-    padding: 12px 8px; /* Adjust padding for better spacing */
+    border-radius: 0; 
+    box-shadow: none; 
+    padding: 12px 8px; 
     text-align: center;
     transition: transform 0.3s ease;
     display: flex;
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
-    flex: 1; /* Make cards fill available height equally */
+    flex: 1; 
     border-bottom: 2px solid #e0e0e0; /* Add horizontal separator line */
     position: relative;
+    margin-left: 10px;
 }
 
-/* Remove border from the last card to avoid extra line at bottom */
 .dash-card .card:last-child {
     border-bottom: none;
 }
 
-/* Optional: Add a subtle hover effect since shadow is removed */
-.dash-card .card:hover {
-    background-color: #f8f9fa;
-    transform: translateY(-1px);
-}
-
-/* Ensure the parent dash-card uses flexbox to distribute height */
 .dash-card:nth-child(3) {
     display: flex;
     flex-direction: column;
-    height: 100%; /* Ensure it takes full available height */
-}
-
-/* Alternative separator style - use this instead of border-bottom if you prefer */
-.dash-card .card::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 10%;
-    right: 10%;
-    height: 1px;
-    background: linear-gradient(to right, transparent, #d0d0d0, transparent);
+    height: 100%;
 }
 
 .dash-card .card:last-child::after {
