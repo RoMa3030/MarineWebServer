@@ -354,7 +354,14 @@ function createDashCard_MiddleCard(sections) {
     balancer.appendChild(balancerFill);
     const balancerCenterLine = document.createElement('div');
     balancerCenterLine.className = 'dash-balancer-centerline';
-    balancer.appendChild(balancerCenterLine);        
+    balancer.appendChild(balancerCenterLine); 
+    
+    const balancerDescriptor = document.createElement('p');
+    balancerDescriptor.className = 'dash-balancer-descriptor';
+    balancerDescriptor.textContent = getLabelForDataType(balancerDataField.dataType);
+    balancerContainer.appendChild(balancerDescriptor);
+    
+          
     return card;
 }
 
