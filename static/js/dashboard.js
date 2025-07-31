@@ -77,13 +77,12 @@ function updateDataField(datafield_index, meas_value) {
             updateDashColumn(dataField, meas_value);
             break;
         case 'Dash-Subgauge':
-            //updateDashColumn(dataField, meas_value);
             dataField.textContent = meas_value.toString() + getUnit(dataField.dataset.dataType);
             break;            
         case 'Dash-Balancer':
             const gaugeContainer = document.getElementById(containerID);
             const gaugeElement = gaugeContainer.querySelector('.dash-balancer');
-            updateBalancerGauge(gaugeElement.id, meas_value);
+            updateBalancerGauge(gaugeElement, meas_value);
             break;
         default:
             console.log("This level2layout-type is not supported yet")
@@ -123,7 +122,7 @@ function clearDataField(datafield_index) {
         case 'Dash-Balancer':
             const gaugeContainer = document.getElementById(containerID);
             const gaugeElement = gaugeContainer.querySelector('.dash-balancer');
-            updateBalancerGauge(gaugeElement.id, 0);
+            updateBalancerGauge(gaugeElement, 0);
             break;
         default:
             console.log("This level2layout-type is not supported yet")
@@ -150,7 +149,7 @@ function getSectionType(dataField) {
     if (dataField.classList.contains('dash-subgauge')) {
         return 'Dash-Subgauge';
     }  
-    if (dataField.classList.contains('dash-balancer')) {
+    if (dataField.classList.contains('dash-balancer-container')) {
         return 'Dash-Balancer';
     }    
     console.log("Could not recognize any SectionType");
@@ -338,7 +337,7 @@ function createDashCard_MiddleCard(sections) {
     // Create balancing gauge (typically for rudder position) (alias: "balancer")
     const balancerContainer = document.createElement('div');
     balancerContainer.id = "dtfld_06";    
-    balancerContainer.className = 'gauge-container';  
+    balancerContainer.className = 'dash-balancer-container';  
     balancerContainer.dataset.dataType = balancerDataField.dataType;
     balancerContainer.dataset.instance = getInstanceAlias(balancerDataField.instance);
     balancerContainer.dataset.min = balancerDataField.range_min;

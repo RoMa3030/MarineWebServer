@@ -153,11 +153,11 @@ function drawGaugeArc(arcElement, gaugeBaseHight, centerX, radius, percentage, c
     arcElement.setAttribute("stroke", "none");
 }
 
-function updateBalancerGauge(gaugeId, value) {
-    const gauge = document.getElementById(gaugeId);
+function updateBalancerGauge(gauge, value) {
+    //const gauge = document.getElementById(gaugeId);
     const fill = gauge.querySelector('.dash-balancer-fill');
     
-    const maxValue = gauge.dataset.range_max;
+    const maxValue = gauge.dataset.max;
     const percentage = Math.abs(value)/maxValue * 50;
     const clampedPercentage = Math.min(percentage, 50);
     
