@@ -288,9 +288,8 @@ function renderLayout(layoutConfig) {
                     dashGrid.appendChild(createDashCard_MiddleCard(MiddleSections));  
                     
                     // 3rd-Card: Numerics 
-                    const cardsCard = document.createElement('Div');
-                    cardsCard.className = 'dash-card';
-                    dashGrid.appendChild(cardsCard);
+                    const svCardsSections = [sections[6],sections[7],sections[8]];
+                    dashGrid.appendChild(createDashCard_svCardsType(svCardsSections)); 
                     
                     break;
                     
@@ -302,6 +301,43 @@ function renderLayout(layoutConfig) {
             console.log("Layouts with several pages are not supported yet");
         }
     });
+}
+
+
+function createDashCard_svCardsType(sections) {
+    const dashCard = document.createElement('div');
+    dashCard.className = 'dash-card';
+    
+    for(let i=0; i<3; i++) {
+        const svCard = document.createElement('div');
+        svCard.className = 'card';  // same as cards in Grid3x2-layout
+        dashCard.appendChild(svCard);
+        
+        const idIndex = (i+7).toString().padStart(2, '0');
+        const dataField = sections[i].dataFields[0];
+        const engineDesignation = getInstanceAlias(dataField.instance);
+        
+        const instanceElement = document.createElement('p');
+        instanceElement.id = `instdes_${idIndex}`;
+        instanceElement.className = 'sv_instance_designator';
+        instanceElement.textContent = engineDesignation;
+        svCard.appendChild(instanceElement);
+        // Add value element
+        const valueElement = document.createElement('p');
+        valueElement.id = `dtfld_${idIndex}`;
+        valueElement.className = 'sv_number';
+        valueElement.textContent = getDefaultValueForDataType(dataField.dataType, appState.settings.unitSelection);
+        valueElement.dataset.dataType = dataField.dataType;
+        valueElement.dataset.instance = dataField.instance;
+        svCard.appendChild(valueElement);
+        // Add label
+        const labelElement = document.createElement('p');
+        labelElement.id = `lbl_${idIndex}`;
+        labelElement.className = 'sv_label';
+        labelElement.textContent = getLabelForDataType(dataField.dataType);
+        svCard.appendChild(labelElement);
+    }    
+    return dashCard;
 }
 
 
@@ -360,8 +396,7 @@ function createDashCard_MiddleCard(sections) {
     balancerDescriptor.className = 'dash-balancer-descriptor';
     balancerDescriptor.textContent = getLabelForDataType(balancerDataField.dataType);
     balancerContainer.appendChild(balancerDescriptor);
-    
-          
+              
     return card;
 }
 
