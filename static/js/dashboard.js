@@ -4,7 +4,6 @@ let appState = {
     dataTypeMappings: null
 };
 
-
 //----------------------------------------------------------------------
 //  Webpage Startup-Process
 //----------------------------------------------------------------------
@@ -213,6 +212,14 @@ function updateColumn(dataField, value) {
     const valueDiv = dataField.querySelector('.grid-column-value');
     const meter = dataField.querySelector('.grid-meter');
     
+    if(meter.low && value <= meter.low) {
+        valueDiv.setAttribute('data-state', 'alarm');
+    }else if(meter.high && value >= meter.high) {
+        valueDiv.setAttribute('data-state', 'alarm');
+    }else{
+        valueDiv.removeAttribute('data-state');
+    }
+       
     valueDiv.textContent = value.toString()+'%';
     meter.value = value; 
     updateMeterState(meter);    // required only for alarm function on mozilla browsers   
@@ -230,8 +237,11 @@ function updateMeterState(meter) {
     // This is required only on Mozilla browsers (different styling of meter elements)
     const value = parseFloat(meter.value);
     const low = parseFloat(meter.low) || 0;
+    const high = parseFloat(meter.high) || 0;
     
     if(value <= low) {
+        meter.setAttribute('data-state','alarm');
+    }else if(value >= high) {
         meter.setAttribute('data-state','alarm');
     }else{
         meter.removeAttribute('data-state');
@@ -375,6 +385,8 @@ function createCard(section, index, layoutConfig) {
             gaugeContainer.dataset.instance = engineDesignation;        //      Fill in the data
             gaugeContainer.dataset.min = dataField.range_min;           //
             gaugeContainer.dataset.max = dataField.range_max;           //
+            gaugeContainer.dataset.alarm_low = dataField.alarm_low;     //
+            gaugeContainer.dataset.alarm_high = dataField.alarm_high;    //
             card.appendChild(gaugeContainer);
             break;
             
@@ -391,6 +403,8 @@ function createCard(section, index, layoutConfig) {
             valueElement.textContent = getDefaultValueForDataType(dataField.dataType, layoutConfig.unitSelection);
             valueElement.dataset.dataType = dataField.dataType;
             valueElement.dataset.instance = dataField.instance;
+            valueElement.dataset.alarm_low = dataField.alarm_low;
+            valueElement.dataset.alarm_high = dataField.alarm_high;
             card.appendChild(valueElement);
             // Add label
             const labelElement = document.createElement('p');
@@ -434,6 +448,8 @@ function createCard(section, index, layoutConfig) {
                 valueElement.textContent = getDefaultValueForDataType(dataField.dataType, layoutConfig.unitSelection);
                 valueElement.dataset.dataType = dataField.dataType;
                 valueElement.dataset.instance = dataField.instance;
+                valueElement.dataset.alarm_low = dataField.alarm_low;
+                valueElement.dataset.alarm_high = dataField.alarm_high;
                 LineInTripleNumeric.appendChild(valueElement);
     
                 card.appendChild(LineInTripleNumeric);
@@ -471,10 +487,15 @@ function createCard(section, index, layoutConfig) {
                 columnValue.textContent = "--- %";
                 const columnMeter = document.createElement('meter');
                 columnMeter.className = 'grid-meter';
-                columnMeter.min = 0;
-                columnMeter.max = 100;
-                columnMeter.value = 0;
-                columnMeter.low = 10;       // evtl. adapt to custom alarm range
+                const minMeterValue = 0;
+                columnMeter.min = minMeterValue;
+                columnMeter.max = 100;                  // hard coded: to be changed if other types than level gauges are added to selection
+                columnMeter.value = minMeterValue;      // initialize empty gauge
+                if(dataField.alarm_low) {
+                    columnMeter.low = dataField.alarm_low;
+                }if(dataField.alarm_high) {
+                    columnMeter.high = dataField.alarm_high;
+                }
                 columnDfElement.appendChild(columnValue);
                 columnDfElement.appendChild(columnMeter);
                 columnElement.appendChild(columnDfElement);
@@ -514,7 +535,7 @@ function setMeterColor(meter, dataType) {
     let normalColor = '#0D6431';
     switch (dataType){
         case 24:
-            lnormalColor = '#0D6431';//"Fuel ";
+            normalColor = '#0D6431';//"Fuel ";
             break;
         case 25:
             normalColor = '#0B06E4';//"Fresh Water";

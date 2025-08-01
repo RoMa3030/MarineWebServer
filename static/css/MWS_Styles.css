@@ -177,6 +177,10 @@ body {
     width: 80px;
 }
 
+.grid-column-value[data-state='alarm'] {
+    color: #C40A0A;
+}
+
 /*---- GRID - GAUGE - STYLES --------------------------*/
 .gauge-container {
     width: 100%;
