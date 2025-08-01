@@ -250,6 +250,37 @@ function RenderDataFieldEditorList(dfEditorCollection_id, layout) {
         rangeField.appendChild(rangeMin);
         rangeField.appendChild(spacer);
         rangeField.appendChild(rangeMax);
+        
+        // Add fields for Alarm selection
+        const alarmField = document.createElement('div');
+        alarmField.id = `alarm-${level1_index}-${level2_index}-${dfIndex}`;
+        alarmField.className = "min-max-select";                            // Check: required different class for parser?
+        const alarmLowLabel = document.createElement('label');
+        alarmLowLabel.textContent = "Alarm low:";
+
+        const alarmLow = document.createElement('input');
+        alarmLow.type = "number";
+        alarmLow.id = `alarm-low-${level1_index}-${level2_index}-${dfIndex}`;
+        alarmLow.placeholder = "none";
+
+        const spacer2 = document.createElement('span');
+        spacer2.style.width = "20px";
+        spacer2.style.display = "inline-block";
+        
+        
+        const alarmHighLabel = document.createElement('label');
+        alarmHighLabel.textContent = "Alarm high:";
+
+        const alarmHigh = document.createElement('input');
+        alarmHigh.type = "number";
+        alarmHigh.id = `alarm-high-${level1_index}-${level2_index}-${dfIndex}`;
+        alarmHigh.placeholder = "none";
+
+        alarmField.appendChild(alarmLowLabel);
+        alarmField.appendChild(alarmLow);
+        alarmField.appendChild(spacer2);
+        alarmField.appendChild(alarmHighLabel);
+        alarmField.appendChild(alarmHigh);
 
         // Add these elements to the parent
         dfEditor.appendChild(paramLabel);
@@ -258,9 +289,10 @@ function RenderDataFieldEditorList(dfEditorCollection_id, layout) {
         dfEditor.appendChild(instanceSelect);
         dfEditor.append(instanceSelect, document.createElement('br'));
         dfEditor.appendChild(rangeField);
-        dfEditor.append(rangeField, document.createElement('br'));
+        dfEditor.appendChild(alarmField);
+        dfEditor.append(alarmField, document.createElement('br'));
 
-        //Define dropdown options only after appending the element to the layout
+        //Define dropdown options only AFTER appending the element to the layout
         // First handles special cases for fields with limited parameter options.
         if(layout === "Columns") {
             // Special case columns: only available for tank levels
@@ -656,12 +688,29 @@ async function parsePageConfigurationForm(existingConfig = null) {
                                         rangeMax = parseFloat(maxInput.value);
                                     }
                                     
+                                    // Get alarm thresholds
+                                    let alarmLow = null;
+                                    let alarmHigh = null;
+                                    
+                                    const lowInput = document.getElementById(`alarm-low-${pageIndex}-${sectionIndex}-${dfIndex}`);
+                                    const highInput = document.getElementById(`alarm-high-${pageIndex}-${sectionIndex}-${dfIndex}`);
+                                    
+                                    if (lowInput && lowInput.value !== "") {
+                                        alarmLow = parseFloat(lowInput.value);
+                                    }
+                                    
+                                    if (highInput && highInput.value !== "") {
+                                        alarmHigh = parseFloat(highInput.value);
+                                    }
+                                    
                                     // Create the dataField object
                                     const dataField = {
                                         dataType: parseInt(paramSelect.value, 10),
                                         instance: parseInt(instanceSelect.value, 10),
                                         range_min: rangeMin,
-                                        range_max: rangeMax
+                                        range_max: rangeMax,
+                                        alarm_low: alarmLow,
+                                        alarm_high: alarmHigh
                                     };
                                     // Add the dataField to the section
                                     section.dataFields.push(dataField);

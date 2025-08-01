@@ -106,7 +106,7 @@ function updateEngineData() {
             console.error('Error fetching engine data:', error);
         })
         .finally(() => {
-            setTimeout(updateEngineData, 2500);
+            setTimeout(updateEngineData, 1000);
             
         });
 }
