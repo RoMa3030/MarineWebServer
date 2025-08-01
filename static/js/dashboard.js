@@ -126,10 +126,10 @@ function updateDataField(datafield_index, meas_value) {
             updateGauge(containerID, meas_value);
             break;
         case 'SingleValue':
-            dataField.textContent = meas_value.toString() + getUnit(dataField.dataset.dataType);
+            updateGridNumericField(dataField, meas_value);
             break;
         case 'TripleValue':
-            dataField.textContent = meas_value.toString() + getUnit(dataField.dataset.dataType);
+            updateGridNumericField(dataField, meas_value);
             break;
         case 'Column':
             updateColumn(dataField, meas_value);
@@ -167,9 +167,11 @@ function clearDataField(datafield_index) {
             break;
         case 'SingleValue':
             dataField.textContent = '---';
+            dataField.removeAttribute('data-state');
             break;
         case 'TripleValue':
             dataField.textContent = '---';
+            dataField.removeAttribute('data-state');
             break;
         case 'Column':
             clearColumn(dataField);
@@ -190,6 +192,19 @@ function clearDataField(datafield_index) {
     }
 }
 
+
+function updateGridNumericField(dataField, meas_value) {
+    dataField.textContent = meas_value.toString() + getUnit(dataField.dataset.dataType);
+    
+    //check alarm state
+    if(dataField.dataset.alarm_low && meas_value <= dataField.dataset.alarm_low) {
+        dataField.setAttribute('data-state', 'alarm');
+    }else if(dataField.dataset.alarm_high && meas_value >= dataField.dataset.alarm_high) {
+        dataField.setAttribute('data-state', 'alarm');
+    }else{
+        dataField.removeAttribute('data-state');
+    }
+}
 
 function updateDashColumn(dataField, value) {
     const valueDiv = dataField.querySelector('.dash-column-number');
@@ -386,7 +401,7 @@ function createCard(section, index, layoutConfig) {
             gaugeContainer.dataset.min = dataField.range_min;           //
             gaugeContainer.dataset.max = dataField.range_max;           //
             gaugeContainer.dataset.alarm_low = dataField.alarm_low;     //
-            gaugeContainer.dataset.alarm_high = dataField.alarm_high;    //
+            gaugeContainer.dataset.alarm_high = dataField.alarm_high;   //
             card.appendChild(gaugeContainer);
             break;
             
