@@ -245,7 +245,8 @@ function clearColumn(dataField) {
     const meter = dataField.querySelector('.grid-meter');
     
     valueDiv.textContent = '---%';
-    meter.value = 0;
+    meter.value = 0;   
+    valueDiv.removeAttribute('data-state');     // removes red coloring (when data is lost while alarm was active)
 }
 
 function updateMeterState(meter) {

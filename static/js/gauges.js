@@ -80,14 +80,21 @@ function updateGauge(containerId, value) {
     const unit = getUnit(dataType);
     const min = container.dataset.min;
     const max = container.dataset.max;
-
+    
+    let arcColor = "blue";
+    // Change color: if alarm threshold is passed
+    if(container.dataset.alarm_low && value <= container.dataset.alarm_low) {
+        arcColor = "#C40A0A";
+    }else if(container.dataset.alarm_high && value >= container.dataset.alarm_high) {
+        arcColor = "#C40A0A";
+    }
+    
     valueText.textContent = value //+ (unit ? unit : '');
-
     // Update indicator graphic
     const indicator = document.getElementById(`${containerId}-indicator`);
     const [gaugeBaseHight, centerX, radius] = calculateGaugeDimensions(containerId);
     const percentage = getIndicatorPercentage(value, min, max);
-    drawGaugeArc(indicator, gaugeBaseHight, centerX, radius, percentage, "blue", 30);
+    drawGaugeArc(indicator, gaugeBaseHight, centerX, radius, percentage, arcColor, 30);
 }
 
 function clearGauge(containerId) {
