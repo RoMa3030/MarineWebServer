@@ -42,6 +42,20 @@ def read_root(request: Request):
     # render and return the index.html template
     return templates.TemplateResponse("MWS.html",{"request": request})
     
+# Special entry-calls for presentation purposes
+# (allows to switch to standard layouts - without it matching the latest config)
+@app.get("/dash", response_class=HTMLResponse)
+def read_root(request: Request):
+    # render and return the index.html template
+    return templates.TemplateResponse("MWS_dash.html",{"request": request})
+
+@app.get("/grid", response_class=HTMLResponse)
+def read_root(request: Request):
+    # render and return the index.html template
+    return templates.TemplateResponse("MWS_grid.html",{"request": request})
+
+
+
 
 @app.get("/favicon.ico")
 async def favicon():
