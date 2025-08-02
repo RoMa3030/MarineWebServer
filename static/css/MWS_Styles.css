@@ -252,18 +252,20 @@ body {
     appearance: none;
     direction: rtl;
     background: #e2e8f0;
+    border-radius: 10px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
 }
 .dash-meter::-webkit-meter-optimum-value {
     background: #0D6431;
 }
 .dash-meter::-webkit-meter-even-less-good-value {
-    background: #E43806;
+    background: #C40A0A;
 }
 .dash-meter::-moz-meter-bar {
     background: #0D6431;
 }
 .dash-meter[data-state='alarm']::-moz-meter-bar {
-    background: #E43806;
+    background: #C40A0A;
 }
 
 .dash-column-number {
@@ -295,6 +297,10 @@ body {
     font-weight: bold;
     margin: 4px;
     color: #2c3e50;
+}
+
+.dash-subgauge[data-state='alarm'] {
+    color: #C40A0A;
 }
 
 .dash-balancer-container {

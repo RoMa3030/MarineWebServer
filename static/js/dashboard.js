@@ -138,7 +138,7 @@ function updateDataField(datafield_index, meas_value) {
             updateDashColumn(dataField, meas_value);
             break;
         case 'Dash-Subgauge':
-            dataField.textContent = meas_value.toString() + getUnit(dataField.dataset.dataType);
+            updateDashSubgauge(dataField, meas_value);
             break;            
         case 'Dash-Balancer':
             const gaugeContainer = document.getElementById(containerID);
@@ -165,7 +165,7 @@ function clearDataField(datafield_index) {
         case 'Gauge':
             clearGauge(containerID);
             break;
-        case 'SingleValue':
+        case 'SingleValue': // + Dash Layout - Subgauge-Fiel
             dataField.textContent = '---';
             dataField.removeAttribute('data-state');
             break;
@@ -179,8 +179,9 @@ function clearDataField(datafield_index) {
         case 'Dash-Columns':
             clearDashColumn(dataField);
             break;
-        case 'Dash-Subgauge':
+        case 'Dash-Subgauge':     
             dataField.textContent = "---";
+            dataField.removeAttribute('data-state');
             break;
         case 'Dash-Balancer':
             const gaugeContainer = document.getElementById(containerID);
@@ -217,7 +218,6 @@ function updateDashColumn(dataField, value) {
     }else{
         valueDiv.removeAttribute('data-state');
     }
-    
     valueDiv.textContent = value.toString();
     meter.value = value; 
     updateMeterState(meter);    // required only for alarm function to also work on mozilla browsers   
@@ -228,8 +228,23 @@ function clearDashColumn(dataField) {
     const meter = dataField.querySelector('.dash-meter');
     
     valueDiv.textContent = '---';
+    valueDiv.removeAttribute('data-state');
     meter.value = 0;
 }
+
+
+function updateDashSubgauge(dataField, meas_value) {
+    dataField.textContent = meas_value.toString() + getUnit(dataField.dataset.dataType);
+    
+    if (dataField.dataset.alarm_low && meas_value <= dataField.dataset.alarm_low) {
+        dataField.setAttribute('data-state', 'alarm');
+    }else if (dataField.dataset.alarm_high && meas_value >= dataField.dataset.alarm_high) {
+        dataField.setAttribute('data-state', 'alarm');
+    }else{
+        dataField.removeAttribute('data-state');
+    }
+}
+
 
 function updateColumn(dataField, value) {
     const valueDiv = dataField.querySelector('.grid-column-value');
@@ -274,6 +289,10 @@ function updateMeterState(meter) {
 
 
 function getSectionType(dataField) {
+    
+    if (dataField.classList.contains('dash-subgauge')) {        // this test must be placed before singleValue.
+        return 'Dash-Subgauge';
+    }
     if (dataField.classList.contains('gauge-container')) {
         return 'Gauge';
     }
@@ -288,10 +307,7 @@ function getSectionType(dataField) {
     }
     if (dataField.classList.contains('dash-column-content')) {
         return 'Dash-Columns';
-    } 
-    if (dataField.classList.contains('dash-subgauge')) {
-        return 'Dash-Subgauge';
-    }  
+    }   
     if (dataField.classList.contains('dash-balancer-container')) {
         return 'Dash-Balancer';
     }    
@@ -690,6 +706,8 @@ function createDashCard_MiddleCard(sections) {
     gaugeContainer.dataset.instance = getInstanceAlias(gaugeDataField.instance);
     gaugeContainer.dataset.min = gaugeDataField.range_min;
     gaugeContainer.dataset.max = gaugeDataField.range_max;
+    gaugeContainer.dataset.alarm_low = gaugeDataField.alarm_low;
+    gaugeContainer.dataset.alarm_high = gaugeDataField.alarm_high;
     card.appendChild(gaugeContainer);
     
     // Create sub-gauge data Field (standard numeric data field)
@@ -700,6 +718,8 @@ function createDashCard_MiddleCard(sections) {
     subGauge.dataset.instance = getInstanceAlias(subGaugeDataField.instance);
     subGauge.dataset.min = subGaugeDataField.range_min;
     subGauge.dataset.max = subGaugeDataField.range_max;
+    subGauge.dataset.alarm_low = subGaugeDataField.alarm_low;
+    subGauge.dataset.alarm_high = subGaugeDataField.alarm_high;
     subGauge.textContent = "---";
     card.appendChild(subGauge);         
     
@@ -759,6 +779,8 @@ function createDashCard_svCardsType(sections) {
         valueElement.textContent = getDefaultValueForDataType(dataField.dataType, appState.settings.unitSelection);
         valueElement.dataset.dataType = dataField.dataType;
         valueElement.dataset.instance = dataField.instance;
+        valueElement.dataset.alarm_low = dataField.alarm_low;
+        valueElement.dataset.alarm_high = dataField.alarm_high;
         svCard.appendChild(valueElement);
         // Add label
         const labelElement = document.createElement('p');
