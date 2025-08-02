@@ -38,7 +38,7 @@ function updateEngineData() {
             console.error('Error fetching engine data:', error);
         })
         .finally(() => {
-            setTimeout(updateEngineData, 1000);
+            setTimeout(updateEngineData, 500);
             
         });
 }
