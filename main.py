@@ -39,22 +39,14 @@ templates = Jinja2Templates(directory="templates")
     
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request):
-    # render and return the index.html template
-    return templates.TemplateResponse("MWS.html",{"request": request})
+    # Due to presentation feature (predefined layout used instead of user config) it's required to reload the website date interface
+    # (otherwise the normal entry point [this API call] doesn't work anymore after a presentation)
+    global change_on_design
+    change_on_design = True
+    engine_interface.reinit_data_interface()
     
-# Special entry-calls for presentation purposes
-# (allows to switch to standard layouts - without it matching the latest config)
-@app.get("/dash", response_class=HTMLResponse)
-def read_root(request: Request):
-    # render and return the index.html template
-    return templates.TemplateResponse("MWS_dash.html",{"request": request})
-
-@app.get("/grid", response_class=HTMLResponse)
-def read_root(request: Request):
-    # render and return the index.html template
-    return templates.TemplateResponse("MWS_grid.html",{"request": request})
-
-
+    # normal submission of HTML template
+    return templates.TemplateResponse("MWS.html",{"request": request})
 
 
 @app.get("/favicon.ico")
@@ -173,7 +165,6 @@ def get_engine_data():
 #--------------------------------------------------------------------------------------
 @app.get("/Config", response_class=HTMLResponse)
 def read_root(request: Request):
-    # render and return the index.html template
     return templates.TemplateResponse("MWS_Config.html",{"request": request})
 
     
@@ -217,8 +208,49 @@ async def save_adc_config(request: Request):
     except Exception as e:
         print(f"Error saving config: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error saving configuration: {str(e)}")
+#----------------------------------------------------------------------------------------------
+#       Special entry-calls for presentation purposes
+#       (allows to switch to standard layouts - without it matching the latest config)
 
-#----------------------------------------------------------------------------------------
+@app.get("/dash", response_class=HTMLResponse)
+def read_root(request: Request):
+    global change_on_design
+    change_on_design = True
+    engine_interface.reinit_data_interface('config/ForPresentation/DashDefaultConfig.JSON')
+    return templates.TemplateResponse("ForPresentation/MWS_dash.html",{"request": request})
+
+@app.get("/grid", response_class=HTMLResponse)
+def read_root(request: Request):
+    global change_on_design
+    change_on_design = True
+    engine_interface.reinit_data_interface('config/ForPresentation/GridDefaultConfig.JSON')
+    return templates.TemplateResponse("ForPresentation/MWS_grid.html",{"request": request})
+
+@app.get("/api/DashDefaultLayout")
+async def get_settings():
+    try:
+        with open("config/ForPresentation/DashDefaultConfig.JSON", "r") as f1:
+            settings = json.load(f1)
+        return JSONResponse(content=settings)
+    except FileNotFoundError:
+        print("Layout configuration File not found!")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading settings: {str(e)}")
+        
+@app.get("/api/GridDefaultLayout")
+async def get_settings():
+    try:
+        with open("config/ForPresentation/GridDefaultConfig.JSON", "r") as f1:
+            settings = json.load(f1)
+        return JSONResponse(content=settings)
+    except FileNotFoundError:
+        print("Layout configuration File not found!")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading settings: {str(e)}")
+#----------------------------------------------------------------------------------------------
+
+
+
 def signal_handler(sig, frame):
     print("Signalhandler caught shutdown signal")
     engine_interface.shutdown()

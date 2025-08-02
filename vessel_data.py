@@ -225,12 +225,12 @@ class vessel_data_manager:
 		return data_array
  
  
-	def update_website_interface_description(self):
+	def update_website_interface_description(self, path=None):
 		# Allwos for external trigering of updating interface
-		self.web_data_interface = self._load_website_interface_description()
+		self.web_data_interface = self._load_website_interface_description(path)
  
  
-	def _load_website_interface_description(self):
+	def _load_website_interface_description(self, path=None):
 		"""
 		To not have to send all the available vessel information to the website, and filter it out there again,
 		the idea is to only send the required information in an array of floats in the order in which they're 
@@ -241,8 +241,12 @@ class vessel_data_manager:
 		array[2x(number of datafields)]
 		for each datafield: [Datatype, instance]
 		"""
-		with open('config/LayoutConfig.JSON', 'r', encoding='utf-8') as f:
-			page_config = json.load(f)
+		if not path:
+			with open('config/LayoutConfig.JSON', 'r', encoding='utf-8') as f:
+				page_config = json.load(f)
+		else:
+			with open(path, 'r', encoding='utf-8') as f:
+				page_config = json.load(f)
 
 		interface_description = []
 		for page in page_config.get("layouts", []):

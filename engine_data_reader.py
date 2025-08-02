@@ -97,9 +97,9 @@ class engine_data_interface:
 				self._start_Timer(self._adc_interval)
 				
 		
-	def reinit_data_interface(self):
+	def reinit_data_interface(self, path=None):
 		# can be called by primary thread if the user changed the Layout configuration
-		self.data_mngr.update_website_interface_description()
+		self.data_mngr.update_website_interface_description(path)
 		
 	def _read_can(self):
 		msg = self._can0.recv(RX_TIMEOUT)
