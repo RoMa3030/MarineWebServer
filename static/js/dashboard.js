@@ -209,10 +209,18 @@ function updateGridNumericField(dataField, meas_value) {
 function updateDashColumn(dataField, value) {
     const valueDiv = dataField.querySelector('.dash-column-number');
     const meter = dataField.querySelector('.dash-meter');
+        
+    if (meter.low && value <= meter.low) {
+        valueDiv.setAttribute('data-state', 'alarm');
+    }else if (meter.high && value >= meter.high) {
+        valueDiv.setAttribute('data-state', 'alarm');
+    }else{
+        valueDiv.removeAttribute('data-state');
+    }
     
     valueDiv.textContent = value.toString();
     meter.value = value; 
-    //updateMeterState(meter);    // required only for alarm function to also work on mozilla browsers   
+    updateMeterState(meter);    // required only for alarm function to also work on mozilla browsers   
 }
 
 function clearDashColumn(dataField) {
@@ -357,7 +365,6 @@ function renderLayout(layoutConfig) {
                     // 3rd-Card: Numerics 
                     const svCardsSections = [sections[6],sections[7],sections[8]];
                     dashGrid.appendChild(createDashCard_svCardsType(svCardsSections)); 
-                    
                     break;
                     
                 default:
@@ -509,7 +516,8 @@ function createCard(section, index, layoutConfig) {
                 columnMeter.value = minMeterValue;      // initialize empty gauge
                 if(dataField.alarm_low) {
                     columnMeter.low = dataField.alarm_low;
-                }if(dataField.alarm_high) {
+                }
+                if(dataField.alarm_high) {
                     columnMeter.high = dataField.alarm_high;
                 }
                 columnDfElement.appendChild(columnValue);
@@ -622,9 +630,10 @@ function createDashCard_Columns(columnSections) {
         columnDfElement.className = 'dash-column-content';
         columnDfElement.dataset.dataType = dataField.dataType;
         columnDfElement.dataset.instance = dataField.instance;
+        columnDfElement.dataset.alarm_low = dataField.alarm_low;
+        columnDfElement.dataset.alarm_high = dataField.alarm_high;       
         columnElement.appendChild(columnDfElement);
-    
-    
+        
         // create header container (to add icon and instance-description) 
         const dashColumnHeader = document.createElement('div');
         dashColumnHeader.className = 'dash-column-header';
@@ -647,7 +656,12 @@ function createDashCard_Columns(columnSections) {
         columnMeter.min = dataField.range_min;
         columnMeter.max = dataField.range_max;
         columnMeter.value = dataField.range_min;
-        //columnMeter.low = 10;       // evtl. adapt to custom alarm range
+        if(dataField.alarm_low) {
+            columnMeter.low = dataField.alarm_low;
+        }
+        if(dataField.alarm_high) {
+            columnMeter.high = dataField.alarm_high;
+        }
         columnDfElement.appendChild(columnMeter);
         
         // Insert numeric description

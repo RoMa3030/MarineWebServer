@@ -152,6 +152,9 @@ body {
     border-radius: 8px;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
+    /*In dash: chrome displayed meters the wrong way round - if in grid also present, uncomment these lines*/
+    /*transform: rotate(180deg);
+    width: 40px;*/
 }
 
 .grid-meter::-webkit-meter-optimum-value {
@@ -244,8 +247,23 @@ body {
 .dash-meter {
     writing-mode: vertical-lr; 
     display: flex;
-    /*align-items: end;*/
     height: 60%;
+    width: 40px;
+    appearance: none;
+    direction: rtl;
+    background: #e2e8f0;
+}
+.dash-meter::-webkit-meter-optimum-value {
+    background: #0D6431;
+}
+.dash-meter::-webkit-meter-even-less-good-value {
+    background: #E43806;
+}
+.dash-meter::-moz-meter-bar {
+    background: #0D6431;
+}
+.dash-meter[data-state='alarm']::-moz-meter-bar {
+    background: #E43806;
 }
 
 .dash-column-number {
@@ -254,6 +272,10 @@ body {
     color: #2c3e50;
     margin-bottom: 0.5rem;
     width: 80px;
+}
+
+.dash-column-number[data-state='alarm'] {
+    color: #C40A0A;
 }
 
 .dash-card .gauge-container {
