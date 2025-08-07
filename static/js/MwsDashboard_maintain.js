@@ -223,7 +223,7 @@ function updateMeterState(meter) {
 
 function getSectionType(dataField) {
     
-    if (dataField.classList.contains('dash-subgauge')) {        // this test must be placed before singleValue.
+    if (dataField.classList.contains('dash-subgauge')) {        // this case must be placed before singleValue.
         return 'Dash-Subgauge';
     }
     if (dataField.classList.contains('gauge-container')) {
@@ -260,11 +260,6 @@ function renderLayout(layoutConfig) {
     // Clear existing content
     container.innerHTML = '';
     
-    // Check if layoutConfig is valid
-    /*if (!layoutConfig || !layoutConfig.layouts) {
-        console.error('Invalid layout configuration');
-        return;
-    }*/
     // Check if layoutConfig is valid
     if (!layoutConfig || !Array.isArray(layoutConfig.layouts)) {
         console.error('Invalid layout configuration');
@@ -859,7 +854,7 @@ function getDefaultValueForDataType(dataType, unitSelection) {
         unitSelection = { length: 'm', temperature: 'C', pressure: 'bar', volume: 'L', speed: 'km/h' };
     }
     
-    // Check if we have the data type mappings loaded
+    // Check if the data type mappings are loaded
     if (appState.dataTypeMappings && 
         appState.dataTypeMappings.dataTypes && 
         appState.dataTypeMappings.dataTypes[dataType]) {
@@ -882,7 +877,6 @@ function getDefaultValueForDataType(dataType, unitSelection) {
                 unit = unitSelection.length;
                 break;
             case 'flow':
-                // Replace L with selected volume unit if not L
                 if (unitSelection.volume !== 'L') {
                     unit = unit.replace('L', unitSelection.volume) + '/h';
                 }
