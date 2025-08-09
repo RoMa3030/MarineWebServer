@@ -11,6 +11,20 @@
     <script src="{{ url_for('static', path='/js/MwsDashboard_init.js') }}"></script>
 </head>
     <body>
+        <header class="header">
+            <div class ="page-indicator">
+                Page <span id="current-page"> 1 </span> of <span id="total-pages"> 4 </span>
+            </div>
+            <nav class="header-nav">
+                <button class="nav-button" id="prev-page" onclick="prevPage()">
+                    <span class="arrow">◀</span>
+                </button>
+                <button class="nav-button" id="next-page" onclick="nextPage()">
+                    <span class="arrow">▶</span>
+                </button>
+            </nav>
+        </header>
+        
         <div class="container"></div>
     </body>
 </html>

@@ -1,3 +1,7 @@
+// Globals 
+let currentPage = 1;
+let totalPages = 1;
+
 
 //----------------------------------------------------------------------
 //  Function for keeping page updated
@@ -38,8 +42,8 @@ function updateEngineData() {
             console.error('Error fetching engine data:', error);
         })
         .finally(() => {
-            setTimeout(updateEngineData, 500);
-            
+            updatePageIndicator();              // enable/disable page scrolling options based on new layout
+            setTimeout(updateEngineData, 500);  // start engineData-polling-loop         
         });
 }
 
@@ -891,3 +895,35 @@ function getDefaultValueForDataType(dataType, unitSelection) {
     }
 }
   
+
+
+//----------------------------------------------------------------------
+//  Header / Page change
+//----------------------------------------------------------------------
+
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        updatePageIndicator();
+    }
+}
+
+function nextPage() {
+    if (currentPage < totalPages) {
+        currentPage--;
+        updatePageIndicator();
+    }
+}
+
+function updatePageIndicator() {
+    document.getElementById('current-page').textContent = currentPage;
+    document.getElementById('total-pages').textContent = totalPages;
+    
+    //disable buttons to prevent rollover
+    document.getElementById('prev-page').disabled = (currentPage === 1);
+    document.getElementById('next-page').disabled = (currentPage === totalPages);    
+}
+
+
+
+

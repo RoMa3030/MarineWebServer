@@ -14,6 +14,81 @@ body {
     box-sizing: border-box;
 }
 
+
+/************* HEADER *********************************************/
+.header {
+    background-color: #556984;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-bottom: 2px solid #333F4B;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-title {
+    /*   currently not used  */
+}
+
+.header-nav {
+    display: flex;
+    /*gap: 15;  - not supported on older browsers*/
+    
+}
+
+.nav-button {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 8 2px 4px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 8px; 
+    padding: 10px 14px;
+    margin-right: 15px;
+}
+.nav-button:hover {
+    background: linear-gradient(135deg, #3cb4f0, #3498db);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+.nav-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.nav-button:disabled {
+    background: #7f8c8d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.page-indicator {
+    background: rgba(52,73,94,0.8);
+    color: #ecf0f1;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid #546e7a;
+}
+
+
+.arrow {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+
+
 /************* GRID - STYLES **************************************/
 .grid {
     display: grid;
