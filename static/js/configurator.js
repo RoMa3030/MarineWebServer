@@ -208,8 +208,7 @@ function RenderDataFieldEditorList(dfEditorCollection_id, layout) {
         paramSelect.addEventListener('change', function(event) {
             const parent = event.target.parentElement;
             const selectedOpt = event.target.options[event.target.selectedIndex];
-            setDefaultRanges(selectedOpt, parent);
-            setDefaultAlarms(selectedOpt, parent);
+            setDefaultNumbers(selectedOpt, parent);
         });
 
         // Create instance label and select
@@ -895,7 +894,7 @@ async function savePageConfiguration() {
 
 
 
-function setDefaultRanges(selectedOpt, parent) {
+function setDefaultNumbers(selectedOption, parent) {
     const lvl1 = parent.dataset.level1_index;
     const lvl2 = parent.dataset.level2_index;
     const lvl3 = parent.dataset.subsection_index; // numerator e.g. in triple field
@@ -905,12 +904,212 @@ function setDefaultRanges(selectedOpt, parent) {
     const alarmLowInput = parent.querySelector(`#alarm-low-${lvl1}-${lvl2}-${lvl3}`);
     const alarmHighInput = parent.querySelector(`#alarm-high-${lvl1}-${lvl2}-${lvl3}`);
     
-    
-    
-}
-
-
-function setDefaultAlarms(selectedOpt, parent) {
+    switch(selectedOption) {
+        case '0': // Engine Speed
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 4000;
+            alarmLowInput.value = 500;
+            alarmHighInput.value = 3500;
+            break;
+        case '1': // Engine Oil Temperature
+            rangeMinInput.value = -40;
+            rangeMaxInput.value = 150;
+            alarmLowInput.value = 40;
+            alarmHighInput.value = 120;
+            break;
+        case '2': // Engine Oil Pressure
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 10;
+            alarmLowInput.value = 1;
+            alarmHighInput.value = 8;
+            break;
+        case '3': // Coolant Temperature
+            rangeMinInput.value = -40;
+            rangeMaxInput.value = 120;
+            alarmLowInput.value = 60;
+            alarmHighInput.value = 100;
+            break;
+        case '4': // Coolant Pressure
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 5;
+            alarmLowInput.value = 0.5;
+            alarmHighInput.value = 4;
+            break;
+        case '5': // Gear Oil Temperature
+            rangeMinInput.value = -40;
+            rangeMaxInput.value = 120;
+            alarmLowInput.value = 40;
+            alarmHighInput.value = 100;
+            break;
+        case '6': // Gear Oil Pressure
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 10;
+            alarmLowInput.value = 1;
+            alarmHighInput.value = 8;
+            break;
+        case '7': // Boost Pressure
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 3;
+            alarmLowInput.value = 0.2;
+            alarmHighInput.value = 2.5;
+            break;
+        case '8': // Trim
+            rangeMinInput.value = -100;
+            rangeMaxInput.value = 100;
+            alarmLowInput.value = -80;
+            alarmHighInput.value = 80;
+            break;
+        case '9': // Rudder
+            rangeMinInput.value = -45;
+            rangeMaxInput.value = 45;
+            alarmLowInput.value = -40;
+            alarmHighInput.value = 40;
+            break;
+        case '10': // Fuel Rate
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 100;
+            alarmLowInput.value = 5;
+            alarmHighInput.value = 80;
+            break;
+        case '11': // Engine Hours
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 10000;
+            alarmLowInput.value = '';
+            alarmHighInput.value = 8000;
+            break;
+        case '12': // Fuel Pressure
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 10;
+            alarmLowInput.value = 1;
+            alarmHighInput.value = 8;
+            break;
+        case '15': // Engine Load
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 100;
+            alarmLowInput.value = 10;
+            alarmHighInput.value = 90;
+            break;
+        case '16': // Engine Torque
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 100;
+            alarmLowInput.value = 10;
+            alarmHighInput.value = 90;
+            break;
+        case '17': // Battery Potential
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 15;
+            alarmLowInput.value = 10.5;
+            alarmHighInput.value = 14.5;
+            break;
+        case '18': // Alternator Potential
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 16;
+            alarmLowInput.value = 12;
+            alarmHighInput.value = 15;
+            break;
+        case '19': // Current
+            rangeMinInput.value = -200;
+            rangeMaxInput.value = 200;
+            alarmLowInput.value = -150;
+            alarmHighInput.value = 150;
+            break;
+        case '20': // Battery Temperature
+            rangeMinInput.value = -20;
+            rangeMaxInput.value = 60;
+            alarmLowInput.value = 0;
+            alarmHighInput.value = 50;
+            break;
+        case '21': // State of Charge
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 100;
+            alarmLowInput.value = 20;
+            alarmHighInput.value = '';
+            break;
+        case '22': // State of Health
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 100;
+            alarmLowInput.value = 70;
+            alarmHighInput.value = '';
+            break;
+        case '23': // Battery Autonomy
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 24;
+            alarmLowInput.value = 2;
+            alarmHighInput.value = '';
+            break;
+        case '24': // Fuel Level
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 100;
+            alarmLowInput.value = 10;
+            alarmHighInput.value = '';
+            break;
+        case '25': // Fresh Water Level
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 100;
+            alarmLowInput.value = 10;
+            alarmHighInput.value = '';
+            break;
+        case '26': // Waste Level
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 100;
+            alarmLowInput.value = '';
+            alarmHighInput.value = 90;
+            break;
+        case '27': // Live Well Level
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 100;
+            alarmLowInput.value = 10;
+            alarmHighInput.value = '';
+            break;
+        case '28': // Oil Level
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 100;
+            alarmLowInput.value = 20;
+            alarmHighInput.value = '';
+            break;
+        case '29': // Black Water Level
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 100;
+            alarmLowInput.value = '';
+            alarmHighInput.value = 90;
+            break;
+        case '36': // Sea Temperature
+            rangeMinInput.value = -5;
+            rangeMaxInput.value = 40;
+            alarmLowInput.value = 0;
+            alarmHighInput.value = 35;
+            break;
+        case '37': // Outside Temperature
+            rangeMinInput.value = -40;
+            rangeMaxInput.value = 60;
+            alarmLowInput.value = -20;
+            alarmHighInput.value = 50;
+            break;
+        case '38': // Exhaust Gas Temperature
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 800;
+            alarmLowInput.value = 200;
+            alarmHighInput.value = 650;
+            break;
+        case '39': // GPS Speed
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 50;
+            alarmLowInput.value = '';
+            alarmHighInput.value = 40;
+            break;
+        case '40': // Speed to Water
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 50;
+            alarmLowInput.value = '';
+            alarmHighInput.value = 40;
+            break;
+        default:
+            // Clear all values for unknown parameters
+            rangeMinInput.value = '';
+            rangeMaxInput.value = '';
+            alarmLowInput.value = '';
+            alarmHighInput.value = '';
+    }
     
 }
 
