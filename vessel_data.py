@@ -201,9 +201,7 @@ class vessel_data_manager:
 
 	
 	def get_updated_web_values(self, page):
-		#page: as displayed on website (starting from 1)
-		print(f"Reuested data for PAGE: {page}");
-		
+		#page: as displayed on website (starting from 1)		
 		data_array = []
 		if (page > len(self.web_data_interface)):
 			print ("Error: requested data for undefined page")

@@ -23,10 +23,8 @@ async function initDashboardWebPage() {
         // Store in application state
         appState.settings = settings;
         appState.dataTypeMappings = dataTypeMappings;
-        
+
         renderLayout(appState.settings);
-        updatePageIndicator();              // enable/disable page scrolling options based on new layout
-        
     } catch (error) {
         console.log('Failed to initialize page layout');
         console.log(error)
@@ -38,12 +36,12 @@ async function initDashboardWebPage() {
 
 async function fetchSettings() {
     try {
-        const response = await fetch('/api/LayoutConfiguration');
+        const response = await fetch('/api/MPDefaultLayout');
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const layoutConfig = await response.json();
-        //console.log('Settings loaded:', layoutConfig);
+        console.log('Settings loaded:', layoutConfig);
         return layoutConfig;
     } catch (error) {
         console.error('Error fetching layout configuration:', error);
@@ -58,7 +56,7 @@ async function fetchDataTypeMappings() {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const mappings = await response.json();
-        //console.log('Data type mappings loaded:', mappings);
+        console.log('Data type mappings loaded:', mappings);
         return mappings;
     } catch (error) {
         console.error('Error fetching data type mappings:', error);

@@ -53,7 +53,7 @@
       "10": {
         "label": "Fuel Rate",
         "unit": "none",
-        "unitType": "Flow"
+        "unitType": "flow"
       },
       "11": {
         "label": "Engine Hours",

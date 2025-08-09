@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marine Webserver</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/MWS_Styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', path='/favicon.ico') }}">
+    <script src="{{ url_for('static', path='/js/gauges.js') }}"></script>  <!-- must be added BEFORE /MwsDashboard_init.js -->
+    <script src="{{ url_for('static', path='/js/MwsDashboard_maintain.js') }}"></script> <!-- must be added BEFORE /MwsDashboard_init.js -->
+    <script src="{{ url_for('static', path='/js/ForPresentation/Present_MP.js') }}"></script>
+</head>
+    <body>
+        <header class="header">
+            <div class ="page-indicator">
+                Page <span id="current-page"> 1 </span> of <span id="total-pages"> 4 </span>
+            </div>
+            <nav class="header-nav">
+                <button class="nav-button" id="prev-page" onclick="prevPage()">
+                    <span class="arrow">◀</span>
+                </button>
+                <button class="nav-button" id="next-page" onclick="nextPage()">
+                    <span class="arrow">▶</span>
+                </button>
+            </nav>
+        </header>
+        
+        <div class="container"></div>
+    </body>
+</html>

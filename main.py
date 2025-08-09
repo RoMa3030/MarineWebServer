@@ -224,6 +224,13 @@ def read_root(request: Request):
     change_on_design = True
     engine_interface.reinit_data_interface('config/ForPresentation/GridDefaultConfig.JSON')
     return templates.TemplateResponse("ForPresentation/MWS_grid.html",{"request": request})
+    
+@app.get("/example", response_class=HTMLResponse)
+def read_root(request: Request):
+    global change_on_design
+    change_on_design = True
+    engine_interface.reinit_data_interface('config/ForPresentation/MPDefaultConfig.JSON')
+    return templates.TemplateResponse("ForPresentation/MWS_MP.html",{"request": request})
 
 @app.get("/api/DashDefaultLayout")
 async def get_settings():
@@ -240,6 +247,17 @@ async def get_settings():
 async def get_settings():
     try:
         with open("config/ForPresentation/GridDefaultConfig.JSON", "r") as f1:
+            settings = json.load(f1)
+        return JSONResponse(content=settings)
+    except FileNotFoundError:
+        print("Layout configuration File not found!")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading settings: {str(e)}")
+        
+@app.get("/api/MPDefaultLayout")
+async def get_settings():
+    try:
+        with open("config/ForPresentation/MPDefaultConfig.JSON", "r") as f1:
             settings = json.load(f1)
         return JSONResponse(content=settings)
     except FileNotFoundError:

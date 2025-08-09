@@ -1,0 +1,254 @@
+{
+  "unitSelection": {
+    "length": "m",
+    "temperature": "C",
+    "pressure": "bar",
+    "volume": "L",
+    "speed": "km/h"
+  },
+  "engineDesignations": [
+    "Engine 1",
+    "Engine 2",
+    "Engine 3",
+    "Engine 4"
+  ],
+  "layouts": [
+    {
+      "level1Type": "Grid_3_2",
+      "sections": [
+        {
+          "level2Type": "Gauge",
+          "dataFields": [
+            {
+              "dataType": 0,
+              "instance": 0,
+              "range_min": 0,
+              "range_max": 5000,
+              "alarm_low": null,
+              "alarm_high": 4000
+            }
+          ]
+        },
+        {
+          "level2Type": "SingleValue",
+          "dataFields": [
+            {
+              "dataType": 17,
+              "instance": 0,
+              "range_min": 8,
+              "range_max": 18,
+              "alarm_low": 11.5,
+              "alarm_high": 15
+            }
+          ]
+        },
+        {
+          "level2Type": "TripleValue",
+          "dataFields": [
+            {
+              "dataType": 1,
+              "instance": 0,
+              "range_min": 50,
+              "range_max": 150,
+              "alarm_low": null,
+              "alarm_high": 120
+            },
+            {
+              "dataType": 2,
+              "instance": 0,
+              "range_min": 0,
+              "range_max": 10,
+              "alarm_low": 2,
+              "alarm_high": null
+            },
+            {
+              "dataType": 3,
+              "instance": 0,
+              "range_min": 40,
+              "range_max": 120,
+              "alarm_low": null,
+              "alarm_high": 100
+            }
+          ]
+        },
+        {
+          "level2Type": "Columns",
+          "dataFields": [
+            {
+              "dataType": 24,
+              "instance": 0,
+              "range_min": 0,
+              "range_max": 100,
+              "alarm_low": 25,
+              "alarm_high": null
+            },
+            {
+              "dataType": 25,
+              "instance": 0,
+              "range_min": 0,
+              "range_max": 100,
+              "alarm_low": 25,
+              "alarm_high": null
+            },
+            {
+              "dataType": 26,
+              "instance": 0,
+              "range_min": 0,
+              "range_max": 100,
+              "alarm_low": null,
+              "alarm_high": 75
+            }
+          ]
+        },
+        {
+          "level2Type": "Gauge",
+          "dataFields": [
+            {
+              "dataType": 17,
+              "instance": 0,
+              "range_min": 8,
+              "range_max": 18,
+              "alarm_low": 11.5,
+              "alarm_high": 15
+            }
+          ]
+        },
+        {
+          "level2Type": "SingleValue",
+          "dataFields": [
+            {
+              "dataType": 39,
+              "instance": 0,
+              "range_min": 0,
+              "range_max": 200,
+              "alarm_low": null,
+              "alarm_high": 120
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "level1Type": "Dash",
+      "sections": [
+        {
+          "level2Type": "dashField",
+          "dataFields": [
+            {
+              "dataType": 24,
+              "instance": 0,
+              "range_min": 0,
+              "range_max": 100,
+              "alarm_low": 20,
+              "alarm_high": null
+            }
+          ]
+        },
+        {
+          "level2Type": "dashField",
+          "dataFields": [
+            {
+              "dataType": 3,
+              "instance": 0,
+              "range_min": 40,
+              "range_max": 120,
+              "alarm_low": null,
+              "alarm_high": 100
+            }
+          ]
+        },
+        {
+          "level2Type": "dashField",
+          "dataFields": [
+            {
+              "dataType": 2,
+              "instance": 0,
+              "range_min": 0,
+              "range_max": 10,
+              "alarm_low": 1.5,
+              "alarm_high": null
+            }
+          ]
+        },
+        {
+          "level2Type": "dashField",
+          "dataFields": [
+            {
+              "dataType": 0,
+              "instance": 0,
+              "range_min": 0,
+              "range_max": 5000,
+              "alarm_low": null,
+              "alarm_high": 4000
+            }
+          ]
+        },
+        {
+          "level2Type": "dashField",
+          "dataFields": [
+            {
+              "dataType": 39,
+              "instance": 0,
+              "range_min": 0,
+              "range_max": 200,
+              "alarm_low": null,
+              "alarm_high": 120
+            }
+          ]
+        },
+        {
+          "level2Type": "dashField",
+          "dataFields": [
+            {
+              "dataType": 9,
+              "instance": 0,
+              "range_min": -50,
+              "range_max": 50,
+              "alarm_low": null,
+              "alarm_high": null
+            }
+          ]
+        },
+        {
+          "level2Type": "dashField",
+          "dataFields": [
+            {
+              "dataType": 8,
+              "instance": 0,
+              "range_min": 0,
+              "range_max": 100,
+              "alarm_low": null,
+              "alarm_high": null
+            }
+          ]
+        },
+        {
+          "level2Type": "dashField",
+          "dataFields": [
+            {
+              "dataType": 17,
+              "instance": 0,
+              "range_min": 8,
+              "range_max": 18,
+              "alarm_low": 11.5,
+              "alarm_high": 15
+            }
+          ]
+        },
+        {
+          "level2Type": "dashField",
+          "dataFields": [
+            {
+              "dataType": 36,
+              "instance": 0,
+              "range_min": -20,
+              "range_max": 50,
+              "alarm_low": null,
+              "alarm_high": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

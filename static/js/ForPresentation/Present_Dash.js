@@ -23,9 +23,7 @@ async function initDashboardWebPage() {
         // Store in application state
         appState.settings = settings;
         appState.dataTypeMappings = dataTypeMappings;
-
         renderLayout(appState.settings);
-        initializeGauges(appState.settings);
     } catch (error) {
         console.log('Failed to initialize page layout');
         console.log(error)

@@ -1,7 +1,7 @@
 // Globals 
 let currentPage = 1;
 let totalPages = 1;
-const ENGINEDATA_UPDATE_INTERVAL = 5000; //ms
+const ENGINEDATA_UPDATE_INTERVAL = 500; //ms
 
 //----------------------------------------------------------------------
 //  Function for keeping page updated
@@ -32,6 +32,7 @@ function updateEngineData() {
                 if(engDataResponse === "UPDATING-PAGE-REQUIRED") {
                     console.log("Server requested the webpage to be rendered freshly");
                     initDashboardWebPage();
+                    currentPage = 1; // ensure one doesn't end up on non-existing page after reload
                 }
             }else{
                 console.error("Unexpected data type received from EngineData-API", typeof engDataResponse, engDataResponse);
@@ -331,6 +332,7 @@ function renderLayout(layoutConfig) {
             console.error('The defined Level-1-Layout type is not supported yet.');
             break;
     }
+    initializeGauges(appState.settings);
 }
 
 

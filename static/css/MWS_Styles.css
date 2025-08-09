@@ -39,7 +39,7 @@ body {
 }
 
 .nav-button {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, #16416E, #18497C);
     color: white;
     border: none;
     border-radius: 8px;
@@ -55,7 +55,7 @@ body {
     margin-right: 15px;
 }
 .nav-button:hover {
-    background: linear-gradient(135deg, #3cb4f0, #3498db);
+    background: linear-gradient(135deg, #2867A9, #114A85);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
@@ -64,7 +64,7 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .nav-button:disabled {
-    background: #7f8c8d;
+    background: #445E79;
     cursor: not-allowed;
     transform: none;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
@@ -80,13 +80,10 @@ body {
     border: 1px solid #546e7a;
 }
 
-
 .arrow {
     font-size: 1.2rem;
     font-weight: bold;
 }
-
-
 
 /************* GRID - STYLES **************************************/
 .grid {
