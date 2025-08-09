@@ -1,7 +1,7 @@
 // Globals 
 let currentPage = 1;
 let totalPages = 1;
-
+const ENGINEDATA_UPDATE_INTERVAL = 5000; //ms
 
 //----------------------------------------------------------------------
 //  Function for keeping page updated
@@ -42,8 +42,7 @@ function updateEngineData() {
             console.error('Error fetching engine data:', error);
         })
         .finally(() => {
-            updatePageIndicator();              // enable/disable page scrolling options based on new layout
-            setTimeout(updateEngineData, 500);  // start engineData-polling-loop         
+            setTimeout(updateEngineData, ENGINEDATA_UPDATE_INTERVAL);  // start engineData-polling-loop         
         });
 }
 
@@ -269,60 +268,69 @@ function renderLayout(layoutConfig) {
         console.error('Invalid layout configuration');
         return;
     } 
+    
+    // Ensure selected page(currently active page) is within the number of defined layouts
+    totalPages = layoutConfig.layouts.length;
+    let currentPageIndex = currentPage-1;
+    if(currentPageIndex > (totalPages-1)) {
+        console.log("unexpected case: tried reding from non existing page-layout (upper end)");
+        currentPage = totalPages;
+        currentPageIndex = totalPages-1;
+        updatePageIndicator();
+    }else if(currentPageIndex < 0){
+        console.log("unexpected case: tried reding from non existing page-layout (lower end)");
+        currentPage = 1;
+        currentPageIndex = 0;
+        updatePageIndicator();
+    }
+    
+    const Lvl1Layout = layoutConfig.layouts[currentPageIndex];
+    const sections = Lvl1Layout.sections || [];
+    switch (Lvl1Layout.level1Type) {
+        case 'Grid_3_2':                    
+            // Create the fixed 3x2 grid
+            const grid = document.createElement('div');
+            grid.className = 'grid';
+            //console.log('Grid element created');
 
-    layoutConfig.layouts.forEach((Lvl1Layout, layoutIndex) => {
-        // code is currently not suitable for web-app that displays several pages -> layouts after page1 are ignored
-        if(layoutIndex === 0) {
-            const sections = Lvl1Layout.sections || [];
-            switch (Lvl1Layout.level1Type) {
-                case 'Grid_3_2':                    
-                    // Create the fixed 3x2 grid
-                    const grid = document.createElement('div');
-                    grid.className = 'grid';
-                    console.log('Grid element created');
-
-                    //console.log('sections: ',sections)
-                    // Create exactly 6 cards (3x2 grid)
-                    let indexOffset = 0;    // offset to keep track about dataField-count relative to section-count
-                                            // (if 1st section is triple: section2 doesnt start with 2nd df - instead: 2+offset(2) = 4th)
-                    for (let index = 0; index < 6; index++) {
-                        //console.log('Added Card nr. ', index);
-                        const section = sections[index] || {}; // Use empty object if section doesn't exist
-                        const {card: card, additionalIndex: additionalOffset} = createCard(section, (index+1+indexOffset), layoutConfig);
-                        indexOffset += additionalOffset;
-                        grid.appendChild(card);
-                    }
-                    
-                    container.appendChild(grid);
-                    break;
-                case 'Dash':                    
-                    // Adding a grid (3 cells horizontally) 
-                    const dashGrid = document.createElement('Div');
-                    dashGrid.className = 'dash-grid';
-                    container.appendChild(dashGrid);
-                    
-                    // Adding three cards.
-                    // 1st-card: ColumnCard
-                    const columnSections = [sections[0],sections[1],sections[2]];
-                    dashGrid.appendChild(createDashCard_Columns(columnSections)); 
-                    
-                    // 2nd-Card: MiddleCard
-                    const MiddleSections = [sections[3],sections[4],sections[5]];
-                    dashGrid.appendChild(createDashCard_MiddleCard(MiddleSections));  
-                    
-                    // 3rd-Card: Numerics 
-                    const svCardsSections = [sections[6],sections[7],sections[8]];
-                    dashGrid.appendChild(createDashCard_svCardsType(svCardsSections)); 
-                    break;
-                    
-                default:
-                    console.error('The defined Level-1-Layout type is not supported yet.');
-                    break;
+            //console.log('sections: ',sections)
+            // Create exactly 6 cards (3x2 grid)
+            let indexOffset = 0;    // offset to keep track about dataField-count relative to section-count
+                                    // (if 1st section is triple: section2 doesnt start with 2nd df - instead: 2+offset(2) = 4th)
+            for (let index = 0; index < 6; index++) {
+                //console.log('Added Card nr. ', index);
+                const section = sections[index] || {}; // Use empty object if section doesn't exist
+                const {card: card, additionalIndex: additionalOffset} = createCard(section, (index+1+indexOffset), layoutConfig);
+                indexOffset += additionalOffset;
+                grid.appendChild(card);
             }
-        }else{
-            console.log("Layouts with several pages are not supported yet");
-        }
-    });
+            
+            container.appendChild(grid);
+            break;
+        case 'Dash':                    
+            // Adding a grid (3 cells horizontally) 
+            const dashGrid = document.createElement('Div');
+            dashGrid.className = 'dash-grid';
+            container.appendChild(dashGrid);
+            
+            // Adding three cards.
+            // 1st-card: ColumnCard
+            const columnSections = [sections[0],sections[1],sections[2]];
+            dashGrid.appendChild(createDashCard_Columns(columnSections)); 
+            
+            // 2nd-Card: MiddleCard
+            const MiddleSections = [sections[3],sections[4],sections[5]];
+            dashGrid.appendChild(createDashCard_MiddleCard(MiddleSections));  
+            
+            // 3rd-Card: Numerics 
+            const svCardsSections = [sections[6],sections[7],sections[8]];
+            dashGrid.appendChild(createDashCard_svCardsType(svCardsSections)); 
+            break;
+            
+        default:
+            console.error('The defined Level-1-Layout type is not supported yet.');
+            break;
+    }
 }
 
 
@@ -543,7 +551,7 @@ function initializeGauges() {
         const max = parseFloat(container.dataset.max);
         const unit = getUnit(dataType);
 
-        console.log(`Initializing gauge: ${container.id}, dataType: ${dataType}, instance: ${instance}, range: ${min}-${max}`);
+        //console.log(`Initializing gauge: ${container.id}, dataType: ${dataType}, instance: ${instance}, range: ${min}-${max}`);
         const dataTypeTitle = getLabelForDataType(dataType);
         const initVal = min;
         createGauge(container.id, initVal, min, max, unit, instance, dataTypeTitle);
@@ -905,13 +913,15 @@ function prevPage() {
     if (currentPage > 1) {
         currentPage--;
         updatePageIndicator();
+        renderLayout(appState.settings);
     }
 }
 
 function nextPage() {
     if (currentPage < totalPages) {
-        currentPage--;
+        currentPage++;
         updatePageIndicator();
+        renderLayout(appState.settings);
     }
 }
 
