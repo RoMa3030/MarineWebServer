@@ -195,6 +195,7 @@ function RenderDataFieldEditorList(dfEditorCollection_id, layout) {
         // Add dataset values - will probably allow to make for an easier parser (go through all datatypes and ignore the parent containers)
         dfEditor.dataset.level1_index = level1_index;
         dfEditor.dataset.level2_index = level2_index;
+        dfEditor.dataset.subsection_index = dfIndex;
         dfecDiv.appendChild(dfEditor);
         
         // Create parameter label and select
@@ -204,6 +205,12 @@ function RenderDataFieldEditorList(dfEditorCollection_id, layout) {
 
         const paramSelect = document.createElement('select');
         paramSelect.id = `param-${level1_index}-${level2_index}-${dfIndex}`;
+        paramSelect.addEventListener('change', function(event) {
+            const parent = event.target.parentElement;
+            const selectedOpt = event.target.options[event.target.selectedIndex];
+            setDefaultRanges(selectedOpt, parent);
+            setDefaultAlarms(selectedOpt, parent);
+        });
 
         // Create instance label and select
         const instanceLabel = document.createElement('label');
@@ -883,5 +890,27 @@ async function savePageConfiguration() {
         console.error('Error in save process:', error);
         return null;
     }
+}
+
+
+
+
+function setDefaultRanges(selectedOpt, parent) {
+    const lvl1 = parent.dataset.level1_index;
+    const lvl2 = parent.dataset.level2_index;
+    const lvl3 = parent.dataset.subsection_index; // numerator e.g. in triple field
+    
+    const rangeMinInput = parent.querySelector(`#range-min-${lvl1}-${lvl2}-${lvl3}`);
+    const rangeMaxInput = parent.querySelector(`#range-max-${lvl1}-${lvl2}-${lvl3}`);
+    const alarmLowInput = parent.querySelector(`#alarm-low-${lvl1}-${lvl2}-${lvl3}`);
+    const alarmHighInput = parent.querySelector(`#alarm-high-${lvl1}-${lvl2}-${lvl3}`);
+    
+    
+    
+}
+
+
+function setDefaultAlarms(selectedOpt, parent) {
+    
 }
 
