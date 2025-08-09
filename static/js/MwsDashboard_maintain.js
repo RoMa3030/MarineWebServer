@@ -7,7 +7,7 @@ const ENGINEDATA_UPDATE_INTERVAL = 5000; //ms
 //  Function for keeping page updated
 //----------------------------------------------------------------------
 function updateEngineData() {
-    fetch('/api/engine-data')
+    fetch(`/api/engine-data/${currentPage}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);

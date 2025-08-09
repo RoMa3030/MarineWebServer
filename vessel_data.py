@@ -200,9 +200,17 @@ class vessel_data_manager:
 		return float('nan')
 
 	
-	def get_updated_web_values(self):
+	def get_updated_web_values(self, page):
+		#page: as displayed on website (starting from 1)
+		print(f"Reuested data for PAGE: {page}");
+		
 		data_array = []
-		for data_point in self.web_data_interface:
+		if (page > len(self.web_data_interface)):
+			print ("Error: requested data for undefined page")
+			return [float('nan')];
+		
+		page_index = page-1
+		for data_point in self.web_data_interface[page_index]:
 			parameter = data_point[0]
 			instance = data_point[1]
 			if (parameter in self._data):
@@ -250,18 +258,21 @@ class vessel_data_manager:
 
 		interface_description = []
 		for page in page_config.get("layouts", []):
+			page_description = []
 			for section in page.get("sections", []):
 				for field in section.get("dataFields", []):
 					instance = field.get("instance")
 					data_type = parameter_type(field.get("dataType"))
-					interface_description.append([data_type, instance])
+					page_description.append([data_type, instance])
+			interface_description.append(page_description);
 					
-		print("This desribes the loaded interface")
+		print("This desribes the new/current website-interface")
 		print(interface_description) 		
 		return interface_description
 		
   
 	def create_fake_data_for_testing(self):
+		# probably deprecated and non-functional after implementing multi-page layout functionality
 		val = 50.123
 		for data_point in self.web_data_interface:
 			parameter = data_point[0]

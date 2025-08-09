@@ -152,15 +152,14 @@ async def get_engine_icon(index: int):
     return {"icon_url": icon_path}
 
 
-@app.get("/api/engine-data")
-def get_engine_data():
+@app.get("/api/engine-data/{page}")
+def get_engine_data(page: int):
     global change_on_design
-    
     if change_on_design:
         change_on_design = False;
         return "UPDATING-PAGE-REQUIRED"
     else:
-        return engine_interface.get_current_engine_data()
+        return engine_interface.get_current_engine_data(page)
     
 #--------------------------------------------------------------------------------------
 @app.get("/Config", response_class=HTMLResponse)
