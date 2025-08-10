@@ -76,6 +76,23 @@ h3 {
     margin-right: 15px;
 }
 
+.dfeditor-unit-field {
+    margin-top: 10px;
+}
+
+.dfeditor-unit-label {
+    font-size: 1em;
+    font-weight: bold;
+    color: #333;
+    margin-right: 10px;
+}
+.dfeditor-unit-hint {
+    font-size: 1em;
+    color: #333;
+    font-weight: normal;
+}
+
+
 /* Label Styling */
 label {
     font-size: 1em;

@@ -209,6 +209,7 @@ function RenderDataFieldEditorList(dfEditorCollection_id, layout) {
             const parent = event.target.parentElement;
             const selectedOpt = event.target.options[event.target.selectedIndex];
             setDefaultNumbers(selectedOpt, parent);
+            changeUnitHint(selectedOpt, parent);
         });
 
         // Create instance label and select
@@ -224,6 +225,21 @@ function RenderDataFieldEditorList(dfEditorCollection_id, layout) {
             optionElement.textContent = i;
             instanceSelect.appendChild(optionElement);
         }
+
+        // Add field for Unit indication
+        const unitField = document.createElement('div');
+        unitField.className = 'dfeditor-unit-field';
+        unitField.id = `unit-field-${level1_index}-${level2_index}-${dfIndex}`;
+        const unitLabel = document.createElement('label');
+        unitLabel.className = "dfeditor-unit-label";
+        unitLabel.textContent = "Unit: ";
+        unitField.appendChild(unitLabel);
+        const unitHint = document.createElement('label');
+        unitHint.className = "dfeditor-unit-hint";
+        unitHint.id = `unit-hint-${level1_index}-${level2_index}-${dfIndex}`;
+        unitHint.textContent = "";
+        unitField.appendChild(unitHint);
+
 
         // Add fields for range selection
         const rangeField = document.createElement('div');
@@ -288,6 +304,8 @@ function RenderDataFieldEditorList(dfEditorCollection_id, layout) {
         dfEditor.appendChild(instanceLabel);
         dfEditor.appendChild(instanceSelect);
         dfEditor.append(instanceSelect, document.createElement('br'));
+        dfEditor.appendChild(unitField);
+        //dfEditor.append(unitField, document.createElement('br'));
         dfEditor.appendChild(rangeField);
         dfEditor.appendChild(alarmField);
         dfEditor.append(alarmField, document.createElement('br'));
@@ -893,6 +911,89 @@ async function savePageConfiguration() {
 
 
 
+function changeUnitHint(selectedOpt, parent) {
+    const lvl1 = parent.dataset.level1_index;
+    const lvl2 = parent.dataset.level2_index;
+    const lvl3 = parent.dataset.subsection_index; // numerator e.g. in triple field
+    
+    const unitHintLabel = parent.querySelector(`#unit-hint-${lvl1}-${lvl2}-${lvl3}`);
+    const index = selectedOpt.value;
+    
+    
+    if (mappings && 
+        mappings.dataTypes && 
+        mappings.dataTypes[index] &&
+        mappings.dataTypes[index].unit &&
+        (mappings.dataTypes[index].unit != 'none')
+        ) {
+        unitHintLabel.textContent = mappings.dataTypes[index].unit;
+        return;
+    }
+    
+    if (mappings && 
+        mappings.dataTypes && 
+        mappings.dataTypes[index] &&
+        mappings.dataTypes[index].unitType
+        ) {
+        unitHintLabel.textContent = getUnitfromUnitType(mappings.dataTypes[index].unitType);
+        return;
+    }
+    // in error-case, where no value was defined: clear text
+    unitHintLabel.textContent = "";
+}
+
+function getUnitfromUnitType(uType) {
+    let unit = "";
+    
+    switch (uType) {
+        case 'temperature':
+            const tempSelect = document.getElementById('sel-unitTemperature');
+            switch(tempSelect.value) {
+                case 'Celcius': unit="°C"; break;
+                case 'Fahrenheit': unit="°F"; break;
+            }
+            break;
+        case 'pressure':
+            const pressSelect = document.getElementById('sel-unitPressure');
+            switch(pressSelect.value) {
+                case 'bar': unit="bar"; break;
+                case 'psi': unit="psi"; break;
+            }
+            break;
+        case 'volume':
+            const volSelect = document.getElementById('sel-unitVolume');
+            switch(volSelect.value) {
+                case 'Liter': unit="Liter"; break;
+                case 'Gallon': unit="Gallon"; break;
+            }
+            break;
+        case 'length':
+            const lenSelect = document.getElementById('sel-unitLength');
+            switch(lenSelect.value) {
+                case 'Metric': unit="m"; break;
+                case 'Imperial': unit="ft"; break;
+                case 'Nautic': unit="m"; break;
+            }
+            break;
+        case 'flow':
+            const vSelect = document.getElementById('sel-unitVolume');
+            switch(vSelect.value) {
+                case 'Liter': unit="L/h"; break;
+                case 'Gallon': unit="Gal/h"; break;
+            }
+            break;
+        case 'speed':
+            const velSelect = document.getElementById('sel-unitSpeed');
+            switch(velSelect.value) {
+                case 'Metric': unit="km/h"; break;
+                case 'Imperial': unit="mph"; break;
+                case 'Nautic': unit="knots"; break;
+            }
+            break;
+    }
+    return unit;
+}
+
 
 function setDefaultNumbers(selectedOption, parent) {
     const lvl1 = parent.dataset.level1_index;
@@ -904,108 +1005,108 @@ function setDefaultNumbers(selectedOption, parent) {
     const alarmLowInput = parent.querySelector(`#alarm-low-${lvl1}-${lvl2}-${lvl3}`);
     const alarmHighInput = parent.querySelector(`#alarm-high-${lvl1}-${lvl2}-${lvl3}`);
     
-    switch(selectedOption) {
+    switch(selectedOption.value) {
         case '0': // Engine Speed
             rangeMinInput.value = 0;
-            rangeMaxInput.value = 4000;
-            alarmLowInput.value = 500;
-            alarmHighInput.value = 3500;
+            rangeMaxInput.value = 5000;
+            alarmLowInput.value = '';
+            alarmHighInput.value = 4500;
             break;
         case '1': // Engine Oil Temperature
-            rangeMinInput.value = -40;
-            rangeMaxInput.value = 150;
-            alarmLowInput.value = 40;
-            alarmHighInput.value = 120;
+            rangeMinInput.value = ConvertDefaultToUserUnit('temperature',50);
+            rangeMaxInput.value = ConvertDefaultToUserUnit('temperature',150);
+            alarmLowInput.value = '';
+            alarmHighInput.value = ConvertDefaultToUserUnit('temperature',125);
             break;
         case '2': // Engine Oil Pressure
             rangeMinInput.value = 0;
-            rangeMaxInput.value = 10;
-            alarmLowInput.value = 1;
-            alarmHighInput.value = 8;
+            rangeMaxInput.value = ConvertDefaultToUserUnit('pressure',5);
+            alarmLowInput.value = ConvertDefaultToUserUnit('pressure',1.2);
+            alarmHighInput.value = '';
             break;
         case '3': // Coolant Temperature
-            rangeMinInput.value = -40;
-            rangeMaxInput.value = 120;
-            alarmLowInput.value = 60;
-            alarmHighInput.value = 100;
+            rangeMinInput.value = ConvertDefaultToUserUnit('temperature',40);
+            rangeMaxInput.value = ConvertDefaultToUserUnit('temperature',120);
+            alarmLowInput.value = '';
+            alarmHighInput.value = ConvertDefaultToUserUnit('temperature',100);
             break;
         case '4': // Coolant Pressure
             rangeMinInput.value = 0;
-            rangeMaxInput.value = 5;
-            alarmLowInput.value = 0.5;
-            alarmHighInput.value = 4;
+            rangeMaxInput.value = ConvertDefaultToUserUnit('pressure',5);
+            alarmLowInput.value = '';
+            alarmHighInput.value = '';
             break;
         case '5': // Gear Oil Temperature
-            rangeMinInput.value = -40;
-            rangeMaxInput.value = 120;
-            alarmLowInput.value = 40;
-            alarmHighInput.value = 100;
+            rangeMinInput.value = ConvertDefaultToUserUnit('temperature',50);
+            rangeMaxInput.value = ConvertDefaultToUserUnit('temperature',150);
+            alarmLowInput.value = '';
+            alarmHighInput.value = ConvertDefaultToUserUnit('temperature',125);
             break;
         case '6': // Gear Oil Pressure
             rangeMinInput.value = 0;
-            rangeMaxInput.value = 10;
-            alarmLowInput.value = 1;
-            alarmHighInput.value = 8;
+            rangeMaxInput.value = ConvertDefaultToUserUnit('pressure',10);
+            alarmLowInput.value = ConvertDefaultToUserUnit('pressure',1.8);
+            alarmHighInput.value = '';
             break;
         case '7': // Boost Pressure
             rangeMinInput.value = 0;
-            rangeMaxInput.value = 3;
-            alarmLowInput.value = 0.2;
-            alarmHighInput.value = 2.5;
+            rangeMaxInput.value = ConvertDefaultToUserUnit('pressure',2);
+            alarmLowInput.value = '';
+            alarmHighInput.value = '';
             break;
         case '8': // Trim
-            rangeMinInput.value = -100;
+            rangeMinInput.value = 0;
             rangeMaxInput.value = 100;
-            alarmLowInput.value = -80;
-            alarmHighInput.value = 80;
+            alarmLowInput.value = '';
+            alarmHighInput.value = '';
             break;
         case '9': // Rudder
             rangeMinInput.value = -45;
             rangeMaxInput.value = 45;
-            alarmLowInput.value = -40;
-            alarmHighInput.value = 40;
+            alarmLowInput.value = '';
+            alarmHighInput.value = '';
             break;
         case '10': // Fuel Rate
             rangeMinInput.value = 0;
-            rangeMaxInput.value = 100;
-            alarmLowInput.value = 5;
-            alarmHighInput.value = 80;
+            rangeMaxInput.value = ConvertDefaultToUserUnit('flow',100);
+            alarmLowInput.value = '';
+            alarmHighInput.value = '';
             break;
         case '11': // Engine Hours
             rangeMinInput.value = 0;
-            rangeMaxInput.value = 10000;
+            rangeMaxInput.value = 100000;
             alarmLowInput.value = '';
-            alarmHighInput.value = 8000;
+            alarmHighInput.value = '';
             break;
         case '12': // Fuel Pressure
             rangeMinInput.value = 0;
-            rangeMaxInput.value = 10;
-            alarmLowInput.value = 1;
-            alarmHighInput.value = 8;
+            rangeMaxInput.value = ConvertDefaultToUserUnit('pressure',5);
+            alarmLowInput.value = '';
+            alarmHighInput.value = '';
             break;
         case '15': // Engine Load
             rangeMinInput.value = 0;
             rangeMaxInput.value = 100;
-            alarmLowInput.value = 10;
-            alarmHighInput.value = 90;
+            alarmLowInput.value = '';
+            alarmHighInput.value = '';
             break;
         case '16': // Engine Torque
             rangeMinInput.value = 0;
             rangeMaxInput.value = 100;
-            alarmLowInput.value = 10;
-            alarmHighInput.value = 90;
+            alarmLowInput.value = '';
+            alarmHighInput.value = '';
             break;
         case '17': // Battery Potential
-            rangeMinInput.value = 0;
-            rangeMaxInput.value = 15;
-            alarmLowInput.value = 10.5;
-            alarmHighInput.value = 14.5;
+            rangeMinInput.value = 8;
+            rangeMaxInput.value = 18;
+            alarmLowInput.value = 11.5;
+            alarmHighInput.value = 15.5;
             break;
         case '18': // Alternator Potential
-            rangeMinInput.value = 0;
-            rangeMaxInput.value = 16;
+            rangeMinInput.value = 8;
+            rangeMaxInput.value = 34;
             alarmLowInput.value = 12;
-            alarmHighInput.value = 15;
+            alarmHighInput.value = 32;
             break;
         case '19': // Current
             rangeMinInput.value = -200;
@@ -1014,10 +1115,10 @@ function setDefaultNumbers(selectedOption, parent) {
             alarmHighInput.value = 150;
             break;
         case '20': // Battery Temperature
-            rangeMinInput.value = -20;
-            rangeMaxInput.value = 60;
-            alarmLowInput.value = 0;
-            alarmHighInput.value = 50;
+            rangeMinInput.value = ConvertDefaultToUserUnit('temperature',-20);
+            rangeMaxInput.value = ConvertDefaultToUserUnit('temperature',80);
+            alarmLowInput.value = ConvertDefaultToUserUnit('temperature',0);
+            alarmHighInput.value = ConvertDefaultToUserUnit('temperature',50);
             break;
         case '21': // State of Charge
             rangeMinInput.value = 0;
@@ -1033,32 +1134,32 @@ function setDefaultNumbers(selectedOption, parent) {
             break;
         case '23': // Battery Autonomy
             rangeMinInput.value = 0;
-            rangeMaxInput.value = 24;
-            alarmLowInput.value = 2;
+            rangeMaxInput.value = 250;
+            alarmLowInput.value = '';
             alarmHighInput.value = '';
             break;
         case '24': // Fuel Level
             rangeMinInput.value = 0;
             rangeMaxInput.value = 100;
-            alarmLowInput.value = 10;
+            alarmLowInput.value = 15;
             alarmHighInput.value = '';
             break;
         case '25': // Fresh Water Level
             rangeMinInput.value = 0;
             rangeMaxInput.value = 100;
-            alarmLowInput.value = 10;
+            alarmLowInput.value = 15;
             alarmHighInput.value = '';
             break;
         case '26': // Waste Level
             rangeMinInput.value = 0;
             rangeMaxInput.value = 100;
             alarmLowInput.value = '';
-            alarmHighInput.value = 90;
+            alarmHighInput.value = 85;
             break;
         case '27': // Live Well Level
             rangeMinInput.value = 0;
             rangeMaxInput.value = 100;
-            alarmLowInput.value = 10;
+            alarmLowInput.value = 30;
             alarmHighInput.value = '';
             break;
         case '28': // Oil Level
@@ -1074,34 +1175,34 @@ function setDefaultNumbers(selectedOption, parent) {
             alarmHighInput.value = 90;
             break;
         case '36': // Sea Temperature
-            rangeMinInput.value = -5;
-            rangeMaxInput.value = 40;
-            alarmLowInput.value = 0;
-            alarmHighInput.value = 35;
+            rangeMinInput.value = ConvertDefaultToUserUnit('temperature',-5);
+            rangeMaxInput.value = ConvertDefaultToUserUnit('temperature',40);
+            alarmLowInput.value = '';
+            alarmHighInput.value = '';
             break;
         case '37': // Outside Temperature
-            rangeMinInput.value = -40;
-            rangeMaxInput.value = 60;
-            alarmLowInput.value = -20;
-            alarmHighInput.value = 50;
+            rangeMinInput.value = ConvertDefaultToUserUnit('temperature',-40);
+            rangeMaxInput.value = ConvertDefaultToUserUnit('temperature',60);
+            alarmLowInput.value = '';
+            alarmHighInput.value = '';
             break;
         case '38': // Exhaust Gas Temperature
-            rangeMinInput.value = 0;
-            rangeMaxInput.value = 800;
-            alarmLowInput.value = 200;
-            alarmHighInput.value = 650;
+            rangeMinInput.value = ConvertDefaultToUserUnit('temperature',0);
+            rangeMaxInput.value = ConvertDefaultToUserUnit('temperature',1000);
+            alarmLowInput.value = '';
+            alarmHighInput.value = ConvertDefaultToUserUnit('temperature',650);
             break;
         case '39': // GPS Speed
             rangeMinInput.value = 0;
-            rangeMaxInput.value = 50;
+            rangeMaxInput.value = ConvertDefaultToUserUnit('speed',120);
             alarmLowInput.value = '';
-            alarmHighInput.value = 40;
+            alarmHighInput.value = ConvertDefaultToUserUnit('speed',80);
             break;
         case '40': // Speed to Water
             rangeMinInput.value = 0;
-            rangeMaxInput.value = 50;
+            rangeMaxInput.value = ConvertDefaultToUserUnit('speed',120);
             alarmLowInput.value = '';
-            alarmHighInput.value = 40;
+            alarmHighInput.value = ConvertDefaultToUserUnit('speed',80);
             break;
         default:
             // Clear all values for unknown parameters
@@ -1110,6 +1211,60 @@ function setDefaultNumbers(selectedOption, parent) {
             alarmLowInput.value = '';
             alarmHighInput.value = '';
     }
-    
 }
+
+function ConvertDefaultToUserUnit(uType, value) {
+    let nVal = value;
+    
+    switch (uType) {
+        case 'temperature':
+            const tempSelect = document.getElementById('sel-unitTemperature');
+            switch(tempSelect.value) {
+                case 'Fahrenheit': nVal=value*9/5+32; break;
+            }
+            break;
+        case 'pressure':
+            const pressSelect = document.getElementById('sel-unitPressure');
+            switch(pressSelect.value) {
+                case 'psi': nVal=value*14.504; break;
+            }
+            break;
+        case 'volume':
+            const volSelect = document.getElementById('sel-unitVolume');
+            switch(volSelect.value) {
+                case 'Gallon': nVal = value*0.2642; break;
+            }
+            break;
+        case 'length':
+            const lenSelect = document.getElementById('sel-unitLength');
+            switch(lenSelect.value) {
+                case 'Imperial': nVal = value*3.281; break;
+            }
+            break;
+        case 'flow':
+            const vSelect = document.getElementById('sel-unitVolume');
+            switch(vSelect.value) {
+                case 'Gallon': nVal = value*0.2642; break;
+            }
+            break;
+        case 'speed':
+            const velSelect = document.getElementById('sel-unitSpeed');
+            switch(velSelect.value) {
+                case 'Imperial': nVal = value * 0.6214; break;
+                case 'Nautic': nVal = value * 0.5400; break;
+            }
+            break;
+    }
+    return nVal;
+}
+
+
+
+
+
+
+
+
+
+
 
