@@ -134,8 +134,10 @@ class data_point:
 
 class vessel_data_manager:
 	def __init__(self):
-		self._data = {}
-		self.web_data_interface = self._load_website_interface_description()
+		#Data is to be stored excusively in standard user measurement units
+		#(meter, °C, bar, km/h, km)
+		self._data = {}		
+		self.web_data_interface, self._unit_convertions = self._load_website_interface_description()
  
  
 	def store_data_point(self, parameter: parameter_type, instance: int, value: float, source_type: source_types, address: int, timestamp: datetime = None):
@@ -203,22 +205,24 @@ class vessel_data_manager:
 	def get_updated_web_values(self, page):
 		#page: as displayed on website (starting from 1)		
 		data_array = []
+		type_array = []	#memorize types in order to apply rounding precision after covertion to other units
 		if (page > len(self.web_data_interface)):
 			print ("Error: requested data for undefined page")
 			return [float('nan')];
 		
+		# fetch data from database (unrounded, all in standard measurement units)
 		page_index = page-1
 		for data_point in self.web_data_interface[page_index]:
 			parameter = data_point[0]
 			instance = data_point[1]
+			type_array.append(parameter)
 			if (parameter in self._data):
 				if (instance in self._data[parameter]):
 					#Value exists in storage:
 					age = datetime.now() - self._data[parameter][instance].time_stamp
 					if age.total_seconds() <= DEFAULT_TIMEOUT:
 						# Data is available
-						rounded = round(self._data[parameter][instance].value, DEFAULT_PRECISION[parameter.value])
-						data_array.append(rounded)
+						data_array.append(self._data[parameter][instance].value)
 					else:
 						# Data is timed out
 						data_array.append(float('nan'))
@@ -228,12 +232,41 @@ class vessel_data_manager:
 			else:
 				# parameter is not available in storage
 				data_array.append(float('nan'))
+				
+
+		# add convertions for "non-standard" measurement units
+		page_convertions = self._unit_convertions[page_index]
+		index = 0
+		for conv_desc in page_convertions:
+			if conv_desc != 'none':
+				val = data_array[index]
+				match conv_desc:
+					case 'ft':
+						val *= 3.281
+					case 'psi':
+						val *= 14.504
+					case 'F':
+						val = val*9/5+32
+					case 'gal':
+						val *= 0.2642
+					case 'mph':
+						val *= 0.6214
+			
+				data_array[index] = val
+			index += 1
+		
+		# round the values
+		index = 0
+		for value in data_array:
+			data_array[index] = round(data_array[index], DEFAULT_PRECISION[type_array[index].value])
+			index += 1
+			
 		return data_array
  
  
 	def update_website_interface_description(self, path=None):
 		# Allwos for external trigering of updating interface
-		self.web_data_interface = self._load_website_interface_description(path)
+		self.web_data_interface, self._unit_convertions = self._load_website_interface_description(path)
  
  
 	def _load_website_interface_description(self, path=None):
@@ -254,20 +287,91 @@ class vessel_data_manager:
 			with open(path, 'r', encoding='utf-8') as f:
 				page_config = json.load(f)
 
+		unit_selection = page_config['unitSelection']
+
+
 		interface_description = []
+		convertions = []
+		
 		for page in page_config.get("layouts", []):
 			page_description = []
+			page_convertions = []
 			for section in page.get("sections", []):
 				for field in section.get("dataFields", []):
+					# determine parameters
 					instance = field.get("instance")
 					data_type = parameter_type(field.get("dataType"))
 					page_description.append([data_type, instance])
-			interface_description.append(page_description);
+					# determine conversions
+					convertion_description = self._get_conv_desc(data_type, unit_selection)
+					page_convertions.append(convertion_description)
+					
+			interface_description.append(page_description)
+			convertions.append(page_convertions)
 					
 		print("This desribes the new/current website-interface")
-		print(interface_description) 		
-		return interface_description
+		print(interface_description) 	
+		print("This desribes the convertions:")
+		print(convertions) 		
+		return (interface_description, convertions)
 		
+	
+	def _get_conv_desc(self, data_type, units):
+		"""print(f"data type: {data_type}")
+		print(f"Type: {type(data_type)}")"""
+		conv = "none"
+		
+		match data_type:
+			case parameter_type.ENG_OIL_TEMP:
+				if units.get('temperature') == "F":
+					conv = "F";
+			case parameter_type.ENG_OIL_PRESS:
+				if units.get('pressure') == "psi":
+					conv = "psi";
+			case parameter_type.COOLANT_TEMP:
+				if units.get('temperature') == "F":
+					conv = "F";
+			case parameter_type.COOLANT_PRESS:
+				if units.get('pressure') == "psi":
+					conv = "psi";
+			case parameter_type.GEAR_OIL_TEMP:
+				if units.get('temperature') == "F":
+					conv = "F";
+			case parameter_type.GEAR_OIL_PRESS:
+				if units.get('pressure') == "psi":
+					conv = "psi";
+			case parameter_type.BOOST_PRESS:
+				if units.get('pressure') == "psi":
+					conv = "psi";
+			case parameter_type.FUEL_RATE:
+				if units.get('volume') == "gal":
+					conv = "gal";
+			case parameter_type.FUEL_PRESS:
+				if units.get('pressure') == "psi":
+					conv = "psi";
+			case parameter_type.BATTERY_TEMP:
+				if units.get('temperature') == "F":
+					conv = "F";
+			case parameter_type.SEA_TEMP:
+				if units.get('temperature') == "F":
+					conv = "F";
+			case parameter_type.OUTSIDE_TEMP:
+				if units.get('temperature') == "F":
+					conv = "F";
+			case parameter_type.EXHAUST_GAS_TEMP:
+				if units.get('temperature') == "F":
+					conv = "F";
+			case parameter_type.SOG:
+				if units.get('speed') == "mph":
+					conv = "mph";
+			case parameter_type.STW:
+				if units.get('speed') == "mph":
+					conv = "mph";
+			case _:
+				print(f"No conversion added for: {data_type}")
+				
+		return conv
+				
   
 	def create_fake_data_for_testing(self):
 		# probably deprecated and non-functional after implementing multi-page layout functionality
