@@ -1,7 +1,7 @@
 // Globals 
 let currentPage = 1;
 let totalPages = 1;
-const ENGINEDATA_UPDATE_INTERVAL = 500; //ms
+const ENGINEDATA_UPDATE_INTERVAL = 700; //ms
 
 //----------------------------------------------------------------------
 //  Function for keeping page updated

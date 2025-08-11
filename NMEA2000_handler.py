@@ -29,6 +29,8 @@ class n2k_handler:
 				msg_complete, combined_msg = self._mf_handler.add_frame(src_adr, pgn, msg_data)
 				if msg_complete:
 					self._parse_0x1f201(src_adr, pgn, combined_msg)					
+			case 0x1f205:  # Gear parameters
+				self._parse_0x1f205(src_adr, pgn, msg_data)					
 			case 0x1f211:	# Fluid Level
 				self._parse_0x1f211(src_adr, pgn, msg_data)	
 			case 0x1f212:	# DC Detailed status
@@ -244,6 +246,32 @@ class n2k_handler:
 				parameter=parameter_type.ENG_TORQUE,
 				instance = instance,
 				value = torque,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+	
+	def _parse_0x1f205(self, src, pgn, data):
+		instance = data[0]		
+		
+		if (self._is_not_NA([data[2], data[3]])):
+			press = data[2] + data[3]*256
+			press /= 1000
+			self.data_storage.store_data_point(
+				parameter=parameter_type.GEAR_OIL_PRESS,
+				instance = instance,
+				value = press,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+			
+		if (self._is_not_NA([data[4], data[5]])):
+			temp = data[4] + data[5]*256
+			temp /= 10
+			temp -= KELVIN_OFFSET
+			self.data_storage.store_data_point(
+				parameter=parameter_type.GEAR_OIL_TEMP,
+				instance = instance,
+				value = temp,
 				source_type = source_types.NMEA2000,
 				address = src,
 				timestamp = None)
