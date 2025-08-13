@@ -47,6 +47,10 @@ class n2k_handler:
 				self._parse_0x1f503(src_adr, pgn, msg_data)
 			case 0x1f802:	#SOG & COG
 				self._parse_0x1f802(src_adr, pgn, msg_data)
+			case 0x1fD02:	# Wind
+				self._parse_0x1fD02(src_adr, pgn, msg_data)
+			case 0x1f50B:	# Wind
+				self._parse_0x1f50B(src_adr, pgn, msg_data)
 		
 
 	def _parse_0x1f200(self, src, pgn, data):
@@ -500,7 +504,46 @@ class n2k_handler:
 				value = sog,
 				source_type = source_types.NMEA2000,
 				address = src,
-				timestamp = None)	
+				timestamp = None)
+				
+	def _parse_0x1fD02(self, src, pgn, data):
+		dir_type = parameter_type.TRUE_WIND_DIRECTION
+		speed_type = parameter_type.TRUE_WIND_SPEED
+		if ((data[5] & 0x07) == 0x02):
+			dir_type = parameter_type.APPARENT_WIND_DIRECTION
+			speed_type = parameter_type.APPARENT_WIND_SPEED
+		
+		if (self._is_not_NA([data[1], data[2]])):
+			speed = data[1] + data[2]*256
+			speed = speed *3.6/100
+			
+			self.data_storage.store_data_point(
+				parameter = speed_type,
+				instance = 0,
+				value = speed,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+			
+		if (self._is_not_NA([data[3], data[4]])):
+			direction = data[3] + data[4]*256
+			direction = direction * 180 / (10000*np.pi)
+			
+			self.data_storage.store_data_point(
+				parameter = dir_type,
+				instance = 0,
+				value = direction,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)
+		
+		if(dir_type == parameter_type.TRUE_WIND_DIRECTION):
+			print(f"TRUE WIND: speed {speed}, dir:{direction}")
+		#else:
+			#print(f"APPARENT WIND: speed {speed}, dir:{direction}")
+		
+			
+				
 				
 	def _parse_0x1f503(self, src, pgn, data):
 		if (self._is_not_NA([data[1], data[2]])):
@@ -511,6 +554,28 @@ class n2k_handler:
 				parameter=parameter_type.STW,
 				instance = 0,
 				value = stw,
+				source_type = source_types.NMEA2000,
+				address = src,
+				timestamp = None)	
+	
+	
+	def _parse_0x1f50B(self, src, pgn, data):
+		if (self._is_not_NA([data[1], data[2],data[3], data[4]])):
+			depth = data[1] + data[2]*256 + data[3]*2**16 + data[4]*2**24
+			depth = depth /100
+		
+			# add offset, if available
+			if (self._is_not_NA([data[5], data[6]])):
+				offset = data[5] + data[6]*256
+				if (offset >= 2**15):
+					offset = offset -2**16
+				offset = offset /1000
+				depth = depth + offset
+			
+			self.data_storage.store_data_point(
+				parameter=parameter_type.DEPTH,
+				instance = 0,
+				value = depth,
 				source_type = source_types.NMEA2000,
 				address = src,
 				timestamp = None)	

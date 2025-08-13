@@ -1204,6 +1204,36 @@ function setDefaultNumbers(selectedOption, parent) {
             alarmLowInput.value = '';
             alarmHighInput.value = ConvertDefaultToUserUnit('speed',80);
             break;
+        case '41': // wind speed app.
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = ConvertDefaultToUserUnit('speed',100);
+            alarmLowInput.value = '';
+            alarmHighInput.value = ConvertDefaultToUserUnit('speed',40);
+            break;
+        case '42': //wind dir app
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 360;
+            alarmLowInput.value = '';
+            alarmHighInput.value = '';
+            break;
+        case '43': // wind speed tr.
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = ConvertDefaultToUserUnit('speed',100);
+            alarmLowInput.value = '';
+            alarmHighInput.value = ConvertDefaultToUserUnit('speed',40);
+            break;
+        case '44': //wind dir tr
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 360;
+            alarmLowInput.value = '';
+            alarmHighInput.value = '';
+            break;
+        case '45': //depth
+            rangeMinInput.value = 0;
+            rangeMaxInput.value = 200;
+            alarmLowInput.value = 3;
+            alarmHighInput.value = '';
+            break;
         default:
             // Clear all values for unknown parameters
             rangeMinInput.value = '';

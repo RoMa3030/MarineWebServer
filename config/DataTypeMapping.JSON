@@ -204,6 +204,31 @@
         "label": "Speed to Water",
         "unit": "none",
         "unitType": "speed"
+      },
+      "41": {
+        "label": "Wind Speed -App.",
+        "unit": "none",
+        "unitType": "speed"
+      },
+      "42": {
+        "label": "Wind Direction -App",
+        "unit": "deg",
+        "unitType": "none"
+      },
+      "43": {
+        "label": "Wind Speed -Tr",
+        "unit": "none",
+        "unitType": "speed"
+      },
+      "44": {
+        "label": "Wind Direction -Tr",
+        "unit": "deg",
+        "unitType": "none"
+      },
+      "45": {
+        "label": "Depth",
+        "unit": "none",
+        "unitType": "length"
       }
     }
   }

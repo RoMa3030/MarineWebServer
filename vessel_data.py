@@ -8,7 +8,7 @@ import json
 class parameter_type(Enum):
     # !!!	Do not change order of parameters	!!!
     # (Webserver is refering to same order)
-    # When doing any changes never the less, also change in Config/DataTypeMapping.JSON
+    # When doing any changes never the less, also change in Config/DataTypeMapping.JSON / default precisions / config-page default values
     
 	# Engine
 	ENG_SPEED = 0
@@ -60,6 +60,12 @@ class parameter_type(Enum):
 	# Vessel
 	SOG = 39
 	STW = 40
+	APPARENT_WIND_SPEED = 41
+	APPARENT_WIND_DIRECTION = 42
+	TRUE_WIND_SPEED = 43
+	TRUE_WIND_DIRECTION = 44
+	DEPTH = 45
+	
 
 """ DEFAULT_PRECISION:
 		Defines globally what precisions should be applied to each datatype in number of decimals
@@ -108,8 +114,13 @@ DEFAULT_PRECISION = [
 	1,# SEA_TEMP = 36
 	0,# OUTSIDE_TEMP = 37
 	0,# EXHAUST_GAS_TEMP = 38
-	0,# SOG = 38
-	0# STW = 38
+	0,# SOG = 39
+	0,# STW = 40
+	0,# apparent wind speed
+	0,# apparent wind direction
+	0,# true wind speed
+	0,# true wind direction
+	1 # depth
 ]
 
 DEFAULT_TIMEOUT = 5.0		#[s] timeout for data values
