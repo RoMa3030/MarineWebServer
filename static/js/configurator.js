@@ -830,87 +830,6 @@ function checkAdcUserInputs() {
 }
 
 
-async function saveAdcCofiguration() {
-    // Check user inputs
-    const {isValid, message} = checkAdcUserInputs();
-    if(!isValid)
-    {
-        alert(message);
-        return;
-    }
-
-    // Parse config from user form
-    const config = parseAdcConfigurationForm();
-
-    // Post Config to server
-    try {
-        const response = await fetch('/api/save-adc-config', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(config)
-        });
-        
-        if (response.ok) {
-            const result = await response.json();
-            console.log('Successfully saved to server:', result);
-        } else {
-            console.error('Failed to save to server:', response.statusText);
-        }
-    } catch (error) {
-        console.error('Error saving configuration to server:', error);
-    }
-}
-
-async function savePageConfiguration() {
-    // Check user inputs
-    /*const {isValid, message} = checkPageUserInputs();
-    if(!isValid)
-    {
-        alert(message);
-        return;
-    }*/
-
-    try {
-        // Get current configuration (possibly loaded earlier)
-        let currentConfig = null;
-        try {
-            const response = await fetch('/api/LayoutConfiguration');
-            if (response.ok) {
-                currentConfig = await response.json();
-            }
-        } catch (error) {
-            console.warn('Could not load existing configuration, creating new one');
-        }
-        
-        // Parse form and update configuration
-        const config = await parsePageConfigurationForm(currentConfig);
-        
-        // send to server
-        try {
-            const response = await fetch('/api/save-page-config', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(config)
-            });
-            
-            if (response.ok) {
-                const result = await response.json();
-                console.log('Successfully saved to server:', result);
-            } else {
-                console.error('Failed to save to server:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error saving configuration to server:', error);
-        }
-        return config;
-    } catch (error) {
-        console.error('Error in save process:', error);
-        return null;
-    }
-}
-
-
-
 function changeUnitHint(selectedOpt, parent) {
     const lvl1 = parent.dataset.level1_index;
     const lvl2 = parent.dataset.level2_index;
@@ -1288,7 +1207,107 @@ function ConvertDefaultToUserUnit(uType, value) {
     return nVal;
 }
 
+async function savePageConfiguration() {
+    // Check user inputs
+    /*const {isValid, message} = checkPageUserInputs();
+    if(!isValid)
+    {
+        alert(message);
+        return;
+    }*/
 
+    try {
+        // Get current configuration (possibly loaded earlier)
+        let currentConfig = null;
+        try {
+            const response = await fetch('/api/LayoutConfiguration');
+            if (response.ok) {
+                currentConfig = await response.json();
+            }
+        } catch (error) {
+            console.warn('Could not load existing configuration, creating new one');
+        }
+        
+        // Parse form and update configuration
+        const config = await parsePageConfigurationForm(currentConfig);
+        
+        // send to server
+        try {
+            const response = await fetch('/api/save-page-config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Successfully saved to server:', result);
+                setSuccessMsg_Layout(true);
+                setTimeout(() => setSuccessMsg_Layout(false),3000);
+            } else {
+                console.error('Failed to save to server:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error saving configuration to server:', error);
+        }
+        return config;
+    } catch (error) {
+        console.error('Error in save process:', error);
+        return null;
+    }
+}
+
+
+async function saveAdcCofiguration() {
+    // Check user inputs
+    const {isValid, message} = checkAdcUserInputs();
+    if(!isValid)
+    {
+        alert(message);
+        return;
+    }
+
+    // Parse config from user form
+    const config = parseAdcConfigurationForm();
+
+    // Post Config to server
+    try {
+        const response = await fetch('/api/save-adc-config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Successfully saved to server:', result);
+            setSuccessMsg_Adc(true);
+            setTimeout(() => setSuccessMsg_Adc(false),3000);
+        } else {
+            console.error('Failed to save to server:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error saving configuration to server:', error);
+    }
+}
+
+
+function setSuccessMsg_Layout(state) {
+    const label = document.getElementById("layout-post-result");
+    if(state) {
+        label.textContent = "Layout stored successfully";
+    }else{
+        label.textContent ="";
+    }
+}
+function setSuccessMsg_Adc(state) {
+    const label = document.getElementById("adc-post-result");
+    if(state) {
+        label.textContent = "ADC-config stored successfully";
+    }else{
+        label.textContent ="";
+    }
+}
 
 
 
